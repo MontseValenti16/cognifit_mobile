@@ -32,20 +32,40 @@ class ExerciseProgressBar extends StatelessWidget {
 class ResponseTextField extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSubmit;
-  const ResponseTextField({super.key, required this.controller, required this.onSubmit});
+  final bool showMic;
+  final bool isListening;
+  final VoidCallback? onMicTap;
+  final bool enabled;
+  const ResponseTextField({
+    super.key,
+    required this.controller,
+    required this.onSubmit,
+    this.showMic = false,
+    this.isListening = false,
+    this.onMicTap,
+    this.enabled = true,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(children: [
       TextField(
         controller: controller,
+        enabled: enabled,
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.headlineMedium,
         decoration: InputDecoration(
-          hintText: 'Escribe la respuesta...',
+          hintText: isListening ? 'Escuchando...' : 'Escribe la respuesta...',
           filled: true, fillColor: Colors.white,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppTheme.outline)),
           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppTheme.primary, width: 2)),
+          suffixIcon: showMic
+              ? IconButton(
+                  icon: Icon(isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                      color: isListening ? AppTheme.riskRed : AppTheme.primary),
+                  onPressed: enabled ? onMicTap : null,
+                )
+              : null,
         ),
         onSubmitted: (_) => onSubmit(),
       ),
@@ -58,7 +78,16 @@ class StimulusCard extends StatelessWidget {
   final String stimulusText;
   final String itemKind;
   final bool isPractice;
-  const StimulusCard({super.key, required this.stimulusText, required this.itemKind, this.isPractice = false});
+  final bool showSpeaker;
+  final VoidCallback? onSpeak;
+  const StimulusCard({
+    super.key,
+    required this.stimulusText,
+    required this.itemKind,
+    this.isPractice = false,
+    this.showSpeaker = false,
+    this.onSpeak,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +105,39 @@ class StimulusCard extends StatelessWidget {
           ),
         Text(stimulusText, textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w700, fontFamily: 'serif')),
+        if (showSpeaker) ...[
+          const SizedBox(height: 12),
+          IconButton(
+            icon: const Icon(Icons.volume_up_rounded, color: AppTheme.primary, size: 28),
+            onPressed: onSpeak,
+            tooltip: 'Escuchar',
+          ),
+        ],
+      ]),
+    );
+  }
+}
+
+/// Retroalimentación inmediata tras responder (HU-FL-12): se muestra
+/// brevemente antes de avanzar al siguiente ítem cuando el ítem tiene
+/// una respuesta esperada conocida.
+class AnswerFeedbackBanner extends StatelessWidget {
+  final bool isCorrect;
+  const AnswerFeedbackBanner({super.key, required this.isCorrect});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isCorrect ? AppTheme.activeGreen : AppTheme.pendingOrange;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(16), border: Border.all(color: color.withOpacity(0.3))),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Icon(isCorrect ? Icons.check_circle_rounded : Icons.refresh_rounded, color: color),
+        const SizedBox(width: 10),
+        Text(isCorrect ? '¡Muy bien!' : 'Sigamos practicando',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: color, fontWeight: FontWeight.w700)),
       ]),
     );
   }
