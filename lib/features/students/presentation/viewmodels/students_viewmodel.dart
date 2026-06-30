@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 import '../../../../core/errors/api_exception.dart';
+import '../../../groups/domain/entities/group_entity.dart';
+import '../../../groups/domain/usecases/get_groups_usecase.dart';
+import '../../../groups/domain/usecases/create_group_usecase.dart';
 import '../../domain/entities/student_entity.dart';
 import '../../domain/usecases/get_students_usecase.dart';
 import '../../domain/usecases/get_student_by_id_usecase.dart';
@@ -15,6 +18,8 @@ class StudentsViewModel extends ChangeNotifier {
   final CreateStudentUseCase _createStudent;
   final UpdateStudentUseCase _updateStudent;
   final DeleteStudentUseCase _deleteStudent;
+  final GetGroupsUseCase _getGroups;
+  final CreateGroupUseCase _createGroup;
 
   StudentsViewModel({
     required GetStudentsUseCase getStudents,
@@ -22,14 +27,19 @@ class StudentsViewModel extends ChangeNotifier {
     required CreateStudentUseCase createStudent,
     required UpdateStudentUseCase updateStudent,
     required DeleteStudentUseCase deleteStudent,
-  })  : _getStudents = getStudents,
-        _getStudentById = getStudentById,
-        _createStudent = createStudent,
-        _updateStudent = updateStudent,
-        _deleteStudent = deleteStudent;
+    required GetGroupsUseCase getGroups,
+    required CreateGroupUseCase createGroup,
+  }) : _getStudents = getStudents,
+       _getStudentById = getStudentById,
+       _createStudent = createStudent,
+       _updateStudent = updateStudent,
+       _deleteStudent = deleteStudent,
+       _getGroups = getGroups,
+       _createGroup = createGroup;
 
   StudentsStatus _status = StudentsStatus.idle;
   List<StudentEntity> _students = [];
+  List<GroupEntity> _groups = [];
   String? _error;
   String _query = '';
 
@@ -38,42 +48,87 @@ class StudentsViewModel extends ChangeNotifier {
   bool get isLoading => _status == StudentsStatus.loading;
   bool get isMutating => _status == StudentsStatus.mutating;
 
+  List<GroupEntity> get groups => _groups;
+  bool get hasGroups => _groups.isNotEmpty;
+
   List<StudentEntity> get students {
     if (_query.isEmpty) return _students;
     final q = _query.toLowerCase();
-    return _students.where((s) => s.fullName.toLowerCase().contains(q)).toList();
+    return _students
+        .where((s) => s.fullName.toLowerCase().contains(q))
+        .toList();
   }
 
   int get totalCount => _students.length;
   int get activeCount => _students.where((s) => s.isActive).length;
+
+  /// Default group preselected in the create form (first group, if any).
+  GroupEntity? get defaultGroup => _groups.isNotEmpty ? _groups.first : null;
 
   Future<void> loadStudents() async {
     _status = StudentsStatus.loading;
     _error = null;
     notifyListeners();
     try {
-      _students = await _getStudents();
+      // Load groups + students together; the create form needs the group list.
+      final results = await Future.wait([_getGroups(), _getStudents()]);
+      _groups = results[0] as List<GroupEntity>;
+      _students = results[1] as List<StudentEntity>;
       _status = StudentsStatus.loaded;
     } on ApiException catch (e) {
-      _error = e.userMessage; _status = StudentsStatus.error;
+      _error = e.userMessage;
+      _status = StudentsStatus.error;
     } catch (_) {
-      _error = 'No se pudo cargar la lista de alumnos.'; _status = StudentsStatus.error;
+      _error = 'No se pudo cargar la lista de alumnos.';
+      _status = StudentsStatus.error;
     }
     notifyListeners();
   }
 
-  void search(String query) { _query = query; notifyListeners(); }
+  /// Creates a group and prepends it to the local list so the create-student
+  /// form can immediately select it. Returns the new group or null on error.
+  Future<GroupEntity?> createGroup(CreateGroupParams params) async {
+    _status = StudentsStatus.mutating;
+    _error = null;
+    notifyListeners();
+    try {
+      final created = await _createGroup(params);
+      _groups = [created, ..._groups];
+      _status = StudentsStatus.loaded;
+      notifyListeners();
+      return created;
+    } on ApiException catch (e) {
+      _error = e.userMessage;
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return null;
+    } catch (_) {
+      _error = 'No se pudo crear el grupo.';
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  void search(String query) {
+    _query = query;
+    notifyListeners();
+  }
 
   Future<StudentEntity?> getDetail(String id) async {
     try {
       return await _getStudentById(id);
     } on ApiException catch (e) {
-      _error = e.userMessage; notifyListeners(); return null;
+      _error = e.userMessage;
+      notifyListeners();
+      return null;
     }
   }
 
   Future<bool> create(CreateStudentParams params) async {
-    _status = StudentsStatus.mutating; _error = null; notifyListeners();
+    _status = StudentsStatus.mutating;
+    _error = null;
+    notifyListeners();
     try {
       final created = await _createStudent(params);
       _students = [..._students, created];
@@ -81,29 +136,47 @@ class StudentsViewModel extends ChangeNotifier {
       notifyListeners();
       return true;
     } on ApiException catch (e) {
-      _error = e.userMessage; _status = StudentsStatus.error; notifyListeners(); return false;
+      _error = e.userMessage;
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return false;
     } catch (_) {
-      _error = 'No se pudo crear el alumno.'; _status = StudentsStatus.error; notifyListeners(); return false;
+      _error = 'No se pudo crear el alumno.';
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return false;
     }
   }
 
   Future<bool> update(UpdateStudentParams params) async {
-    _status = StudentsStatus.mutating; _error = null; notifyListeners();
+    _status = StudentsStatus.mutating;
+    _error = null;
+    notifyListeners();
     try {
       final updated = await _updateStudent(params);
-      _students = _students.map((s) => s.id == updated.id ? updated : s).toList();
+      _students = _students
+          .map((s) => s.id == updated.id ? updated : s)
+          .toList();
       _status = StudentsStatus.loaded;
       notifyListeners();
       return true;
     } on ApiException catch (e) {
-      _error = e.userMessage; _status = StudentsStatus.error; notifyListeners(); return false;
+      _error = e.userMessage;
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return false;
     } catch (_) {
-      _error = 'No se pudo actualizar el alumno.'; _status = StudentsStatus.error; notifyListeners(); return false;
+      _error = 'No se pudo actualizar el alumno.';
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return false;
     }
   }
 
   Future<bool> delete(String id) async {
-    _status = StudentsStatus.mutating; _error = null; notifyListeners();
+    _status = StudentsStatus.mutating;
+    _error = null;
+    notifyListeners();
     try {
       await _deleteStudent(id);
       _students = _students.where((s) => s.id != id).toList();
@@ -111,9 +184,15 @@ class StudentsViewModel extends ChangeNotifier {
       notifyListeners();
       return true;
     } on ApiException catch (e) {
-      _error = e.userMessage; _status = StudentsStatus.error; notifyListeners(); return false;
+      _error = e.userMessage;
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return false;
     } catch (_) {
-      _error = 'No se pudo eliminar el alumno.'; _status = StudentsStatus.error; notifyListeners(); return false;
+      _error = 'No se pudo eliminar el alumno.';
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return false;
     }
   }
 }

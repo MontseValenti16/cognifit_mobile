@@ -24,6 +24,12 @@ import '../../features/students/domain/usecases/update_student_usecase.dart';
 import '../../features/students/domain/usecases/delete_student_usecase.dart';
 import '../../features/students/presentation/viewmodels/students_viewmodel.dart';
 
+// GROUPS
+import '../../features/groups/data/datasources/group_remote_datasource.dart';
+import '../../features/groups/data/repositories/group_repository_impl.dart';
+import '../../features/groups/domain/usecases/get_groups_usecase.dart';
+import '../../features/groups/domain/usecases/create_group_usecase.dart';
+
 // SCREENING (tests feature)
 import '../../features/tests/data/datasources/screening_remote_datasource.dart';
 import '../../features/tests/data/repositories/screening_repository_impl.dart';
@@ -69,6 +75,7 @@ class ServiceLocator {
   // ── Repositories (built once, reused by every use case) ────────────────────
   late final AuthRepositoryImpl _authRepo = AuthRepositoryImpl(AuthRemoteDataSourceImpl(apiClient), tokenStorage);
   late final StudentRepositoryImpl _studentRepo = StudentRepositoryImpl(StudentRemoteDataSourceImpl(apiClient));
+  late final GroupRepositoryImpl _groupRepo = GroupRepositoryImpl(GroupRemoteDataSourceImpl(apiClient));
   late final ScreeningRepositoryImpl _screeningRepo = ScreeningRepositoryImpl(ScreeningRemoteDataSourceImpl(apiClient));
   late final TrackingRepositoryImpl _trackingRepo = TrackingRepositoryImpl(TrackingRemoteDataSourceImpl(apiClient));
 
@@ -96,6 +103,8 @@ class ServiceLocator {
     createStudent: CreateStudentUseCase(_studentRepo),
     updateStudent: UpdateStudentUseCase(_studentRepo),
     deleteStudent: DeleteStudentUseCase(_studentRepo),
+    getGroups: GetGroupsUseCase(_groupRepo),
+    createGroup: CreateGroupUseCase(_groupRepo),
   );
 
   TestsViewModel get testsViewModel => _tests ??= TestsViewModel(
