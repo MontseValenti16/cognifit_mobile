@@ -29,6 +29,7 @@ class ExerciseViewModel extends ChangeNotifier {
   DateTime? _itemStartedAt;
   String? _selectedAnswer;
   DiagnosisEntity? _diagnosis;
+  bool? _lastAnswerCorrect;
 
   ExerciseStatus get status => _status;
   String? get error => _error;
@@ -41,6 +42,8 @@ class ExerciseViewModel extends ChangeNotifier {
   double get progress => _items.isEmpty ? 0 : _currentIndex / _items.length;
   String? get selectedAnswer => _selectedAnswer;
   DiagnosisEntity? get diagnosis => _diagnosis;
+  /// Null si el ítem no tiene respuesta esperada conocida (sin feedback inmediato).
+  bool? get lastAnswerCorrect => _lastAnswerCorrect;
 
   Future<void> loadSession(String sessionId) async {
     _sessionId = sessionId;
@@ -75,11 +78,16 @@ class ExerciseViewModel extends ChangeNotifier {
       sttConfidence: sttConfidence,
     ));
     _selectedAnswer = rawResponse;
+    final expected = current!.expectedResponse?.trim();
+    _lastAnswerCorrect = (expected == null || expected.isEmpty)
+        ? null
+        : rawResponse.trim().toLowerCase() == expected.toLowerCase();
     notifyListeners();
   }
 
   void nextItem() {
     _selectedAnswer = null;
+    _lastAnswerCorrect = null;
     if (_currentIndex < _items.length - 1) {
       _currentIndex++;
       _itemStartedAt = DateTime.now();
@@ -107,7 +115,7 @@ class ExerciseViewModel extends ChangeNotifier {
 
   void reset() {
     _sessionId = null; _items = []; _currentIndex = 0; _collected.clear();
-    _selectedAnswer = null; _diagnosis = null; _status = ExerciseStatus.idle;
+    _selectedAnswer = null; _diagnosis = null; _lastAnswerCorrect = null; _status = ExerciseStatus.idle;
     notifyListeners();
   }
 }

@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/offline/sync_service.dart';
+import '../../../../core/services/stt_service.dart';
+import '../../../../core/services/tts_service.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/offline_banner.dart';
 import '../../../../core/utils/responsive.dart';
 import '../viewmodels/exercise_viewmodel.dart';
 import '../widgets/exercise_widgets.dart';
@@ -22,6 +26,9 @@ class ExerciseScreen extends StatefulWidget {
 class _ExerciseScreenState extends State<ExerciseScreen> {
   late final ExerciseViewModel _vm;
   final _controller = TextEditingController();
+  String _captureModality = 'teclado';
+  double? _sttConfidence;
+  bool _isListening = false;
 
   @override
   void initState() {
@@ -29,11 +36,33 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     _vm = ServiceLocator.instance.exerciseViewModel;
     _vm.addListener(_rebuild);
     _vm.loadSession(widget.sessionId);
+    SyncService.instance.syncPending(ServiceLocator.instance.apiClient);
   }
 
   @override
-  void dispose() { _vm.removeListener(_rebuild); _controller.dispose(); super.dispose(); }
+  void dispose() {
+    _vm.removeListener(_rebuild);
+    _controller.dispose();
+    TtsService.instance.stop();
+    SttService.instance.stop();
+    super.dispose();
+  }
   void _rebuild() { if (mounted) setState(() {}); }
+
+  bool _supportsMode(String mode) =>
+      _vm.current?.inputModes.any((m) => m.toUpperCase().contains(mode)) ?? false;
+
+  Future<void> _startListening() async {
+    setState(() => _isListening = true);
+    final result = await SttService.instance.listenOnce();
+    if (!mounted) return;
+    setState(() => _isListening = false);
+    if (result != null && result.text.trim().isNotEmpty) {
+      _controller.text = result.text.trim();
+      _captureModality = 'voz';
+      _sttConfidence = result.confidence;
+    }
+  }
 
   void _confirmClose() {
     showDialog(context: context, builder: (_) => AlertDialog(
@@ -51,11 +80,23 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   }
 
   void _submitCurrent() {
+    if (_vm.lastAnswerCorrect != null) return; // esperando avance tras feedback
     final text = _controller.text.trim();
     if (text.isEmpty) return;
-    _vm.answer(text, captureModality: 'teclado');
+    _vm.answer(text, captureModality: _captureModality, sttConfidence: _sttConfidence);
     _controller.clear();
-    _vm.nextItem();
+    _captureModality = 'teclado';
+    _sttConfidence = null;
+
+    if (_vm.lastAnswerCorrect != null) {
+      TtsService.instance.speak(_vm.lastAnswerCorrect! ? '¡Muy bien!' : 'Sigamos practicando');
+      Future.delayed(const Duration(milliseconds: 1300), () {
+        if (!mounted) return;
+        _vm.nextItem();
+      });
+    } else {
+      _vm.nextItem();
+    }
   }
 
   @override
@@ -124,26 +165,45 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       );
     }
 
+    final waitingFeedback = _vm.lastAnswerCorrect != null;
+    final showSpeaker = _supportsMode('TTS');
+    final showMic = _supportsMode('STT');
+
     return Scaffold(
       backgroundColor: AppTheme.surface,
       body: SafeArea(child: Column(children: [
+        const OfflineBanner(),
         ExerciseProgressBar(progress: _vm.progress, moduleTitle: widget.moduleTitle, onClose: _confirmClose),
         Expanded(child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: context.hPad),
           child: Column(children: [
             const SizedBox(height: 24),
-            StimulusCard(stimulusText: item.stimulusText, itemKind: item.itemKind, isPractice: item.isPractice),
+            StimulusCard(
+              stimulusText: item.stimulusText,
+              itemKind: item.itemKind,
+              isPractice: item.isPractice,
+              showSpeaker: showSpeaker,
+              onSpeak: () => TtsService.instance.speak(item.stimulusText),
+            ),
             const SizedBox(height: 24),
-            ResponseTextField(controller: _controller, onSubmit: _submitCurrent),
+            ResponseTextField(
+              controller: _controller,
+              onSubmit: _submitCurrent,
+              showMic: showMic,
+              isListening: _isListening,
+              onMicTap: _startListening,
+              enabled: !waitingFeedback,
+            ),
             const SizedBox(height: 8),
             Text('Modalidad: ${item.inputModes.join(", ")}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+            if (waitingFeedback) AnswerFeedbackBanner(isCorrect: _vm.lastAnswerCorrect!),
           ]),
         )),
         Padding(
           padding: EdgeInsets.fromLTRB(context.hPad, 8, context.hPad, 24),
           child: ElevatedButton(
-            onPressed: _submitCurrent,
+            onPressed: waitingFeedback ? null : _submitCurrent,
             child: Text(_vm.currentIndex < _vm.totalItems - 1 ? 'Siguiente →' : 'Finalizar sesión'),
           ),
         ),
