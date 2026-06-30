@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../intervention/presentation/screens/intervention_screen.dart';
+import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
 import '../../../tests/domain/entities/screening_entity.dart';
 import '../../../tracking/domain/entities/tracking_entity.dart';
 import '../viewmodels/student_profile_viewmodel.dart';
@@ -34,6 +36,31 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
           Text('Perfil del alumno', style: Theme.of(context).textTheme.bodyMedium),
         ]),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.psychology_rounded),
+            tooltip: 'Intervención',
+            onPressed: () => Navigator.push(context, MaterialPageRoute(
+              builder: (_) => InterventionScreen(
+                vm: ServiceLocator.instance.interventionViewModel(),
+                studentId: widget.studentId,
+                studentName: widget.studentName,
+              ),
+            )),
+          ),
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf_outlined),
+            tooltip: 'Generar reporte',
+            onPressed: () => showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+              builder: (_) => ReportBottomSheet(
+                vm: ServiceLocator.instance.reportsViewModel,
+                studentId: widget.studentId,
+                studentName: widget.studentName,
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.assignment_outlined),
             tooltip: 'Asignar nuevo test',
