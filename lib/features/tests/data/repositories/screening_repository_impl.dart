@@ -1,3 +1,5 @@
+import '../../../../core/offline/local_response_queue.dart';
+import '../../../../core/services/connectivity_service.dart';
 import '../../domain/entities/screening_entity.dart';
 import '../../domain/repositories/screening_repository.dart';
 import '../datasources/screening_remote_datasource.dart';
@@ -28,8 +30,13 @@ class ScreeningRepositoryImpl implements ScreeningRepository {
   Future<SessionItemsResultEntity> getSessionItems(String sessionId) => remote.getSessionItems(sessionId);
 
   @override
-  Future<List<ResponseResultEntity>> submitResponses(String sessionId, List<ItemResponseSubmission> responses) =>
-      remote.submitResponses(sessionId, responses);
+  Future<List<ResponseResultEntity>> submitResponses(String sessionId, List<ItemResponseSubmission> responses) async {
+    if (!ConnectivityService.instance.isOnline) {
+      await LocalResponseQueue.instance.enqueue(sessionId, responses);
+      return [];
+    }
+    return remote.submitResponses(sessionId, responses);
+  }
 
   @override
   Future<DiagnosisEntity> diagnose(String sessionId) => remote.diagnose(sessionId);
