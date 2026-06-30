@@ -94,6 +94,11 @@ class _ProfileBody extends StatelessWidget {
           _MetricsCard(metrics: metrics),
         ],
 
+        if (vm.pendingModules.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          _PendingModulesSection(vm: vm),
+        ],
+
         const SizedBox(height: 24),
         _ActionBtn(
           icon: Icons.assignment_outlined, label: 'Asignar nuevo test',
@@ -259,6 +264,58 @@ class _MiniStat extends StatelessWidget {
     const SizedBox(height: 2),
     Text(label, textAlign: TextAlign.center, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD))),
   ]));
+}
+
+class _PendingModulesSection extends StatelessWidget {
+  final StudentProfileViewModel vm;
+  const _PendingModulesSection({required this.vm});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text('Módulos pendientes', style: Theme.of(context).textTheme.titleMedium),
+      const SizedBox(height: 10),
+      ...vm.pendingModules.map((module) => Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.outline.withOpacity(0.5)),
+          ),
+          child: Row(children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: AppTheme.primaryContainer, borderRadius: BorderRadius.circular(10)),
+              child: const Icon(Icons.psychology_outlined, color: AppTheme.primary, size: 20),
+            ),
+            const SizedBox(width: 14),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(module.moduleName, style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 2),
+              Text(module.moduleCode, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+            ])),
+            vm.isOpeningSession
+              ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primary))
+              : TextButton(
+                  onPressed: () async {
+                    final result = await vm.openModule(module);
+                    if (!context.mounted) return;
+                    if (result == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No se pudo abrir el módulo. Intenta de nuevo.')));
+                      return;
+                    }
+                    context.push('/exercise-session/${result.sessionId}', extra: {'moduleTitle': result.moduleTitle});
+                  },
+                  child: const Text('Continuar →'),
+                ),
+          ]),
+        ),
+      )),
+    ]);
+  }
 }
 
 class _ActionBtn extends StatelessWidget {

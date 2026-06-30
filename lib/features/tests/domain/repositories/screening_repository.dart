@@ -15,4 +15,5 @@ abstract class ScreeningRepository {
   Future<List<ResponseResultEntity>> submitResponses(String sessionId, List<ItemResponseSubmission> responses);
   Future<DiagnosisEntity> diagnose(String sessionId);
   Future<DiagnosisEntity?> getLatestRisk(String studentId);
+  Future<List<PendingModuleEntity>> getStudentAssignments(String studentId);
 }

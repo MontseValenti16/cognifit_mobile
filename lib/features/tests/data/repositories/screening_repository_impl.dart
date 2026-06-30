@@ -36,4 +36,8 @@ class ScreeningRepositoryImpl implements ScreeningRepository {
 
   @override
   Future<DiagnosisEntity?> getLatestRisk(String studentId) => remote.getLatestRisk(studentId);
+
+  @override
+  Future<List<PendingModuleEntity>> getStudentAssignments(String studentId) =>
+      remote.getStudentAssignments(studentId);
 }
