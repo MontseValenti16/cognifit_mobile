@@ -296,10 +296,10 @@ class _PendingModulesSection extends StatelessWidget {
               const SizedBox(height: 2),
               Text(module.moduleCode, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD))),
             ])),
-            vm.isOpeningSession
+            vm.openingAssignmentId == module.assignmentId
               ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primary))
               : TextButton(
-                  onPressed: () async {
+                  onPressed: vm.openingAssignmentId != null ? null : () async {
                     final result = await vm.openModule(module);
                     if (!context.mounted) return;
                     if (result == null) {

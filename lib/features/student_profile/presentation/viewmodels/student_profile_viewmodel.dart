@@ -40,7 +40,7 @@ class StudentProfileViewModel extends ChangeNotifier {
   StudentMetricsEntity? metrics;
   List<PendingModuleEntity> pendingModules = [];
   String? error;
-  bool isOpeningSession = false;
+  String? openingAssignmentId;
 
   StudentProfileStatus get status => _status;
   bool get isLoading => _status == StudentProfileStatus.loading;
@@ -67,7 +67,7 @@ class StudentProfileViewModel extends ChangeNotifier {
   /// Opens (or resumes) a session for the given assignment and returns
   /// the session id + module name so the caller can navigate to ExerciseScreen.
   Future<({String sessionId, String moduleTitle})?> openModule(PendingModuleEntity module) async {
-    isOpeningSession = true;
+    openingAssignmentId = module.assignmentId;
     notifyListeners();
     try {
       final session = await _openSession(
@@ -81,7 +81,7 @@ class StudentProfileViewModel extends ChangeNotifier {
       if (kDebugMode) debugPrint('openModule error: $e');
       return null;
     } finally {
-      isOpeningSession = false;
+      openingAssignmentId = null;
       notifyListeners();
     }
   }

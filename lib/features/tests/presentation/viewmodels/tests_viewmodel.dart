@@ -74,7 +74,9 @@ class TestsViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       _teacherItems = await _getTeacherItems();
-      _catalog = await _getCatalog();
+      final raw = await _getCatalog();
+      final seen = <String>{};
+      _catalog = raw.where((m) => seen.add(m.moduleCode)).toList();
       _status = TestsStatus.loaded;
     } on ApiException catch (e) {
       _error = e.userMessage; _status = TestsStatus.error;
