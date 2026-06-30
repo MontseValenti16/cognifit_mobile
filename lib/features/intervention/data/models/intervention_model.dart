@@ -1,0 +1,69 @@
+import '../../domain/entities/intervention_entity.dart';
+
+class ActivePathModel extends ActivePathEntity {
+  const ActivePathModel({
+    required super.pathId,
+    required super.exerciseRoute,
+    required super.currentDifficulty,
+    required super.routeCode,
+    required super.routeReason,
+  });
+
+  factory ActivePathModel.fromJson(Map<String, dynamic> j) {
+    final raw = j['exercise_route'];
+    final route = raw is List ? raw.map((e) => e.toString()).toList() : <String>[];
+    return ActivePathModel(
+      pathId: (j['id'] ?? '') as String,
+      exerciseRoute: route,
+      currentDifficulty: (j['current_difficulty'] as num?)?.toInt() ?? 1,
+      routeCode: (j['route_code'] ?? '') as String,
+      routeReason: (j['route_reason'] ?? '') as String,
+    );
+  }
+}
+
+class ExerciseDetailModel extends ExerciseDetailEntity {
+  const ExerciseDetailModel({
+    required super.exerciseId,
+    required super.tipo,
+    required super.titulo,
+    required super.instruccion,
+    required super.usaTts,
+    required super.usaStt,
+    required super.nivel,
+    required super.items,
+  });
+
+  factory ExerciseDetailModel.fromJson(Map<String, dynamic> j) {
+    final rawItems = j['items'] as List? ?? [];
+    return ExerciseDetailModel(
+      exerciseId: (j['exercise_id'] ?? '') as String,
+      tipo: (j['tipo'] ?? '') as String,
+      titulo: (j['titulo'] ?? '') as String,
+      instruccion: (j['instruccion'] ?? '') as String,
+      usaTts: (j['usa_tts'] as bool?) ?? false,
+      usaStt: (j['usa_stt'] as bool?) ?? false,
+      nivel: (j['nivel'] as num?)?.toInt() ?? 1,
+      items: rawItems.cast<Map<String, dynamic>>(),
+    );
+  }
+}
+
+class NextExerciseModel extends NextExerciseEntity {
+  const NextExerciseModel({
+    required super.exerciseId,
+    required super.action,
+    super.support,
+    super.exerciseDetail,
+  });
+
+  factory NextExerciseModel.fromJson(Map<String, dynamic> j) {
+    final detailRaw = j['exercise_detail'] as Map<String, dynamic>?;
+    return NextExerciseModel(
+      exerciseId: j['exercise_id'] as String?,
+      action: (j['action'] ?? 'complete') as String,
+      support: j['support'] as String?,
+      exerciseDetail: detailRaw != null ? ExerciseDetailModel.fromJson(detailRaw) : null,
+    );
+  }
+}
