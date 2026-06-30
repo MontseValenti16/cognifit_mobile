@@ -74,6 +74,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         onTap: () => context.push('/student/${_vm.topAlert!.studentId}', extra: {'name': 'Alumno'}),
                       ),
                     const SizedBox(height: 24),
+                    if (_vm.groupSummaries.isNotEmpty) ...[
+                      _sectionLabel(context, 'GRUPOS'),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 148,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _vm.groupSummaries.length,
+                          itemBuilder: (_, i) => GroupRiskSummaryCard(summary: _vm.groupSummaries[i]),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
                     Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                       _sectionLabel(context, 'ALUMNOS'),
                       TextButton(

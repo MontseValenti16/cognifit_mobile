@@ -1,27 +1,50 @@
 import 'package:flutter/foundation.dart';
+import '../../../groups/domain/usecases/get_groups_usecase.dart';
 import '../../../students/domain/entities/student_entity.dart';
 import '../../../students/domain/usecases/get_students_usecase.dart';
 import '../../../tracking/domain/entities/tracking_entity.dart';
 import '../../../tracking/domain/usecases/get_alerts_usecase.dart';
+import '../../../tracking/domain/usecases/get_group_metrics_usecase.dart';
 
-/// The dashboard has no single backend endpoint — it composes:
-/// GET /students (for counts + active list) + GET /tracking/alerts (for the banner).
-/// Group-level risk metrics (GET /tracking/groups/{id}/metrics) need a group_id,
-/// which isn't available until a Groups list endpoint exists; omitted for now.
+class GroupRiskSummary {
+  final String groupId;
+  final String displayName;
+  final int totalStudents;
+  final int highRisk;
+  final int mediumRisk;
+  final int lowRisk;
+  const GroupRiskSummary({
+    required this.groupId, required this.displayName, required this.totalStudents,
+    required this.highRisk, required this.mediumRisk, required this.lowRisk,
+  });
+}
+
+/// Dashboard composes: GET /students + GET /tracking/alerts + GET /groups + per-group metrics.
 class DashboardViewModel extends ChangeNotifier {
   final GetStudentsUseCase _getStudents;
   final GetAlertsUseCase _getAlerts;
+  final GetGroupsUseCase _getGroups;
+  final GetGroupMetricsUseCase _getGroupMetrics;
 
-  DashboardViewModel({required GetStudentsUseCase getStudents, required GetAlertsUseCase getAlerts})
-      : _getStudents = getStudents, _getAlerts = getAlerts;
+  DashboardViewModel({
+    required GetStudentsUseCase getStudents,
+    required GetAlertsUseCase getAlerts,
+    required GetGroupsUseCase getGroups,
+    required GetGroupMetricsUseCase getGroupMetrics,
+  })  : _getStudents = getStudents,
+        _getAlerts = getAlerts,
+        _getGroups = getGroups,
+        _getGroupMetrics = getGroupMetrics;
 
   bool _isLoading = false;
   List<StudentEntity> _students = [];
   List<AlertEntity> _alerts = [];
+  List<GroupRiskSummary> _groupSummaries = [];
 
   bool get isLoading => _isLoading;
   List<StudentEntity> get students => _students;
   List<StudentEntity> get recentStudents => _students.take(5).toList();
+  List<GroupRiskSummary> get groupSummaries => _groupSummaries;
 
   int get totalStudents => _students.length;
   Set<String> get _atRiskStudentIds => _alerts.where((a) => a.urgency == 'HIGH').map((a) => a.studentId).toSet();
@@ -34,14 +57,29 @@ class DashboardViewModel extends ChangeNotifier {
   Future<void> loadDashboard() async {
     _isLoading = true;
     notifyListeners();
-    try {
-      _students = await _getStudents();
-      _alerts = await _getAlerts(onlyUnread: true);
-    } catch (_) {
-      // Surfaced via empty states in the UI; dashboard stays usable even if one call fails.
-    }
+    await Future.wait([
+      _getStudents().then((v) => _students = v).catchError((_) => _students = _students),
+      _getAlerts(onlyUnread: true).then((v) => _alerts = v).catchError((_) => _alerts = _alerts),
+      _loadGroupSummaries(),
+    ]);
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> _loadGroupSummaries() async {
+    try {
+      final groups = await _getGroups();
+      if (groups.isEmpty) return;
+      final metrics = await Future.wait(groups.map((g) => _getGroupMetrics(g.id)));
+      _groupSummaries = List.generate(groups.length, (i) => GroupRiskSummary(
+        groupId: groups[i].id,
+        displayName: groups[i].displayName,
+        totalStudents: metrics[i].totalStudents,
+        highRisk: metrics[i].highRisk,
+        mediumRisk: metrics[i].mediumRisk,
+        lowRisk: metrics[i].lowRisk,
+      ));
+    } catch (_) {}
   }
 
   void dismissTopAlert() {

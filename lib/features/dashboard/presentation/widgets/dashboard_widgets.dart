@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../students/domain/entities/student_entity.dart';
+import '../viewmodels/dashboard_viewmodel.dart';
 
 class StatCard extends StatelessWidget {
   final String value;
@@ -47,6 +48,64 @@ class AlertBanner extends StatelessWidget {
           const Icon(Icons.chevron_right_rounded, color: AppTheme.warning),
         ]),
       ),
+    );
+  }
+}
+
+/// Tarjeta de riesgo por grupo (HU-FL-08): muestra conteos HIGH/MEDIUM/LOW
+/// y una barra proporcional de color para identificar grupos en riesgo de un vistazo.
+class GroupRiskSummaryCard extends StatelessWidget {
+  final GroupRiskSummary summary;
+  const GroupRiskSummaryCard({super.key, required this.summary});
+
+  @override
+  Widget build(BuildContext context) {
+    final total = summary.totalStudents > 0 ? summary.totalStudents : 1;
+    return Container(
+      width: 200,
+      margin: const EdgeInsets.only(right: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withOpacity(0.4))),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(summary.displayName, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
+        Text('${summary.totalStudents} alumnos', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+        const SizedBox(height: 12),
+        // Proportional color bar
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: Row(children: [
+            if (summary.highRisk > 0) Flexible(flex: summary.highRisk, child: Container(height: 8, color: AppTheme.riskRed)),
+            if (summary.mediumRisk > 0) Flexible(flex: summary.mediumRisk, child: Container(height: 8, color: AppTheme.pendingOrange)),
+            if (summary.lowRisk > 0) Flexible(flex: summary.lowRisk, child: Container(height: 8, color: AppTheme.activeGreen)),
+            Flexible(flex: total - summary.highRisk - summary.mediumRisk - summary.lowRisk > 0 ? total - summary.highRisk - summary.mediumRisk - summary.lowRisk : 0,
+                child: Container(height: 8, color: AppTheme.outline.withOpacity(0.2))),
+          ].where((w) => true).toList()),
+        ),
+        const SizedBox(height: 10),
+        Row(children: [
+          _RiskChip(count: summary.highRisk, color: AppTheme.riskRed, label: 'Alto'),
+          const SizedBox(width: 6),
+          _RiskChip(count: summary.mediumRisk, color: AppTheme.pendingOrange, label: 'Medio'),
+          const SizedBox(width: 6),
+          _RiskChip(count: summary.lowRisk, color: AppTheme.activeGreen, label: 'Bajo'),
+        ]),
+      ]),
+    );
+  }
+}
+
+class _RiskChip extends StatelessWidget {
+  final int count;
+  final Color color;
+  final String label;
+  const _RiskChip({required this.count, required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
+      child: Text('$count $label', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.w600)),
     );
   }
 }
