@@ -94,6 +94,21 @@ class AssignmentResultEntity {
   const AssignmentResultEntity({required this.enabledModuleCodes, required this.assignments});
 }
 
+// ── Pending module (assignment awaiting a session) ─────────────────────────────
+class PendingModuleEntity {
+  final String assignmentId;
+  final String moduleCode;
+  final String moduleName;
+  final String status;
+
+  const PendingModuleEntity({
+    required this.assignmentId,
+    required this.moduleCode,
+    required this.moduleName,
+    required this.status,
+  });
+}
+
 // ── Session ─────────────────────────────────────────────────────────────────────
 class ScreeningSessionEntity {
   final String id;

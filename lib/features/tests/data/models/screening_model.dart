@@ -94,6 +94,20 @@ class AssignmentResultModel extends AssignmentResultEntity {
   );
 }
 
+class PendingModuleModel extends PendingModuleEntity {
+  const PendingModuleModel({
+    required super.assignmentId, required super.moduleCode,
+    required super.moduleName, required super.status,
+  });
+
+  factory PendingModuleModel.fromJson(Map<String, dynamic> j) => PendingModuleModel(
+    assignmentId: j['id'] as String,
+    moduleCode: j['module_code'] as String? ?? '',
+    moduleName: j['module_name'] as String? ?? '',
+    status: j['status'] as String? ?? 'PENDING',
+  );
+}
+
 class ScreeningSessionModel extends ScreeningSessionEntity {
   const ScreeningSessionModel({
     required super.id, required super.assignmentId, required super.moduleId,

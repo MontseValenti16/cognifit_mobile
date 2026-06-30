@@ -42,6 +42,7 @@ import '../../features/tests/domain/usecases/get_session_items_usecase.dart';
 import '../../features/tests/domain/usecases/submit_responses_usecase.dart';
 import '../../features/tests/domain/usecases/diagnose_usecase.dart';
 import '../../features/tests/domain/usecases/get_latest_risk_usecase.dart';
+import '../../features/tests/domain/usecases/get_student_assignments_usecase.dart';
 import '../../features/tests/presentation/viewmodels/tests_viewmodel.dart';
 
 // EXERCISE (consumes screening repository)
@@ -136,6 +137,8 @@ class ServiceLocator {
     getStudent: GetStudentByIdUseCase(_studentRepo),
     getLatestRisk: GetLatestRiskUseCase(_screeningRepo),
     getMetrics: GetStudentMetricsUseCase(_trackingRepo),
+    getAssignments: GetStudentAssignmentsUseCase(_screeningRepo),
+    openSession: OpenSessionUseCase(_screeningRepo),
   );
 
   DashboardViewModel get dashboardViewModel => _dashboard ??= DashboardViewModel(

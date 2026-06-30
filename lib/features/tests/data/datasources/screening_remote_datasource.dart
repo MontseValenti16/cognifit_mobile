@@ -14,6 +14,7 @@ abstract class ScreeningRemoteDataSource {
   Future<List<ResponseResultModel>> submitResponses(String sessionId, List<ItemResponseSubmission> responses);
   Future<DiagnosisModel> diagnose(String sessionId);
   Future<DiagnosisModel?> getLatestRisk(String studentId);
+  Future<List<PendingModuleModel>> getStudentAssignments(String studentId);
 }
 
 class ScreeningRemoteDataSourceImpl implements ScreeningRemoteDataSource {
@@ -101,6 +102,17 @@ class ScreeningRemoteDataSourceImpl implements ScreeningRemoteDataSource {
     } catch (e) {
       if (kDebugMode) debugPrint('No latest risk for $studentId: $e');
       return null;
+    }
+  }
+
+  @override
+  Future<List<PendingModuleModel>> getStudentAssignments(String studentId) async {
+    try {
+      final json = await client.get('/screening/students/$studentId/assignments');
+      return (json as List).map((e) => PendingModuleModel.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (e) {
+      if (kDebugMode) debugPrint('No assignments for $studentId: $e');
+      return [];
     }
   }
 }
