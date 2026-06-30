@@ -22,6 +22,7 @@ import '../../features/students/domain/usecases/get_student_by_id_usecase.dart';
 import '../../features/students/domain/usecases/create_student_usecase.dart';
 import '../../features/students/domain/usecases/update_student_usecase.dart';
 import '../../features/students/domain/usecases/delete_student_usecase.dart';
+import '../../features/students/domain/usecases/activate_student_usecase.dart';
 import '../../features/students/presentation/viewmodels/students_viewmodel.dart';
 
 // GROUPS
@@ -62,6 +63,21 @@ import '../../features/tracking/presentation/viewmodels/learning_curve_viewmodel
 // STUDENT PROFILE (composes students + screening + tracking)
 import '../../features/student_profile/presentation/viewmodels/student_profile_viewmodel.dart';
 
+// INTERVENTION
+import '../../features/intervention/data/datasources/intervention_remote_datasource.dart';
+import '../../features/intervention/data/repositories/intervention_repository_impl.dart';
+import '../../features/intervention/domain/usecases/get_active_path_usecase.dart';
+import '../../features/intervention/domain/usecases/next_exercise_usecase.dart';
+import '../../features/intervention/presentation/viewmodels/intervention_viewmodel.dart';
+
+// REPORTS
+import '../../features/reports/data/datasources/report_remote_datasource.dart';
+import '../../features/reports/data/repositories/report_repository_impl.dart';
+import '../../features/reports/domain/usecases/request_report_usecase.dart';
+import '../../features/reports/domain/usecases/generate_report_usecase.dart';
+import '../../features/reports/domain/usecases/download_report_usecase.dart';
+import '../../features/reports/presentation/viewmodels/reports_viewmodel.dart';
+
 // DASHBOARD (composes students + tracking)
 import '../../features/dashboard/presentation/viewmodels/dashboard_viewmodel.dart';
 
@@ -79,6 +95,8 @@ class ServiceLocator {
   late final GroupRepositoryImpl _groupRepo = GroupRepositoryImpl(GroupRemoteDataSourceImpl(apiClient));
   late final ScreeningRepositoryImpl _screeningRepo = ScreeningRepositoryImpl(ScreeningRemoteDataSourceImpl(apiClient));
   late final TrackingRepositoryImpl _trackingRepo = TrackingRepositoryImpl(TrackingRemoteDataSourceImpl(apiClient));
+  late final InterventionRepositoryImpl _interventionRepo = InterventionRepositoryImpl(InterventionRemoteDataSourceImpl(apiClient));
+  late final ReportRepositoryImpl _reportRepo = ReportRepositoryImpl(ReportRemoteDataSourceImpl(apiClient));
 
   // ── ViewModels (lazily instantiated, cached) ────────────────────────────────
   AuthViewModel? _auth;
@@ -89,6 +107,7 @@ class ServiceLocator {
   LearningCurveViewModel? _learningCurve;
   StudentProfileViewModel? _studentProfile;
   DashboardViewModel? _dashboard;
+  ReportsViewModel? _reports;
 
   AuthViewModel get authViewModel => _auth ??= AuthViewModel(
     login: LoginUseCase(_authRepo),
@@ -104,6 +123,7 @@ class ServiceLocator {
     createStudent: CreateStudentUseCase(_studentRepo),
     updateStudent: UpdateStudentUseCase(_studentRepo),
     deleteStudent: DeleteStudentUseCase(_studentRepo),
+    activateStudent: ActivateStudentUseCase(_studentRepo),
     getGroups: GetGroupsUseCase(_groupRepo),
     createGroup: CreateGroupUseCase(_groupRepo),
   );
@@ -144,11 +164,24 @@ class ServiceLocator {
   DashboardViewModel get dashboardViewModel => _dashboard ??= DashboardViewModel(
     getStudents: GetStudentsUseCase(_studentRepo),
     getAlerts: GetAlertsUseCase(_trackingRepo),
+    getGroups: GetGroupsUseCase(_groupRepo),
+    getGroupMetrics: GetGroupMetricsUseCase(_trackingRepo),
+  );
+
+  InterventionViewModel interventionViewModel() => InterventionViewModel(
+    getActivePath: GetActivePathUseCase(_interventionRepo),
+    nextExercise: NextExerciseUseCase(_interventionRepo),
+  );
+
+  ReportsViewModel get reportsViewModel => _reports ??= ReportsViewModel(
+    requestReport: RequestReportUseCase(_reportRepo),
+    generateReport: GenerateReportUseCase(_reportRepo),
+    downloadReport: DownloadReportUseCase(_reportRepo),
   );
 
   /// Call after logout to drop cached state tied to the previous session.
   void resetSessionScopedViewModels() {
     _students = null; _tests = null; _exercise = null; _tracking = null;
-    _learningCurve = null; _studentProfile = null; _dashboard = null;
+    _learningCurve = null; _studentProfile = null; _dashboard = null; _reports = null;
   }
 }
