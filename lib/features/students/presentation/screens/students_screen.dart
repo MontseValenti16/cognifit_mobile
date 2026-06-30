@@ -91,14 +91,16 @@ class _StudentsScreenState extends State<StudentsScreen> {
     );
   }
 
-  void _confirmDelete(StudentEntity student) {
+  void _confirmDeactivate(StudentEntity student) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('¿Eliminar alumno?'),
+        title: const Text('¿Desactivar alumno?'),
         content: Text(
-          'Se eliminará a ${student.fullName} de tu lista. Esta acción no se puede deshacer.',
+          '${student.fullName} dejará de aparecer como activo y no se le podrán asignar '
+          'nuevos tests. Su historial clínico y evaluaciones se conservan; puedes '
+          'reactivarlo cuando quieras.',
         ),
         actions: [
           TextButton(
@@ -111,15 +113,23 @@ class _StudentsScreenState extends State<StudentsScreen> {
               final ok = await _vm.delete(student.id);
               _showSnack(
                 ok
-                    ? '✓ Alumno eliminado'
-                    : (_vm.error ?? 'No se pudo eliminar'),
+                    ? '✓ Alumno desactivado'
+                    : (_vm.error ?? 'No se pudo desactivar'),
                 ok ? AppTheme.activeGreen : AppTheme.riskRed,
               );
             },
-            child: Text('Eliminar', style: TextStyle(color: AppTheme.riskRed)),
+            child: Text('Desactivar', style: TextStyle(color: AppTheme.riskRed)),
           ),
         ],
       ),
+    );
+  }
+
+  void _activate(StudentEntity student) async {
+    final ok = await _vm.activate(student.id);
+    _showSnack(
+      ok ? '✓ ${student.fullName} reactivado' : (_vm.error ?? 'No se pudo reactivar'),
+      ok ? AppTheme.activeGreen : AppTheme.riskRed,
     );
   }
 
@@ -210,7 +220,8 @@ class _StudentsScreenState extends State<StudentsScreen> {
                               extra: {'name': s.fullName},
                             ),
                             onEdit: () => _openForm(existing: s),
-                            onDelete: () => _confirmDelete(s),
+                            onDelete: () => _confirmDeactivate(s),
+                            onActivate: () => _activate(s),
                           );
                         },
                       ),

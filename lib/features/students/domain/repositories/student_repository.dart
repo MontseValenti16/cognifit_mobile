@@ -11,4 +11,5 @@ abstract class StudentRepository {
   /// and adjust the datasource if the route differs.
   Future<StudentEntity> updateStudent(UpdateStudentParams params);
   Future<void> deleteStudent(String id);
+  Future<StudentEntity> activateStudent(String id);
 }
