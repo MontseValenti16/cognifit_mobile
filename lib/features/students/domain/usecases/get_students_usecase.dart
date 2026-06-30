@@ -1,0 +1,7 @@
+import '../entities/student_entity.dart';
+import '../repositories/student_repository.dart';
+class GetStudentsUseCase {
+  final StudentRepository repository;
+  const GetStudentsUseCase(this.repository);
+  Future<List<StudentEntity>> call() => repository.getStudents();
+}
