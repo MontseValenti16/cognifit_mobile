@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>CogniFit usa el micrófono para los ejercicios de dictado del alumno.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>CogniFit transcribe lo que dice el alumno para evaluar los ejercicios de lectura y dictado.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
