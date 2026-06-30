@@ -9,6 +9,7 @@ import '../../domain/usecases/get_student_by_id_usecase.dart';
 import '../../domain/usecases/create_student_usecase.dart';
 import '../../domain/usecases/update_student_usecase.dart';
 import '../../domain/usecases/delete_student_usecase.dart';
+import '../../domain/usecases/activate_student_usecase.dart';
 
 enum StudentsStatus { idle, loading, loaded, mutating, error }
 
@@ -18,6 +19,7 @@ class StudentsViewModel extends ChangeNotifier {
   final CreateStudentUseCase _createStudent;
   final UpdateStudentUseCase _updateStudent;
   final DeleteStudentUseCase _deleteStudent;
+  final ActivateStudentUseCase _activateStudent;
   final GetGroupsUseCase _getGroups;
   final CreateGroupUseCase _createGroup;
 
@@ -27,6 +29,7 @@ class StudentsViewModel extends ChangeNotifier {
     required CreateStudentUseCase createStudent,
     required UpdateStudentUseCase updateStudent,
     required DeleteStudentUseCase deleteStudent,
+    required ActivateStudentUseCase activateStudent,
     required GetGroupsUseCase getGroups,
     required CreateGroupUseCase createGroup,
   }) : _getStudents = getStudents,
@@ -34,6 +37,7 @@ class StudentsViewModel extends ChangeNotifier {
        _createStudent = createStudent,
        _updateStudent = updateStudent,
        _deleteStudent = deleteStudent,
+       _activateStudent = activateStudent,
        _getGroups = getGroups,
        _createGroup = createGroup;
 
@@ -173,13 +177,18 @@ class StudentsViewModel extends ChangeNotifier {
     }
   }
 
+  /// Soft-delete: desactiva al alumno (is_active=FALSE) sin borrar su
+  /// historial clínico, según las HU (BD-02, BD-11). Se mantiene en la
+  /// lista local marcado como inactivo en vez de removerse.
   Future<bool> delete(String id) async {
     _status = StudentsStatus.mutating;
     _error = null;
     notifyListeners();
     try {
       await _deleteStudent(id);
-      _students = _students.where((s) => s.id != id).toList();
+      _students = _students
+          .map((s) => s.id == id ? s.copyWith(isActive: false) : s)
+          .toList();
       _status = StudentsStatus.loaded;
       notifyListeners();
       return true;
@@ -189,7 +198,30 @@ class StudentsViewModel extends ChangeNotifier {
       notifyListeners();
       return false;
     } catch (_) {
-      _error = 'No se pudo eliminar el alumno.';
+      _error = 'No se pudo desactivar el alumno.';
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> activate(String id) async {
+    _status = StudentsStatus.mutating;
+    _error = null;
+    notifyListeners();
+    try {
+      final updated = await _activateStudent(id);
+      _students = _students.map((s) => s.id == id ? updated : s).toList();
+      _status = StudentsStatus.loaded;
+      notifyListeners();
+      return true;
+    } on ApiException catch (e) {
+      _error = e.userMessage;
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return false;
+    } catch (_) {
+      _error = 'No se pudo reactivar el alumno.';
       _status = StudentsStatus.error;
       notifyListeners();
       return false;

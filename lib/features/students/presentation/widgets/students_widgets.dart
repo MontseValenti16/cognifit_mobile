@@ -20,10 +20,11 @@ class StudentListTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback onActivate;
 
   const StudentListTile({
     super.key, required this.student, required this.onTap,
-    required this.onEdit, required this.onDelete,
+    required this.onEdit, required this.onDelete, required this.onActivate,
   });
 
   @override
@@ -73,15 +74,25 @@ class StudentListTile extends StatelessWidget {
               PopupMenuButton<String>(
                 icon: Icon(Icons.more_vert_rounded, color: Colors.grey.shade400, size: 20),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                onSelected: (v) { if (v == 'edit') onEdit(); if (v == 'delete') onDelete(); },
+                onSelected: (v) {
+                  if (v == 'edit') onEdit();
+                  if (v == 'deactivate') onDelete();
+                  if (v == 'activate') onActivate();
+                },
                 itemBuilder: (_) => [
                   PopupMenuItem(value: 'edit', child: Row(children: [
                     const Icon(Icons.edit_outlined, size: 18, color: AppTheme.primary), const SizedBox(width: 10), const Text('Editar'),
                   ])),
-                  PopupMenuItem(value: 'delete', child: Row(children: [
-                    Icon(Icons.delete_outline_rounded, size: 18, color: AppTheme.riskRed), const SizedBox(width: 10),
-                    Text('Eliminar', style: TextStyle(color: AppTheme.riskRed)),
-                  ])),
+                  if (student.isActive)
+                    PopupMenuItem(value: 'deactivate', child: Row(children: [
+                      Icon(Icons.block_rounded, size: 18, color: AppTheme.riskRed), const SizedBox(width: 10),
+                      Text('Desactivar', style: TextStyle(color: AppTheme.riskRed)),
+                    ]))
+                  else
+                    PopupMenuItem(value: 'activate', child: Row(children: [
+                      Icon(Icons.check_circle_outline_rounded, size: 18, color: AppTheme.activeGreen), const SizedBox(width: 10),
+                      Text('Reactivar', style: TextStyle(color: AppTheme.activeGreen)),
+                    ])),
                 ],
               ),
             ]),
