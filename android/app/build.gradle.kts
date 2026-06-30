@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.cognifit_mobile"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = property("compileSdkVersion").toString().toInt()
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -20,7 +20,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = property("compileSdkVersion").toString().toInt()
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
