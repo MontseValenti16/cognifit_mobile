@@ -1,0 +1,171 @@
+import '../../domain/entities/screening_entity.dart';
+
+class TeacherItemModel extends TeacherItemEntity {
+  const TeacherItemModel({
+    required super.itemCode, required super.prompt, required super.weight,
+    required super.tags, super.sourceNote, required super.scale,
+  });
+
+  factory TeacherItemModel.fromJson(Map<String, dynamic> j) => TeacherItemModel(
+    itemCode: j['item_code'] as String,
+    prompt: j['prompt'] as String,
+    weight: (j['weight'] as num?)?.toDouble() ?? 1.0,
+    tags: (j['tags'] as List?)?.map((e) => e.toString()).toList() ?? [],
+    sourceNote: j['source_note'] as String?,
+    scale: (j['scale'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, (v as num).toDouble())) ?? const {'Nunca': 0, 'A veces': 0.5, 'Frecuente': 1},
+  );
+}
+
+class TeacherResultModel extends TeacherResultEntity {
+  const TeacherResultModel({
+    required super.id, required super.studentId, required super.score,
+    required super.batteryMode, required super.riskFlags, required super.enabledModuleCodes,
+  });
+
+  factory TeacherResultModel.fromJson(Map<String, dynamic> j) => TeacherResultModel(
+    id: j['id'] as String,
+    studentId: j['student_id'] as String,
+    score: (j['score'] as num).toDouble(),
+    batteryMode: j['battery_mode'] as String? ?? 'FULL',
+    riskFlags: (j['risk_flags'] as List? ?? []).map((f) => RiskFlag(flag: f['flag'], level: f['level'])).toList(),
+    enabledModuleCodes: (j['enabled_module_codes'] as List? ?? []).map((e) => e.toString()).toList(),
+  );
+}
+
+class ScreeningModuleModel extends ScreeningModuleEntity {
+  const ScreeningModuleModel({
+    required super.moduleNumber, required super.moduleCode, required super.name,
+    required super.usaTts, required super.usaStt,
+  });
+
+  factory ScreeningModuleModel.fromJson(Map<String, dynamic> j) => ScreeningModuleModel(
+    moduleNumber: j['module_number'] as int? ?? 0,
+    moduleCode: j['module_code'] as String,
+    name: j['name'] as String,
+    usaTts: j['usa_tts'] as bool? ?? false,
+    usaStt: j['usa_stt'] as bool? ?? false,
+  );
+}
+
+class AssignmentModel extends AssignmentEntity {
+  const AssignmentModel({
+    required super.id, required super.studentId, required super.testId,
+    required super.status, required super.assignedAt, required super.moduleCode,
+  });
+
+  factory AssignmentModel.fromJson(Map<String, dynamic> j) => AssignmentModel(
+    id: j['id'] as String,
+    studentId: j['student_id'] as String,
+    testId: j['test_id'] as String? ?? '',
+    status: j['status'] as String? ?? 'PENDING',
+    assignedAt: j['assigned_at'] as String? ?? '',
+    moduleCode: j['module_code'] as String? ?? '',
+  );
+}
+
+class AssignmentResultModel extends AssignmentResultEntity {
+  const AssignmentResultModel({required super.enabledModuleCodes, required super.assignments});
+
+  factory AssignmentResultModel.fromJson(Map<String, dynamic> j) => AssignmentResultModel(
+    enabledModuleCodes: (j['enabled_module_codes'] as List? ?? []).map((e) => e.toString()).toList(),
+    assignments: (j['assignments'] as List? ?? []).map((a) => AssignmentModel.fromJson(a)).toList(),
+  );
+}
+
+class ScreeningSessionModel extends ScreeningSessionEntity {
+  const ScreeningSessionModel({
+    required super.id, required super.assignmentId, required super.moduleId,
+    required super.sessionStatus, required super.startedAt, super.deviceId, super.appVersion,
+  });
+
+  factory ScreeningSessionModel.fromJson(Map<String, dynamic> j) => ScreeningSessionModel(
+    id: j['id'] as String,
+    assignmentId: j['assignment_id'] as String,
+    moduleId: j['module_id'] as String? ?? '',
+    sessionStatus: j['session_status'] as String? ?? 'IN_PROGRESS',
+    startedAt: j['started_at'] as String? ?? '',
+    deviceId: j['device_id'] as String?,
+    appVersion: j['app_version'] as String?,
+  );
+}
+
+class SessionItemModel extends SessionItemEntity {
+  const SessionItemModel({
+    required super.itemId, required super.itemOrder, required super.itemCode,
+    required super.stimulusText, super.stimulusAudioUrl, super.expectedResponse,
+    required super.itemKind, required super.difficulty, required super.tags,
+    required super.isPractice, required super.moduleCode, required super.moduleTitle,
+    required super.inputModes,
+  });
+
+  factory SessionItemModel.fromJson(Map<String, dynamic> j) => SessionItemModel(
+    itemId: j['item_id'] as String,
+    itemOrder: j['item_order'] as int? ?? 0,
+    itemCode: j['item_code'] as String? ?? '',
+    stimulusText: j['stimulus_text'] as String? ?? '',
+    stimulusAudioUrl: j['stimulus_audio_url'] as String?,
+    expectedResponse: j['expected_response'] as String?,
+    itemKind: j['item_kind'] as String? ?? '',
+    difficulty: j['difficulty'] as int? ?? 1,
+    tags: (j['tags'] as List? ?? []).map((e) => e.toString()).toList(),
+    isPractice: j['is_practice'] as bool? ?? false,
+    moduleCode: j['module_code'] as String? ?? '',
+    moduleTitle: j['module_title'] as String? ?? '',
+    inputModes: (j['input_modes'] as List? ?? []).map((e) => e.toString()).toList(),
+  );
+}
+
+class SessionItemsResultModel extends SessionItemsResultEntity {
+  const SessionItemsResultModel({required super.sessionId, required super.totalItems, required super.items});
+
+  factory SessionItemsResultModel.fromJson(Map<String, dynamic> j) => SessionItemsResultModel(
+    sessionId: j['session_id'] as String,
+    totalItems: j['total_items'] as int? ?? 0,
+    items: (j['items'] as List? ?? []).map((i) => SessionItemModel.fromJson(i)).toList(),
+  );
+}
+
+class ResponseResultModel extends ResponseResultEntity {
+  const ResponseResultModel({
+    required super.id, required super.itemId, required super.rawResponse,
+    required super.normalizedResponse, required super.isCorrect, required super.errorTags,
+  });
+
+  factory ResponseResultModel.fromJson(Map<String, dynamic> j) => ResponseResultModel(
+    id: j['id'] as String,
+    itemId: j['item_id'] as String,
+    rawResponse: j['raw_response'] as String? ?? '',
+    normalizedResponse: j['normalized_response'] as String? ?? '',
+    isCorrect: j['is_correct'] as bool? ?? false,
+    errorTags: (j['error_tags'] as List? ?? []).map((e) => e.toString()).toList(),
+  );
+}
+
+class DiagnosisModel extends DiagnosisEntity {
+  const DiagnosisModel({
+    required super.id, required super.studentId, required super.assignmentId,
+    required super.subtype, required super.plnSubtype, required super.severity,
+    required super.plnSeverity, required super.riskProbability, required super.riskLevel,
+    required super.mainErrorCodes, required super.recommendedRoute,
+    required super.recommendationReason, required super.diagnosedAt,
+    super.modelVersion, super.plnSource,
+  });
+
+  factory DiagnosisModel.fromJson(Map<String, dynamic> j) => DiagnosisModel(
+    id: j['id'] as String? ?? '',
+    studentId: j['student_id'] as String? ?? '',
+    assignmentId: j['assignment_id'] as String? ?? '',
+    subtype: j['subtype'] as String? ?? '',
+    plnSubtype: j['pln_subtype'] as String? ?? 'sin_riesgo',
+    severity: j['severity'] as String? ?? '',
+    plnSeverity: j['pln_severity'] as String? ?? 'ninguna',
+    riskProbability: (j['risk_probability'] as num?)?.toDouble() ?? 0.0,
+    riskLevel: j['risk_level'] as String? ?? 'LOW',
+    mainErrorCodes: (j['main_error_codes'] as List? ?? []).map((e) => e.toString()).toList(),
+    recommendedRoute: (j['recommended_route'] as List? ?? []).map((e) => e.toString()).toList(),
+    recommendationReason: j['recommendation_reason'] as String? ?? '',
+    diagnosedAt: j['diagnosed_at'] as String? ?? '',
+    modelVersion: j['model_version'] as String?,
+    plnSource: j['pln_source'] as String?,
+  );
+}
