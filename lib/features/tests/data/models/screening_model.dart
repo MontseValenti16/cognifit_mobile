@@ -12,8 +12,22 @@ class TeacherItemModel extends TeacherItemEntity {
     weight: (j['weight'] as num?)?.toDouble() ?? 1.0,
     tags: (j['tags'] as List?)?.map((e) => e.toString()).toList() ?? [],
     sourceNote: j['source_note'] as String?,
-    scale: (j['scale'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, (v as num).toDouble())) ?? const {'Nunca': 0, 'A veces': 0.5, 'Frecuente': 1},
+    scale: _parseScale(j['scale']),
   );
+
+  // API returns scale as [{label, value}] list OR as {label: value} map.
+  static Map<String, double> _parseScale(dynamic raw) {
+    if (raw is List) {
+      return {
+        for (final e in raw)
+          (e as Map)['label'].toString(): ((e)['value'] as num).toDouble()
+      };
+    }
+    if (raw is Map) {
+      return raw.map((k, v) => MapEntry(k.toString(), (v as num).toDouble()));
+    }
+    return const {'Nunca': 0, 'A veces': 0.5, 'Frecuente': 1};
+  }
 }
 
 class TeacherResultModel extends TeacherResultEntity {
@@ -23,11 +37,18 @@ class TeacherResultModel extends TeacherResultEntity {
   });
 
   factory TeacherResultModel.fromJson(Map<String, dynamic> j) => TeacherResultModel(
-    id: j['id'] as String,
-    studentId: j['student_id'] as String,
+    id: j['id'].toString(),
+    studentId: j['student_id'].toString(),
     score: (j['score'] as num).toDouble(),
     batteryMode: j['battery_mode'] as String? ?? 'FULL',
-    riskFlags: (j['risk_flags'] as List? ?? []).map((f) => RiskFlag(flag: f['flag'], level: f['level'])).toList(),
+    // risk_flags from API: {item_code, tags, value} — map to {flag, level}
+    riskFlags: (j['risk_flags'] as List? ?? []).map((f) {
+      final m = f as Map;
+      final code = m['flag'] ?? m['item_code'] ?? '';
+      final val = (m['value'] as num?)?.toDouble() ?? 0.0;
+      final level = m['level'] as String? ?? (val >= 1.0 ? 'high' : val >= 0.5 ? 'medium' : 'low');
+      return RiskFlag(flag: code.toString(), level: level);
+    }).toList(),
     enabledModuleCodes: (j['enabled_module_codes'] as List? ?? []).map((e) => e.toString()).toList(),
   );
 }
@@ -41,9 +62,10 @@ class ScreeningModuleModel extends ScreeningModuleEntity {
   factory ScreeningModuleModel.fromJson(Map<String, dynamic> j) => ScreeningModuleModel(
     moduleNumber: j['module_number'] as int? ?? 0,
     moduleCode: j['module_code'] as String,
-    name: j['name'] as String,
-    usaTts: j['usa_tts'] as bool? ?? false,
-    usaStt: j['usa_stt'] as bool? ?? false,
+    // v_battery_catalog returns 'title'; some seeds use 'name' — try both
+    name: (j['name'] ?? j['title'] ?? j['module_code']) as String,
+    usaTts: j['usa_tts'] as bool? ?? j['use_tts'] as bool? ?? false,
+    usaStt: j['usa_stt'] as bool? ?? j['use_stt'] as bool? ?? false,
   );
 }
 

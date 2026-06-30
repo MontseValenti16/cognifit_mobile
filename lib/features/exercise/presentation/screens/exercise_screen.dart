@@ -104,7 +104,25 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     }
 
     final item = _vm.current;
-    if (item == null) return const SizedBox();
+    if (item == null) {
+      return Scaffold(
+        backgroundColor: AppTheme.surface,
+        body: SafeArea(child: Center(child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            const Icon(Icons.inbox_rounded, size: 56, color: Color(0xFFADA9B9)),
+            const SizedBox(height: 16),
+            const Text('Esta sesión no tiene ítems configurados.\nContacta al administrador.',
+              textAlign: TextAlign.center),
+            const SizedBox(height: 20),
+            OutlinedButton(
+              onPressed: () { context.go(AppRouter.dashboard); _vm.reset(); },
+              child: const Text('Volver'),
+            ),
+          ]),
+        ))),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppTheme.surface,

@@ -130,10 +130,8 @@ class TestsViewModel extends ChangeNotifier {
     }
   }
 
-  String moduleName(String code) => _catalog.firstWhere(
-    (m) => m.moduleCode == code,
-    orElse: () => ScreeningModuleEntity(moduleNumber: 0, moduleCode: code, name: code, usaTts: false, usaStt: false),
-  ).name;
+  String moduleName(String code) =>
+      _catalog.where((m) => m.moduleCode == code).firstOrNull?.name ?? code;
 
   void reset() {
     answers.clear();
