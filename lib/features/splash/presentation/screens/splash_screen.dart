@@ -38,9 +38,15 @@ class _SplashScreenState extends State<SplashScreen> {
     final role = vm.currentUser?.role;
     final linkedId = vm.linkedStudentId;
     final linkedName = vm.linkedStudentName ?? 'Alumno';
-    if (role == UserRole.student && linkedId != null) {
-      context.go(AppRouter.childHomeOf(linkedId), extra: {'name': linkedName});
-    } else if (role == UserRole.parent && linkedId != null) {
+
+    if (role == UserRole.student) {
+      // Cuenta de alumno — no se usa en la app; el docente activa "Modo niño".
+      vm.logout();
+      setState(() => _checkedSession = true);
+      return;
+    }
+
+    if (role == UserRole.parent && linkedId != null) {
       context.go(AppRouter.parentHome, extra: {'studentId': linkedId, 'name': linkedName});
     } else {
       context.go(AppRouter.dashboard);
@@ -103,7 +109,7 @@ class _BrainLogo extends StatelessWidget {
           begin: Alignment.topLeft, end: Alignment.bottomRight,
           colors: [Color(0xFF9B78D8), Color(0xFF5BC8AF)],
         ),
-        boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 8))],
+        boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha:0.3), blurRadius: 20, offset: const Offset(0, 8))],
       ),
       child: const Icon(Icons.psychology_rounded, color: Colors.white, size: 48),
     );
@@ -129,7 +135,7 @@ class _SplashIllustration extends StatelessWidget {
             left: 24, bottom: 16,
             child: Container(
               width: 64, height: 80,
-              decoration: BoxDecoration(color: const Color(0xFFFFD54F).withOpacity(0.3), borderRadius: BorderRadius.circular(20)),
+              decoration: BoxDecoration(color: const Color(0xFFFFD54F).withValues(alpha:0.3), borderRadius: BorderRadius.circular(20)),
               child: const Icon(Icons.child_care_rounded, color: Color(0xFFFFD54F), size: 36),
             ),
           ),
@@ -137,12 +143,12 @@ class _SplashIllustration extends StatelessWidget {
             right: 24, bottom: 16,
             child: Container(
               width: 64, height: 80,
-              decoration: BoxDecoration(color: const Color(0xFF80DEEA).withOpacity(0.3), borderRadius: BorderRadius.circular(20)),
+              decoration: BoxDecoration(color: const Color(0xFF80DEEA).withValues(alpha:0.3), borderRadius: BorderRadius.circular(20)),
               child: const Icon(Icons.face_rounded, color: Color(0xFF80DEEA), size: 36),
             ),
           ),
-          Positioned(top: 28, right: 52, child: Icon(Icons.star_rounded, color: AppTheme.warning.withOpacity(0.6), size: 16)),
-          Positioned(top: 60, left: 22, child: Icon(Icons.star_rounded, color: AppTheme.primary.withOpacity(0.4), size: 12)),
+          Positioned(top: 28, right: 52, child: Icon(Icons.star_rounded, color: AppTheme.warning.withValues(alpha:0.6), size: 16)),
+          Positioned(top: 60, left: 22, child: Icon(Icons.star_rounded, color: AppTheme.primary.withValues(alpha:0.4), size: 12)),
         ],
       ),
     );
@@ -161,7 +167,7 @@ class _Letter extends StatelessWidget {
     return Positioned(
       left: pos.dx, top: pos.dy,
       child: Text(letter, style: TextStyle(fontSize: size, fontWeight: FontWeight.w800, color: color,
-        shadows: [Shadow(color: color.withOpacity(0.3), blurRadius: 4, offset: const Offset(1, 2))])),
+        shadows: [Shadow(color: color.withValues(alpha:0.3), blurRadius: 4, offset: const Offset(1, 2))])),
     );
   }
 }

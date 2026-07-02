@@ -333,7 +333,7 @@ class _CreateUserSheet extends StatefulWidget {
 }
 
 class _CreateUserSheetState extends State<_CreateUserSheet> {
-  static const _roles = ['TEACHER', 'SPECIALIST', 'PARENT', 'STUDENT', 'ADMIN'];
+  static const _roles = ['TEACHER', 'SPECIALIST', 'PARENT', 'ADMIN'];
   static const _labels = {
     'ADMIN': 'Administrador', 'SPECIALIST': 'Especialista',
     'TEACHER': 'Docente', 'PARENT': 'Padre / Tutor', 'STUDENT': 'Alumno',
