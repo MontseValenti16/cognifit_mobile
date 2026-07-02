@@ -31,6 +31,7 @@ import '../../features/groups/data/datasources/group_remote_datasource.dart';
 import '../../features/groups/data/repositories/group_repository_impl.dart';
 import '../../features/groups/domain/usecases/get_groups_usecase.dart';
 import '../../features/groups/domain/usecases/create_group_usecase.dart';
+import '../../features/groups/domain/usecases/delete_group_usecase.dart';
 
 // SCREENING (tests feature)
 import '../../features/tests/data/datasources/screening_remote_datasource.dart';
@@ -128,6 +129,7 @@ class ServiceLocator {
     activateStudent: ActivateStudentUseCase(_studentRepo),
     getGroups: GetGroupsUseCase(_groupRepo),
     createGroup: CreateGroupUseCase(_groupRepo),
+    deleteGroup: DeleteGroupUseCase(_groupRepo),
   );
 
   TestsViewModel get testsViewModel => _tests ??= TestsViewModel(

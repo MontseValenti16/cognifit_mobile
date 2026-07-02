@@ -3,6 +3,7 @@ import '../../../../core/errors/api_exception.dart';
 import '../../../groups/domain/entities/group_entity.dart';
 import '../../../groups/domain/usecases/get_groups_usecase.dart';
 import '../../../groups/domain/usecases/create_group_usecase.dart';
+import '../../../groups/domain/usecases/delete_group_usecase.dart';
 import '../../domain/entities/student_entity.dart';
 import '../../domain/usecases/get_students_usecase.dart';
 import '../../domain/usecases/get_student_by_id_usecase.dart';
@@ -24,6 +25,7 @@ class StudentsViewModel extends ChangeNotifier {
   final ActivateStudentUseCase _activateStudent;
   final GetGroupsUseCase _getGroups;
   final CreateGroupUseCase _createGroup;
+  final DeleteGroupUseCase _deleteGroup;
 
   StudentsViewModel({
     required GetStudentsUseCase getStudents,
@@ -35,6 +37,7 @@ class StudentsViewModel extends ChangeNotifier {
     required ActivateStudentUseCase activateStudent,
     required GetGroupsUseCase getGroups,
     required CreateGroupUseCase createGroup,
+    required DeleteGroupUseCase deleteGroup,
   }) : _getStudents = getStudents,
        _getStudentById = getStudentById,
        _createStudent = createStudent,
@@ -43,7 +46,8 @@ class StudentsViewModel extends ChangeNotifier {
        _permanentDeleteStudent = permanentDeleteStudent,
        _activateStudent = activateStudent,
        _getGroups = getGroups,
-       _createGroup = createGroup;
+       _createGroup = createGroup,
+       _deleteGroup = deleteGroup;
 
   StudentsStatus _status = StudentsStatus.idle;
   List<StudentEntity> _students = [];
@@ -120,6 +124,30 @@ class StudentsViewModel extends ChangeNotifier {
       _status = StudentsStatus.error;
       notifyListeners();
       return null;
+    }
+  }
+
+  Future<bool> deleteGroup(String id) async {
+    _status = StudentsStatus.mutating;
+    _error = null;
+    notifyListeners();
+    try {
+      await _deleteGroup(id);
+      _groups = _groups.where((g) => g.id != id).toList();
+      if (_groupFilter == id) _groupFilter = null;
+      _status = StudentsStatus.loaded;
+      notifyListeners();
+      return true;
+    } on ApiException catch (e) {
+      _error = e.userMessage;
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return false;
+    } catch (_) {
+      _error = 'No se pudo eliminar el grupo.';
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return false;
     }
   }
 

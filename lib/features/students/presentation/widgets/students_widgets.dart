@@ -156,12 +156,14 @@ class GroupFilterChips extends StatelessWidget {
   final List<GroupEntity> groups;
   final String? selectedGroupId;
   final ValueChanged<String?> onSelected;
+  final ValueChanged<GroupEntity>? onDeleteGroup;
 
   const GroupFilterChips({
     super.key,
     required this.groups,
     required this.selectedGroupId,
     required this.onSelected,
+    this.onDeleteGroup,
   });
 
   @override
@@ -181,6 +183,7 @@ class GroupFilterChips extends StatelessWidget {
             label: g.displayName,
             selected: selectedGroupId == g.id,
             onTap: () => onSelected(g.id),
+            onDelete: onDeleteGroup != null ? () => onDeleteGroup!(g) : null,
           )),
         ],
       ),
@@ -192,7 +195,8 @@ class _Chip extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  const _Chip({required this.label, required this.selected, required this.onTap});
+  final VoidCallback? onDelete;
+  const _Chip({required this.label, required this.selected, required this.onTap, this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -200,18 +204,34 @@ class _Chip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        padding: EdgeInsets.only(left: 14, right: onDelete != null ? 4 : 14, top: 6, bottom: 6),
         decoration: BoxDecoration(
           color: selected ? AppTheme.primary : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: selected ? AppTheme.primary : AppTheme.outline),
         ),
-        child: Text(
-          label,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: selected ? Colors.white : const Color(0xFF6B6880),
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: selected ? Colors.white : const Color(0xFF6B6880),
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+            if (onDelete != null) ...[
+              const SizedBox(width: 4),
+              GestureDetector(
+                onTap: onDelete,
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 14,
+                  color: selected ? Colors.white.withValues(alpha: 0.8) : const Color(0xFF9E9CAD),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

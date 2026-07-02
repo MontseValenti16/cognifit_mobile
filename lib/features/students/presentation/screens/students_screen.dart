@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../groups/domain/entities/group_entity.dart';
 import '../../domain/entities/student_entity.dart';
 import '../viewmodels/students_viewmodel.dart';
 import '../widgets/students_widgets.dart';
@@ -92,6 +93,41 @@ class _StudentsScreenState extends State<StudentsScreen> {
             }
           },
         ),
+      ),
+    );
+  }
+
+  void _confirmDeleteGroup(GroupEntity group) {
+    final hasStudents = group.studentCount > 0;
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Eliminar ${group.displayName}'),
+        content: hasStudents
+            ? Text(
+                'Este grupo tiene ${group.studentCount} alumno${group.studentCount == 1 ? '' : 's'}. '
+                'Mueve o elimina a los alumnos antes de borrar el grupo.',
+              )
+            : const Text('¿Eliminar este grupo? Esta acción no se puede deshacer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          if (!hasStudents)
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                final ok = await _vm.deleteGroup(group.id);
+                _showSnack(
+                  ok ? '✓ Grupo eliminado' : (_vm.error ?? 'No se pudo eliminar'),
+                  ok ? AppTheme.activeGreen : AppTheme.riskRed,
+                );
+              },
+              child: Text('Eliminar', style: TextStyle(color: AppTheme.riskRed)),
+            ),
+        ],
       ),
     );
   }
@@ -241,6 +277,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                       groups: _vm.groups,
                       selectedGroupId: _vm.groupFilter,
                       onSelected: _vm.filterByGroup,
+                      onDeleteGroup: _confirmDeleteGroup,
                     ),
                   ],
                 ],
