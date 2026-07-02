@@ -93,6 +93,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       const SizedBox(height: 24),
                     ],
+                    if (_vm.pendingAssignments.isNotEmpty) ...[
+                      _sectionLabel(context, 'TESTS PENDIENTES'),
+                      const SizedBox(height: 10),
+                      ..._vm.pendingAssignments.map((a) => _AssignmentTile(
+                        studentName: a.studentName,
+                        moduleName: a.moduleName,
+                        status: a.status,
+                        isCompleted: false,
+                        onTap: () => context.push('/student/${a.studentId}', extra: {'name': a.studentName}),
+                      )),
+                      const SizedBox(height: 24),
+                    ],
+                    if (_vm.recentCompleted.isNotEmpty) ...[
+                      _sectionLabel(context, 'TESTS COMPLETADOS RECIENTES'),
+                      const SizedBox(height: 10),
+                      ..._vm.recentCompleted.map((a) => _AssignmentTile(
+                        studentName: a.studentName,
+                        moduleName: a.moduleName,
+                        status: a.status,
+                        isCompleted: true,
+                        onTap: () => context.push('/student/${a.studentId}', extra: {'name': a.studentName}),
+                      )),
+                      const SizedBox(height: 24),
+                    ],
                     Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                       _sectionLabel(context, 'ALUMNOS'),
                       TextButton(
@@ -155,6 +179,60 @@ class _BottomNav extends StatelessWidget {
           BottomNavigationBarItem(icon: Icon(Icons.group_outlined), activeIcon: Icon(Icons.group_rounded), label: 'Alumnos'),
           BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), activeIcon: Icon(Icons.assignment_rounded), label: 'Tests'),
         ],
+      ),
+    );
+  }
+}
+
+class _AssignmentTile extends StatelessWidget {
+  final String studentName;
+  final String moduleName;
+  final String status;
+  final bool isCompleted;
+  final VoidCallback onTap;
+
+  const _AssignmentTile({
+    required this.studentName,
+    required this.moduleName,
+    required this.status,
+    required this.isCompleted,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isCompleted ? AppTheme.activeGreen : AppTheme.pendingOrange;
+    final icon = isCompleted ? Icons.check_circle_outline_rounded : Icons.schedule_rounded;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
+        ),
+        child: Row(children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(studentName, style: Theme.of(context).textTheme.titleSmall),
+            Text(moduleName, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+          ])),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
+            child: Text(
+              isCompleted ? 'Completado' : (status == 'IN_PROGRESS' ? 'En curso' : 'Pendiente'),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ]),
       ),
     );
   }

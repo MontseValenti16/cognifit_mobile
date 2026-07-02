@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import '../../../groups/domain/usecases/get_groups_usecase.dart';
 import '../../../students/domain/entities/student_entity.dart';
 import '../../../students/domain/usecases/get_students_usecase.dart';
+import '../../../tests/domain/entities/screening_entity.dart';
+import '../../../tests/domain/usecases/get_teacher_assignments_usecase.dart';
 import '../../../tracking/domain/entities/tracking_entity.dart';
 import '../../../tracking/domain/usecases/get_alerts_usecase.dart';
 import '../../../tracking/domain/usecases/get_group_metrics_usecase.dart';
@@ -19,32 +21,40 @@ class GroupRiskSummary {
   });
 }
 
-/// Dashboard composes: GET /students + GET /tracking/alerts + GET /groups + per-group metrics.
+/// Dashboard composes: GET /students + GET /tracking/alerts + GET /groups + per-group metrics
+/// + GET /screening/assignments (pending & recent completed).
 class DashboardViewModel extends ChangeNotifier {
   final GetStudentsUseCase _getStudents;
   final GetAlertsUseCase _getAlerts;
   final GetGroupsUseCase _getGroups;
   final GetGroupMetricsUseCase _getGroupMetrics;
+  final GetTeacherAssignmentsUseCase _getTeacherAssignments;
 
   DashboardViewModel({
     required GetStudentsUseCase getStudents,
     required GetAlertsUseCase getAlerts,
     required GetGroupsUseCase getGroups,
     required GetGroupMetricsUseCase getGroupMetrics,
+    required GetTeacherAssignmentsUseCase getTeacherAssignments,
   })  : _getStudents = getStudents,
         _getAlerts = getAlerts,
         _getGroups = getGroups,
-        _getGroupMetrics = getGroupMetrics;
+        _getGroupMetrics = getGroupMetrics,
+        _getTeacherAssignments = getTeacherAssignments;
 
   bool _isLoading = false;
   List<StudentEntity> _students = [];
   List<AlertEntity> _alerts = [];
   List<GroupRiskSummary> _groupSummaries = [];
+  List<TeacherAssignmentEntity> _pendingAssignments = [];
+  List<TeacherAssignmentEntity> _recentCompleted = [];
 
   bool get isLoading => _isLoading;
   List<StudentEntity> get students => _students;
   List<StudentEntity> get recentStudents => _students.take(5).toList();
   List<GroupRiskSummary> get groupSummaries => _groupSummaries;
+  List<TeacherAssignmentEntity> get pendingAssignments => _pendingAssignments;
+  List<TeacherAssignmentEntity> get recentCompleted => _recentCompleted;
 
   int get totalStudents => _students.length;
   Set<String> get _atRiskStudentIds => _alerts.where((a) => a.urgency == 'HIGH').map((a) => a.studentId).toSet();
@@ -61,6 +71,12 @@ class DashboardViewModel extends ChangeNotifier {
       _getStudents().then((v) => _students = v).catchError((_) => _students = _students),
       _getAlerts(onlyUnread: true).then((v) => _alerts = v).catchError((_) => _alerts = _alerts),
       _loadGroupSummaries(),
+      _getTeacherAssignments(status: 'PENDING,IN_PROGRESS')
+          .then((v) => _pendingAssignments = v)
+          .catchError((_) => _pendingAssignments = _pendingAssignments),
+      _getTeacherAssignments(status: 'COMPLETED')
+          .then((v) => _recentCompleted = v.take(5).toList())
+          .catchError((_) => _recentCompleted = _recentCompleted),
     ]);
     _isLoading = false;
     notifyListeners();

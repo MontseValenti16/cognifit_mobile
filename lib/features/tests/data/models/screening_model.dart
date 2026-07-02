@@ -205,3 +205,22 @@ class DiagnosisModel extends DiagnosisEntity {
     plnSource: j['pln_source'] as String?,
   );
 }
+
+class TeacherAssignmentModel extends TeacherAssignmentEntity {
+  const TeacherAssignmentModel({
+    required super.id, required super.studentId, required super.studentName,
+    required super.moduleCode, required super.moduleName,
+    required super.status, required super.assignedAt, super.completedAt,
+  });
+
+  factory TeacherAssignmentModel.fromJson(Map<String, dynamic> j) => TeacherAssignmentModel(
+    id: j['id'] as String? ?? '',
+    studentId: j['student_id'] as String? ?? '',
+    studentName: j['student_name'] as String? ?? '',
+    moduleCode: j['module_code'] as String? ?? '',
+    moduleName: j['module_name'] as String? ?? '',
+    status: j['status'] as String? ?? 'PENDING',
+    assignedAt: j['assigned_at'] as String? ?? '',
+    completedAt: j['completed_at'] as String?,
+  );
+}
