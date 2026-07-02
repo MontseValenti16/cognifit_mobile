@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../child/presentation/screens/child_home_screen.dart';
 import '../../../intervention/presentation/screens/intervention_screen.dart';
 import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
 import '../../../tests/domain/entities/screening_entity.dart';
@@ -36,6 +37,16 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
           Text('Perfil del alumno', style: Theme.of(context).textTheme.bodyMedium),
         ]),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.child_care_rounded),
+            tooltip: 'Modo niño',
+            onPressed: () => Navigator.push(context, MaterialPageRoute(
+              builder: (_) => ChildHomeScreen(
+                studentId: widget.studentId,
+                studentName: _vm.student?.fullName ?? widget.studentName,
+              ),
+            )),
+          ),
           IconButton(
             icon: const Icon(Icons.show_chart_rounded),
             tooltip: 'Ver progreso',
