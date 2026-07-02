@@ -48,9 +48,22 @@ class _LoginScreenState extends State<LoginScreen> {
     final role = _vm.currentUser?.role;
     final linkedId = _vm.linkedStudentId;
     final linkedName = _vm.linkedStudentName ?? 'Alumno';
-    if (role == UserRole.student && linkedId != null) {
-      context.go(AppRouter.childHomeOf(linkedId), extra: {'name': linkedName});
-    } else if (role == UserRole.parent && linkedId != null) {
+
+    if (role == UserRole.student) {
+      // Los alumnos no inician sesión en la app — el docente activa "Modo niño"
+      // en su propio dispositivo durante la evaluación.
+      _vm.logout();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('Los alumnos no necesitan iniciar sesión. Pide a tu docente que abra la evaluación.'),
+        backgroundColor: AppTheme.warning,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 5),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ));
+      return;
+    }
+
+    if (role == UserRole.parent && linkedId != null) {
       context.go(AppRouter.parentHome, extra: {'studentId': linkedId, 'name': linkedName});
     } else {
       context.go(AppRouter.dashboard);
