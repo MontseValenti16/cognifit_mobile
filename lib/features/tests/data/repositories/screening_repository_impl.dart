@@ -47,4 +47,8 @@ class ScreeningRepositoryImpl implements ScreeningRepository {
   @override
   Future<List<PendingModuleEntity>> getStudentAssignments(String studentId) =>
       remote.getStudentAssignments(studentId);
+
+  @override
+  Future<List<TeacherAssignmentEntity>> getTeacherAssignments({String status = 'PENDING,IN_PROGRESS'}) =>
+      remote.getTeacherAssignments(status: status);
 }

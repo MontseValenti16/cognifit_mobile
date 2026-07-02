@@ -243,3 +243,29 @@ class DiagnosisEntity {
     this.plnSource,
   });
 }
+
+// ── Teacher-level assignment (para el dashboard del docente) ──────────────────
+class TeacherAssignmentEntity {
+  final String id;
+  final String studentId;
+  final String studentName;
+  final String moduleCode;
+  final String moduleName;
+  final String status; // PENDING / IN_PROGRESS / COMPLETED
+  final String assignedAt;
+  final String? completedAt;
+
+  const TeacherAssignmentEntity({
+    required this.id,
+    required this.studentId,
+    required this.studentName,
+    required this.moduleCode,
+    required this.moduleName,
+    required this.status,
+    required this.assignedAt,
+    this.completedAt,
+  });
+
+  bool get isPending => status == 'PENDING' || status == 'IN_PROGRESS';
+  bool get isCompleted => status == 'COMPLETED';
+}

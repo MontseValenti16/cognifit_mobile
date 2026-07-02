@@ -46,6 +46,7 @@ import '../../features/tests/domain/usecases/submit_responses_usecase.dart';
 import '../../features/tests/domain/usecases/diagnose_usecase.dart';
 import '../../features/tests/domain/usecases/get_latest_risk_usecase.dart';
 import '../../features/tests/domain/usecases/get_student_assignments_usecase.dart';
+import '../../features/tests/domain/usecases/get_teacher_assignments_usecase.dart';
 import '../../features/tests/presentation/viewmodels/tests_viewmodel.dart';
 
 // EXERCISE (consumes screening repository)
@@ -170,6 +171,7 @@ class ServiceLocator {
     getAlerts: GetAlertsUseCase(_trackingRepo),
     getGroups: GetGroupsUseCase(_groupRepo),
     getGroupMetrics: GetGroupMetricsUseCase(_trackingRepo),
+    getTeacherAssignments: GetTeacherAssignmentsUseCase(_screeningRepo),
   );
 
   InterventionViewModel interventionViewModel() => InterventionViewModel(
