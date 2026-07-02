@@ -20,7 +20,13 @@ class AppRouter {
       GoRoute(path: splash,    builder: (c, s) => const SplashScreen()),
       GoRoute(path: login,     builder: (c, s) => const LoginScreen()),
       GoRoute(path: dashboard, builder: (c, s) => const DashboardScreen()),
-      GoRoute(path: students,  builder: (c, s) => const StudentsScreen()),
+      GoRoute(
+        path: students,
+        builder: (c, s) {
+          final extra = s.extra as Map<String, dynamic>?;
+          return StudentsScreen(initialGroupId: extra?['groupId']);
+        },
+      ),
       GoRoute(path: tests,     builder: (c, s) => const TestsScreen()),
 
       GoRoute(

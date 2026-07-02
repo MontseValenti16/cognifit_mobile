@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../groups/domain/entities/group_entity.dart';
 import '../../domain/entities/student_entity.dart';
 
 String _initialsOf(String name) {
@@ -140,5 +141,71 @@ class StudentsEmptyState extends StatelessWidget {
         OutlinedButton.icon(onPressed: onAdd, icon: const Icon(Icons.add_rounded, size: 18), label: const Text('Agregar alumno')),
       ]),
     ));
+  }
+}
+
+class GroupFilterChips extends StatelessWidget {
+  final List<GroupEntity> groups;
+  final String? selectedGroupId;
+  final ValueChanged<String?> onSelected;
+
+  const GroupFilterChips({
+    super.key,
+    required this.groups,
+    required this.selectedGroupId,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (groups.isEmpty) return const SizedBox.shrink();
+    return SizedBox(
+      height: 36,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          _Chip(
+            label: 'Todos',
+            selected: selectedGroupId == null,
+            onTap: () => onSelected(null),
+          ),
+          ...groups.map((g) => _Chip(
+            label: g.displayName,
+            selected: selectedGroupId == g.id,
+            onTap: () => onSelected(g.id),
+          )),
+        ],
+      ),
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  const _Chip({required this.label, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? AppTheme.primary : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: selected ? AppTheme.primary : AppTheme.outline),
+        ),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: selected ? Colors.white : const Color(0xFF6B6880),
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          ),
+        ),
+      ),
+    );
   }
 }

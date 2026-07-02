@@ -9,7 +9,8 @@ import '../widgets/students_widgets.dart';
 import '../widgets/student_form_modal.dart';
 
 class StudentsScreen extends StatefulWidget {
-  const StudentsScreen({super.key});
+  final String? initialGroupId;
+  const StudentsScreen({super.key, this.initialGroupId});
   @override
   State<StudentsScreen> createState() => _StudentsScreenState();
 }
@@ -22,7 +23,11 @@ class _StudentsScreenState extends State<StudentsScreen> {
     super.initState();
     _vm = ServiceLocator.instance.studentsViewModel;
     _vm.addListener(_rebuild);
-    _vm.loadStudents();
+    _vm.loadStudents().then((_) {
+      if (widget.initialGroupId != null) {
+        _vm.filterByGroup(widget.initialGroupId);
+      }
+    });
   }
 
   @override
@@ -186,6 +191,14 @@ class _StudentsScreenState extends State<StudentsScreen> {
                   ),
                   const SizedBox(height: 14),
                   StudentsSearchBar(onChanged: _vm.search),
+                  if (_vm.groups.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    GroupFilterChips(
+                      groups: _vm.groups,
+                      selectedGroupId: _vm.groupFilter,
+                      onSelected: _vm.filterByGroup,
+                    ),
+                  ],
                 ],
               ),
             ),
