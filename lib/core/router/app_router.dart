@@ -7,6 +7,7 @@ import '../../features/student_profile/presentation/screens/student_profile_scre
 import '../../features/tests/presentation/screens/tests_screen.dart';
 import '../../features/exercise/presentation/screens/exercise_screen.dart';
 import '../../features/tracking/presentation/screens/alerts_screen.dart';
+import '../../features/tracking/presentation/screens/learning_curve_screen.dart';
 
 class AppRouter {
   static const String splash    = '/';
@@ -15,6 +16,7 @@ class AppRouter {
   static const String students  = '/students';
   static const String tests     = '/tests';
   static const String alerts    = '/alerts';
+  static const String progress  = '/student/:id/progress';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -38,6 +40,18 @@ class AppRouter {
           final extra = s.extra as Map<String, dynamic>?;
           return StudentProfileScreen(studentId: s.pathParameters['id'] ?? '', studentName: extra?['name'] ?? 'Alumno');
         },
+        routes: [
+          GoRoute(
+            path: 'progress',
+            builder: (c, s) {
+              final extra = s.extra as Map<String, dynamic>?;
+              return LearningCurveScreen(
+                studentId: s.pathParameters['id'] ?? '',
+                studentName: extra?['name'] ?? 'Alumno',
+              );
+            },
+          ),
+        ],
       ),
 
       // Real screening session — backend sessionId, not a static testId
