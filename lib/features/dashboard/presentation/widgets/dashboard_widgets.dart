@@ -52,16 +52,17 @@ class AlertBanner extends StatelessWidget {
   }
 }
 
-/// Tarjeta de riesgo por grupo (HU-FL-08): muestra conteos HIGH/MEDIUM/LOW
-/// y una barra proporcional de color para identificar grupos en riesgo de un vistazo.
 class GroupRiskSummaryCard extends StatelessWidget {
   final GroupRiskSummary summary;
-  const GroupRiskSummaryCard({super.key, required this.summary});
+  final VoidCallback? onTap;
+  const GroupRiskSummaryCard({super.key, required this.summary, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final total = summary.totalStudents > 0 ? summary.totalStudents : 1;
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       width: 200,
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(16),
@@ -90,6 +91,7 @@ class GroupRiskSummaryCard extends StatelessWidget {
           _RiskChip(count: summary.lowRisk, color: AppTheme.activeGreen, label: 'Bajo'),
         ]),
       ]),
+      ),
     );
   }
 }

@@ -82,7 +82,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: _vm.groupSummaries.length,
-                          itemBuilder: (_, i) => GroupRiskSummaryCard(summary: _vm.groupSummaries[i]),
+                          itemBuilder: (_, i) => GroupRiskSummaryCard(
+                            summary: _vm.groupSummaries[i],
+                            onTap: () => context.push(
+                              AppRouter.students,
+                              extra: {'groupId': _vm.groupSummaries[i].groupId},
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 24),
