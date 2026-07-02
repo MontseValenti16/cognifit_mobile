@@ -217,6 +217,12 @@ class _UserOptionsSheet extends StatelessWidget {
           title: const Text('Cambiar rol'),
           onTap: () { Navigator.pop(context); _showRoleSheet(context); },
         ),
+        if (user.role == 'PARENT')
+          ListTile(
+            leading: const Icon(Icons.link_rounded, color: AppTheme.warning),
+            title: const Text('Vincular alumno'),
+            onTap: () { Navigator.pop(context); _showLinkSheet(context); },
+          ),
         if (user.isActive)
           ListTile(
             leading: const Icon(Icons.person_off_rounded, color: Colors.orange),
@@ -239,6 +245,15 @@ class _UserOptionsSheet extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => _ChangeRoleSheet(user: user, vm: vm),
+    );
+  }
+
+  void _showLinkSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _LinkStudentSheet(user: user, vm: vm),
     );
   }
 
@@ -319,6 +334,116 @@ class _ChangeRoleSheetState extends State<_ChangeRoleSheet> {
           ]),
         ),
       ]),
+    );
+  }
+}
+
+// ─── Vincular alumno a padre/tutor ───────────────────────────────────────────
+
+class _LinkStudentSheet extends StatefulWidget {
+  final AdminUserEntity user;
+  final AdminViewModel vm;
+  const _LinkStudentSheet({required this.user, required this.vm});
+  @override
+  State<_LinkStudentSheet> createState() => _LinkStudentSheetState();
+}
+
+class _LinkStudentSheetState extends State<_LinkStudentSheet> {
+  final _searchCtrl = TextEditingController();
+  String? _selectedId;
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    widget.vm.loadStudentsForPicker();
+    _searchCtrl.addListener(() => setState(() => _query = _searchCtrl.text.trim().toLowerCase()));
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  List<Map<String, dynamic>> get _filtered {
+    final all = widget.vm.studentsForPicker;
+    if (_query.isEmpty) return all;
+    return all.where((s) => (s['full_name'] as String? ?? '').toLowerCase().contains(_query)).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        margin: const EdgeInsets.all(16),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const SizedBox(height: 8),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+          const SizedBox(height: 16),
+          const Text('Vincular alumno', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: TextField(
+              controller: _searchCtrl,
+              decoration: InputDecoration(
+                hintText: 'Buscar alumno…',
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              ),
+            ),
+          ),
+          if (widget.vm.isLoadingStudents)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: CircularProgressIndicator(color: AppTheme.primary),
+            )
+          else
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 280),
+              child: _filtered.isEmpty
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Text('Sin resultados', style: TextStyle(color: Colors.grey)),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _filtered.length,
+                      itemBuilder: (_, i) {
+                        final s = _filtered[i];
+                        final id = s['id'] as String;
+                        final name = s['full_name'] as String? ?? 'Alumno';
+                        return ListTile(
+                          leading: const Icon(Icons.child_care_rounded, color: AppTheme.primary),
+                          title: Text(name),
+                          trailing: _selectedId == id
+                              ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary)
+                              : const Icon(Icons.circle_outlined, color: Colors.grey),
+                          onTap: () => setState(() => _selectedId = id),
+                        );
+                      },
+                    ),
+            ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+            child: Row(children: [
+              Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar'))),
+              const SizedBox(width: 12),
+              Expanded(child: ElevatedButton(
+                onPressed: _selectedId == null ? null : () async {
+                  final ok = await widget.vm.linkParent(widget.user.id, _selectedId!);
+                  if (ok && context.mounted) Navigator.pop(context);
+                },
+                child: const Text('Vincular'),
+              )),
+            ]),
+          ),
+        ]),
+      ),
     );
   }
 }

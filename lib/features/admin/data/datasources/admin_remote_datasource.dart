@@ -7,6 +7,8 @@ abstract class AdminRemoteDataSource {
   Future<AdminUserModel> createUser(CreateUserParams params);
   Future<AdminUserModel> updateUser(UpdateUserParams params);
   Future<AdminUserModel> deactivateUser(String userId);
+  Future<List<Map<String, dynamic>>> getStudentsForPicker();
+  Future<void> linkParentToStudent(String userId, String studentId);
 }
 
 class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
@@ -45,5 +47,16 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
   Future<AdminUserModel> deactivateUser(String userId) async {
     final json = await client.delete('/admin/users/$userId');
     return AdminUserModel.fromJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getStudentsForPicker() async {
+    final json = await client.get('/students');
+    return (json as List).map((e) => e as Map<String, dynamic>).toList();
+  }
+
+  @override
+  Future<void> linkParentToStudent(String userId, String studentId) async {
+    await client.patch('/admin/users/$userId/link-student', data: {'student_id': studentId});
   }
 }
