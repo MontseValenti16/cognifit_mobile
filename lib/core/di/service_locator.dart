@@ -22,6 +22,7 @@ import '../../features/students/domain/usecases/get_student_by_id_usecase.dart';
 import '../../features/students/domain/usecases/create_student_usecase.dart';
 import '../../features/students/domain/usecases/update_student_usecase.dart';
 import '../../features/students/domain/usecases/delete_student_usecase.dart';
+import '../../features/students/domain/usecases/permanent_delete_student_usecase.dart';
 import '../../features/students/domain/usecases/activate_student_usecase.dart';
 import '../../features/students/presentation/viewmodels/students_viewmodel.dart';
 
@@ -123,6 +124,7 @@ class ServiceLocator {
     createStudent: CreateStudentUseCase(_studentRepo),
     updateStudent: UpdateStudentUseCase(_studentRepo),
     deleteStudent: DeleteStudentUseCase(_studentRepo),
+    permanentDeleteStudent: PermanentDeleteStudentUseCase(_studentRepo),
     activateStudent: ActivateStudentUseCase(_studentRepo),
     getGroups: GetGroupsUseCase(_groupRepo),
     createGroup: CreateGroupUseCase(_groupRepo),

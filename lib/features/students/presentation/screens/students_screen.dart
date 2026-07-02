@@ -130,6 +130,50 @@ class _StudentsScreenState extends State<StudentsScreen> {
     );
   }
 
+  void _confirmPermanentDelete(StudentEntity student) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(children: [
+          Icon(Icons.delete_forever_rounded, color: AppTheme.riskRed, size: 22),
+          const SizedBox(width: 8),
+          const Text('Eliminar permanentemente'),
+        ]),
+        content: RichText(
+          text: TextSpan(
+            style: Theme.of(context).textTheme.bodyMedium,
+            children: [
+              const TextSpan(text: 'Esta acción '),
+              TextSpan(text: 'NO se puede deshacer', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.riskRed)),
+              const TextSpan(text: '.\n\nSe eliminarán todos los datos de '),
+              TextSpan(text: student.fullName, style: const TextStyle(fontWeight: FontWeight.w600)),
+              const TextSpan(text: ': evaluaciones, sesiones, historial clínico y diagnósticos.\n\n¿Estás seguro?'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.riskRed),
+            onPressed: () async {
+              Navigator.pop(context);
+              final ok = await _vm.permanentDelete(student.id);
+              _showSnack(
+                ok ? '✓ ${student.fullName} eliminado permanentemente' : (_vm.error ?? 'No se pudo eliminar'),
+                ok ? AppTheme.activeGreen : AppTheme.riskRed,
+              );
+            },
+            child: const Text('Sí, eliminar'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _activate(StudentEntity student) async {
     final ok = await _vm.activate(student.id);
     _showSnack(
@@ -235,6 +279,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                             onEdit: () => _openForm(existing: s),
                             onDelete: () => _confirmDeactivate(s),
                             onActivate: () => _activate(s),
+                            onPermanentDelete: () => _confirmPermanentDelete(s),
                           );
                         },
                       ),

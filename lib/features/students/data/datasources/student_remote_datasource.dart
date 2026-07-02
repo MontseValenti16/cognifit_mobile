@@ -8,6 +8,7 @@ abstract class StudentRemoteDataSource {
   Future<StudentModel> createStudent(CreateStudentParams params);
   Future<StudentModel> updateStudent(UpdateStudentParams params);
   Future<void> deleteStudent(String id);
+  Future<void> permanentDeleteStudent(String id);
   Future<StudentModel> activateStudent(String id);
 }
 
@@ -43,6 +44,11 @@ class StudentRemoteDataSourceImpl implements StudentRemoteDataSource {
   @override
   Future<void> deleteStudent(String id) async {
     await client.delete('/students/$id');
+  }
+
+  @override
+  Future<void> permanentDeleteStudent(String id) async {
+    await client.delete('/students/$id/permanent');
   }
 
   @override

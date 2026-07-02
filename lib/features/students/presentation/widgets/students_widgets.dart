@@ -22,10 +22,12 @@ class StudentListTile extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onActivate;
+  final VoidCallback onPermanentDelete;
 
   const StudentListTile({
     super.key, required this.student, required this.onTap,
     required this.onEdit, required this.onDelete, required this.onActivate,
+    required this.onPermanentDelete,
   });
 
   @override
@@ -79,6 +81,7 @@ class StudentListTile extends StatelessWidget {
                   if (v == 'edit') onEdit();
                   if (v == 'deactivate') onDelete();
                   if (v == 'activate') onActivate();
+                  if (v == 'permanent_delete') onPermanentDelete();
                 },
                 itemBuilder: (_) => [
                   PopupMenuItem(value: 'edit', child: Row(children: [
@@ -89,11 +92,16 @@ class StudentListTile extends StatelessWidget {
                       Icon(Icons.block_rounded, size: 18, color: AppTheme.riskRed), const SizedBox(width: 10),
                       Text('Desactivar', style: TextStyle(color: AppTheme.riskRed)),
                     ]))
-                  else
+                  else ...[
                     PopupMenuItem(value: 'activate', child: Row(children: [
                       Icon(Icons.check_circle_outline_rounded, size: 18, color: AppTheme.activeGreen), const SizedBox(width: 10),
                       Text('Reactivar', style: TextStyle(color: AppTheme.activeGreen)),
                     ])),
+                    PopupMenuItem(value: 'permanent_delete', child: Row(children: [
+                      Icon(Icons.delete_forever_rounded, size: 18, color: AppTheme.riskRed), const SizedBox(width: 10),
+                      Text('Eliminar permanentemente', style: TextStyle(color: AppTheme.riskRed)),
+                    ])),
+                  ],
                 ],
               ),
             ]),
