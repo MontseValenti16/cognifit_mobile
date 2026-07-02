@@ -9,6 +9,7 @@ import '../../domain/usecases/get_student_by_id_usecase.dart';
 import '../../domain/usecases/create_student_usecase.dart';
 import '../../domain/usecases/update_student_usecase.dart';
 import '../../domain/usecases/delete_student_usecase.dart';
+import '../../domain/usecases/permanent_delete_student_usecase.dart';
 import '../../domain/usecases/activate_student_usecase.dart';
 
 enum StudentsStatus { idle, loading, loaded, mutating, error }
@@ -19,6 +20,7 @@ class StudentsViewModel extends ChangeNotifier {
   final CreateStudentUseCase _createStudent;
   final UpdateStudentUseCase _updateStudent;
   final DeleteStudentUseCase _deleteStudent;
+  final PermanentDeleteStudentUseCase _permanentDeleteStudent;
   final ActivateStudentUseCase _activateStudent;
   final GetGroupsUseCase _getGroups;
   final CreateGroupUseCase _createGroup;
@@ -29,6 +31,7 @@ class StudentsViewModel extends ChangeNotifier {
     required CreateStudentUseCase createStudent,
     required UpdateStudentUseCase updateStudent,
     required DeleteStudentUseCase deleteStudent,
+    required PermanentDeleteStudentUseCase permanentDeleteStudent,
     required ActivateStudentUseCase activateStudent,
     required GetGroupsUseCase getGroups,
     required CreateGroupUseCase createGroup,
@@ -37,6 +40,7 @@ class StudentsViewModel extends ChangeNotifier {
        _createStudent = createStudent,
        _updateStudent = updateStudent,
        _deleteStudent = deleteStudent,
+       _permanentDeleteStudent = permanentDeleteStudent,
        _activateStudent = activateStudent,
        _getGroups = getGroups,
        _createGroup = createGroup;
@@ -209,6 +213,30 @@ class StudentsViewModel extends ChangeNotifier {
       return false;
     } catch (_) {
       _error = 'No se pudo desactivar el alumno.';
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Borrado físico irreversible — elimina al alumno y todos sus datos de la DB.
+  Future<bool> permanentDelete(String id) async {
+    _status = StudentsStatus.mutating;
+    _error = null;
+    notifyListeners();
+    try {
+      await _permanentDeleteStudent(id);
+      _students = _students.where((s) => s.id != id).toList();
+      _status = StudentsStatus.loaded;
+      notifyListeners();
+      return true;
+    } on ApiException catch (e) {
+      _error = e.userMessage;
+      _status = StudentsStatus.error;
+      notifyListeners();
+      return false;
+    } catch (_) {
+      _error = 'No se pudo eliminar al alumno.';
       _status = StudentsStatus.error;
       notifyListeners();
       return false;
