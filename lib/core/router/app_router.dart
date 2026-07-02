@@ -8,6 +8,7 @@ import '../../features/tests/presentation/screens/tests_screen.dart';
 import '../../features/exercise/presentation/screens/exercise_screen.dart';
 import '../../features/tracking/presentation/screens/alerts_screen.dart';
 import '../../features/tracking/presentation/screens/learning_curve_screen.dart';
+import '../../features/child/presentation/screens/child_home_screen.dart';
 
 class AppRouter {
   static const String splash    = '/';
@@ -65,6 +66,23 @@ class AppRouter {
           );
         },
       ),
+
+      // Modo niño — pantalla gamificada entregada al alumno por el docente
+      GoRoute(
+        path: '/child/:studentId',
+        builder: (c, s) {
+          final extra = s.extra as Map<String, dynamic>?;
+          return ChildHomeScreen(
+            studentId: s.pathParameters['studentId'] ?? '',
+            studentName: extra?['name'] ?? 'Alumno',
+            pendingSessionId: extra?['sessionId'],
+            pendingModuleTitle: extra?['moduleTitle'],
+          );
+        },
+      ),
     ],
   );
+
+  static const String childHome = '/child/:studentId';
+  static String childHomeOf(String studentId) => '/child/$studentId';
 }
