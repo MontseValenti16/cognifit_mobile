@@ -46,6 +46,7 @@ class StudentsViewModel extends ChangeNotifier {
   List<GroupEntity> _groups = [];
   String? _error;
   String _query = '';
+  String? _groupFilter;
 
   StudentsStatus get status => _status;
   String? get error => _error;
@@ -54,13 +55,17 @@ class StudentsViewModel extends ChangeNotifier {
 
   List<GroupEntity> get groups => _groups;
   bool get hasGroups => _groups.isNotEmpty;
+  String? get groupFilter => _groupFilter;
 
   List<StudentEntity> get students {
-    if (_query.isEmpty) return _students;
-    final q = _query.toLowerCase();
-    return _students
-        .where((s) => s.fullName.toLowerCase().contains(q))
-        .toList();
+    var list = _groupFilter == null
+        ? _students
+        : _students.where((s) => s.groupId == _groupFilter).toList();
+    if (_query.isNotEmpty) {
+      final q = _query.toLowerCase();
+      list = list.where((s) => s.fullName.toLowerCase().contains(q)).toList();
+    }
+    return list;
   }
 
   int get totalCount => _students.length;
@@ -116,6 +121,11 @@ class StudentsViewModel extends ChangeNotifier {
 
   void search(String query) {
     _query = query;
+    notifyListeners();
+  }
+
+  void filterByGroup(String? groupId) {
+    _groupFilter = groupId;
     notifyListeners();
   }
 
