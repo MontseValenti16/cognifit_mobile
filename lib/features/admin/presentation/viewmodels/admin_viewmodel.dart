@@ -4,32 +4,44 @@ import '../../domain/usecases/get_users_usecase.dart';
 import '../../domain/usecases/create_user_usecase.dart';
 import '../../domain/usecases/update_user_usecase.dart';
 import '../../domain/usecases/deactivate_user_usecase.dart';
+import '../../domain/usecases/get_students_for_picker_usecase.dart';
+import '../../domain/usecases/link_parent_usecase.dart';
 
 class AdminViewModel extends ChangeNotifier {
   final GetUsersUseCase _getUsers;
   final CreateUserUseCase _createUser;
   final UpdateUserUseCase _updateUser;
   final DeactivateUserUseCase _deactivateUser;
+  final GetStudentsForPickerUseCase _getStudentsForPicker;
+  final LinkParentUseCase _linkParent;
 
   AdminViewModel({
     required GetUsersUseCase getUsers,
     required CreateUserUseCase createUser,
     required UpdateUserUseCase updateUser,
     required DeactivateUserUseCase deactivateUser,
+    required GetStudentsForPickerUseCase getStudentsForPicker,
+    required LinkParentUseCase linkParent,
   })  : _getUsers = getUsers,
         _createUser = createUser,
         _updateUser = updateUser,
-        _deactivateUser = deactivateUser;
+        _deactivateUser = deactivateUser,
+        _getStudentsForPicker = getStudentsForPicker,
+        _linkParent = linkParent;
 
   List<AdminUserEntity> _users = [];
+  List<Map<String, dynamic>> _studentsForPicker = [];
   bool _includeInactive = false;
   bool _isLoading = false;
+  bool _isLoadingStudents = false;
   String? _error;
   String? _successMessage;
 
   List<AdminUserEntity> get users => _users;
+  List<Map<String, dynamic>> get studentsForPicker => _studentsForPicker;
   bool get includeInactive => _includeInactive;
   bool get isLoading => _isLoading;
+  bool get isLoadingStudents => _isLoadingStudents;
   String? get error => _error;
   String? get successMessage => _successMessage;
 
@@ -114,6 +126,34 @@ class AdminViewModel extends ChangeNotifier {
       return true;
     } catch (e) {
       _error = 'No se pudo reactivar el usuario';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> loadStudentsForPicker() async {
+    _isLoadingStudents = true;
+    notifyListeners();
+    try {
+      _studentsForPicker = await _getStudentsForPicker();
+    } catch (_) {
+      _studentsForPicker = [];
+    } finally {
+      _isLoadingStudents = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> linkParent(String userId, String studentId) async {
+    _error = null;
+    _successMessage = null;
+    try {
+      await _linkParent(userId, studentId);
+      _successMessage = 'Alumno vinculado correctamente';
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = 'No se pudo vincular el alumno';
       notifyListeners();
       return false;
     }

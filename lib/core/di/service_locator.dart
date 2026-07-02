@@ -62,6 +62,8 @@ import '../../features/admin/domain/usecases/get_users_usecase.dart';
 import '../../features/admin/domain/usecases/create_user_usecase.dart';
 import '../../features/admin/domain/usecases/update_user_usecase.dart';
 import '../../features/admin/domain/usecases/deactivate_user_usecase.dart';
+import '../../features/admin/domain/usecases/get_students_for_picker_usecase.dart';
+import '../../features/admin/domain/usecases/link_parent_usecase.dart';
 import '../../features/admin/presentation/viewmodels/admin_viewmodel.dart';
 
 // EXERCISE (consumes screening repository)
@@ -214,6 +216,8 @@ class ServiceLocator {
     createUser: CreateUserUseCase(_adminRepo),
     updateUser: UpdateUserUseCase(_adminRepo),
     deactivateUser: DeactivateUserUseCase(_adminRepo),
+    getStudentsForPicker: GetStudentsForPickerUseCase(_adminRepo),
+    linkParent: LinkParentUseCase(_adminRepo),
   );
 
   /// Call after logout to drop cached state tied to the previous session.

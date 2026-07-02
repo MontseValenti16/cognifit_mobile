@@ -18,4 +18,11 @@ class AdminRepositoryImpl implements AdminRepository {
 
   @override
   Future<AdminUserEntity> deactivateUser(String userId) => remote.deactivateUser(userId);
+
+  @override
+  Future<List<Map<String, dynamic>>> getStudentsForPicker() => remote.getStudentsForPicker();
+
+  @override
+  Future<void> linkParentToStudent(String userId, String studentId) =>
+      remote.linkParentToStudent(userId, studentId);
 }
