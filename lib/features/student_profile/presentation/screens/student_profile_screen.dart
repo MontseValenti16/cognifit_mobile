@@ -37,6 +37,14 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
         ]),
         actions: [
           IconButton(
+            icon: const Icon(Icons.show_chart_rounded),
+            tooltip: 'Ver progreso',
+            onPressed: () => context.push(
+              '/student/${widget.studentId}/progress',
+              extra: {'name': widget.studentName},
+            ),
+          ),
+          IconButton(
             icon: const Icon(Icons.psychology_rounded),
             tooltip: 'Intervención',
             onPressed: () => Navigator.push(context, MaterialPageRoute(
