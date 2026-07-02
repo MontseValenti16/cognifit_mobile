@@ -10,4 +10,6 @@ class GroupRepositoryImpl implements GroupRepository {
   Future<List<GroupEntity>> getGroups() => remote.getGroups();
   @override
   Future<GroupEntity> createGroup(CreateGroupParams params) => remote.createGroup(params);
+  @override
+  Future<void> deleteGroup(String id) => remote.deleteGroup(id);
 }

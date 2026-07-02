@@ -5,6 +5,7 @@ import '../models/group_model.dart';
 abstract class GroupRemoteDataSource {
   Future<List<GroupModel>> getGroups();
   Future<GroupModel> createGroup(CreateGroupParams params);
+  Future<void> deleteGroup(String id);
 }
 
 /// Maps to the /groups resource of the API.
@@ -22,5 +23,10 @@ class GroupRemoteDataSourceImpl implements GroupRemoteDataSource {
   Future<GroupModel> createGroup(CreateGroupParams params) async {
     final json = await client.post('/groups', data: GroupModel.createToJson(params));
     return GroupModel.fromJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<void> deleteGroup(String id) async {
+    await client.delete('/groups/$id');
   }
 }
