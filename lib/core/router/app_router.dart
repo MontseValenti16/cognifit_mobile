@@ -6,6 +6,7 @@ import '../../features/students/presentation/screens/students_screen.dart';
 import '../../features/student_profile/presentation/screens/student_profile_screen.dart';
 import '../../features/tests/presentation/screens/tests_screen.dart';
 import '../../features/exercise/presentation/screens/exercise_screen.dart';
+import '../../features/tracking/presentation/screens/alerts_screen.dart';
 
 class AppRouter {
   static const String splash    = '/';
@@ -13,6 +14,7 @@ class AppRouter {
   static const String dashboard = '/dashboard';
   static const String students  = '/students';
   static const String tests     = '/tests';
+  static const String alerts    = '/alerts';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -28,6 +30,7 @@ class AppRouter {
         },
       ),
       GoRoute(path: tests,     builder: (c, s) => const TestsScreen()),
+      GoRoute(path: alerts,    builder: (c, s) => const AlertsScreen()),
 
       GoRoute(
         path: '/student/:id',

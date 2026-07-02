@@ -7,19 +7,23 @@ class StatCard extends StatelessWidget {
   final String value;
   final String label;
   final Color color;
-  const StatCard({super.key, required this.value, required this.label, required this.color});
+  final VoidCallback? onTap;
+  const StatCard({super.key, required this.value, required this.label, required this.color, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(18)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(value, style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: color, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color.withOpacity(0.8))),
-        ]),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(18)),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(value, style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: color, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 4),
+            Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color.withOpacity(0.8))),
+          ]),
+        ),
       ),
     );
   }

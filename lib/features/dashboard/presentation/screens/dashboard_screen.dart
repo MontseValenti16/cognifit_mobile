@@ -65,7 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(width: 10),
                       StatCard(value: _vm.atRiskCount.toString(), label: 'En riesgo', color: AppTheme.riskRed),
                       const SizedBox(width: 10),
-                      StatCard(value: _vm.unreadAlerts.length.toString(), label: 'Alertas', color: AppTheme.tertiary),
+                      StatCard(value: _vm.unreadAlerts.length.toString(), label: 'Alertas', color: AppTheme.tertiary, onTap: () => context.push(AppRouter.alerts)),
                     ]),
                     const SizedBox(height: 16),
                     if (_vm.topAlert != null)
