@@ -6,6 +6,7 @@ import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/get_me_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
+import '../../../students/domain/usecases/get_linked_student_usecase.dart';
 
 enum AuthStatus { idle, loading, success, error }
 
@@ -15,6 +16,7 @@ class AuthViewModel extends ChangeNotifier {
   final GetMeUseCase _getMe;
   final RegisterUseCase _register;
   final TokenStorage _tokenStorage;
+  final GetLinkedStudentUseCase _getLinkedStudent;
 
   AuthViewModel({
     required LoginUseCase login,
@@ -22,13 +24,17 @@ class AuthViewModel extends ChangeNotifier {
     required GetMeUseCase getMe,
     required RegisterUseCase register,
     required TokenStorage tokenStorage,
-  })  : _login = login, _logout = logout, _getMe = getMe, _register = register, _tokenStorage = tokenStorage;
+    required GetLinkedStudentUseCase getLinkedStudent,
+  })  : _login = login, _logout = logout, _getMe = getMe, _register = register,
+        _tokenStorage = tokenStorage, _getLinkedStudent = getLinkedStudent;
 
   AuthStatus _status = AuthStatus.idle;
   String? _errorMessage;
   String? _errorField;
   bool _obscurePassword = true;
   UserEntity? currentUser;
+  String? linkedStudentId;
+  String? linkedStudentName;
 
   String name = '';
   String email = '';
@@ -45,12 +51,24 @@ class AuthViewModel extends ChangeNotifier {
   void setEmail(String v) => email = v;
   void setPassword(String v) => password = v;
 
+  Future<void> _fetchLinkedStudent() async {
+    linkedStudentId = null;
+    linkedStudentName = null;
+    final result = await _getLinkedStudent();
+    linkedStudentId = result?.id;
+    linkedStudentName = result?.fullName;
+  }
+
   Future<void> login() async {
     if (email.isEmpty || password.isEmpty) { _setError('Por favor completa todos los campos.'); return; }
     _setLoading();
     try {
       await _login(email, password, deviceInfo: 'Flutter App');
       currentUser = await _getMe();
+      final role = currentUser?.role;
+      if (role == UserRole.student || role == UserRole.parent) {
+        await _fetchLinkedStudent();
+      }
       _status = AuthStatus.success;
       notifyListeners();
     } on ApiException catch (e) {
@@ -79,6 +97,10 @@ class AuthViewModel extends ChangeNotifier {
     if (!await _tokenStorage.hasSession) return false;
     try {
       currentUser = await _getMe();
+      final role = currentUser?.role;
+      if (role == UserRole.student || role == UserRole.parent) {
+        await _fetchLinkedStudent();
+      }
       return true;
     } catch (_) {
       await _tokenStorage.clear();
@@ -89,6 +111,8 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> logout() async {
     await _logout();
     currentUser = null;
+    linkedStudentId = null;
+    linkedStudentName = null;
     reset();
   }
 

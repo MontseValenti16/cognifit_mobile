@@ -31,6 +31,12 @@ class StudentEntity {
   }
 }
 
+class LinkedStudentResult {
+  final String id;
+  final String fullName;
+  const LinkedStudentResult({required this.id, required this.fullName});
+}
+
 class CreateStudentParams {
   final String groupId;
   final String fullName;

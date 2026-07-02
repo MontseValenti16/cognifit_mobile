@@ -5,6 +5,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../splash/presentation/widgets/circuit_background.dart';
+import '../../domain/entities/user_entity.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../widgets/auth_widgets.dart';
 
@@ -28,8 +29,9 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() { _vm.removeListener(_onChanged); super.dispose(); }
 
   void _onChanged() {
+    if (!mounted) return;
     if (_vm.status == AuthStatus.success) {
-      context.go(AppRouter.dashboard);
+      _navigateByRole();
       _vm.reset();
     } else if (_vm.status == AuthStatus.error) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -39,7 +41,20 @@ class _LoginScreenState extends State<LoginScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ));
     }
-    if (mounted) setState(() {});
+    setState(() {});
+  }
+
+  void _navigateByRole() {
+    final role = _vm.currentUser?.role;
+    final linkedId = _vm.linkedStudentId;
+    final linkedName = _vm.linkedStudentName ?? 'Alumno';
+    if (role == UserRole.student && linkedId != null) {
+      context.go(AppRouter.childHomeOf(linkedId), extra: {'name': linkedName});
+    } else if (role == UserRole.parent && linkedId != null) {
+      context.go(AppRouter.parentHome, extra: {'studentId': linkedId, 'name': linkedName});
+    } else {
+      context.go(AppRouter.dashboard);
+    }
   }
 
   @override

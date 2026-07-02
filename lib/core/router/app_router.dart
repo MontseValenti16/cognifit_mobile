@@ -10,6 +10,7 @@ import '../../features/tracking/presentation/screens/alerts_screen.dart';
 import '../../features/tracking/presentation/screens/learning_curve_screen.dart';
 import '../../features/child/presentation/screens/child_home_screen.dart';
 import '../../features/specialist/presentation/screens/specialist_review_screen.dart';
+import '../../features/parent/presentation/screens/parent_home_screen.dart';
 
 class AppRouter {
   static const String splash             = '/';
@@ -20,6 +21,7 @@ class AppRouter {
   static const String alerts             = '/alerts';
   static const String progress           = '/student/:id/progress';
   static const String specialistReview   = '/specialist/review';
+  static const String parentHome         = '/parent';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -73,6 +75,18 @@ class AppRouter {
       GoRoute(
         path: specialistReview,
         builder: (c, s) => const SpecialistReviewScreen(),
+      ),
+
+      // Vista de padre: perfil de su hijo en modo lectura
+      GoRoute(
+        path: parentHome,
+        builder: (c, s) {
+          final extra = s.extra as Map<String, dynamic>?;
+          return ParentHomeScreen(
+            studentId: extra?['studentId'] ?? '',
+            studentName: extra?['name'] ?? 'Alumno',
+          );
+        },
       ),
 
       // Modo niño — pantalla gamificada entregada al alumno por el docente
