@@ -224,3 +224,44 @@ class TeacherAssignmentModel extends TeacherAssignmentEntity {
     completedAt: j['completed_at'] as String?,
   );
 }
+
+class PendingDiagnosisModel extends PendingDiagnosisEntity {
+  const PendingDiagnosisModel({
+    required super.id, required super.autoSubtype, required super.autoSeverity,
+    required super.autoRiskLevel, required super.riskProbability,
+    required super.mainErrorCodes, required super.errorBreakdown,
+    required super.plnSource, required super.diagnosedAt,
+    required super.studentName, super.grade,
+  });
+
+  factory PendingDiagnosisModel.fromJson(Map<String, dynamic> j) => PendingDiagnosisModel(
+    id: j['id'] as String? ?? '',
+    autoSubtype: j['auto_subtype'] as String? ?? '',
+    autoSeverity: j['auto_severity'] as String? ?? '',
+    autoRiskLevel: j['auto_risk_level'] as String? ?? 'LOW',
+    riskProbability: (j['risk_probability'] as num?)?.toDouble() ?? 0.0,
+    mainErrorCodes: (j['main_error_codes'] as List? ?? []).map((e) => e.toString()).toList(),
+    errorBreakdown: (j['error_breakdown'] as Map<String, dynamic>?) ?? {},
+    plnSource: j['pln_source'] as String? ?? 'rule',
+    diagnosedAt: j['diagnosed_at'] as String? ?? '',
+    studentName: j['student_name'] as String? ?? '',
+    grade: j['grade'] as int?,
+  );
+}
+
+class LabelResultModel extends LabelResultEntity {
+  const LabelResultModel({
+    required super.id, required super.diagnosisId,
+    required super.confirmedSubtype, required super.confirmedSeverity,
+    required super.confirmedRiskLevel, required super.labeledAt,
+  });
+
+  factory LabelResultModel.fromJson(Map<String, dynamic> j) => LabelResultModel(
+    id: j['id'] as String? ?? '',
+    diagnosisId: j['diagnosis_id'] as String? ?? '',
+    confirmedSubtype: j['confirmed_subtype'] as String? ?? '',
+    confirmedSeverity: j['confirmed_severity'] as String? ?? '',
+    confirmedRiskLevel: j['confirmed_risk_level'] as String? ?? '',
+    labeledAt: j['labeled_at'] as String? ?? '',
+  );
+}

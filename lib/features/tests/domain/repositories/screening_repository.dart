@@ -17,4 +17,12 @@ abstract class ScreeningRepository {
   Future<DiagnosisEntity?> getLatestRisk(String studentId);
   Future<List<PendingModuleEntity>> getStudentAssignments(String studentId);
   Future<List<TeacherAssignmentEntity>> getTeacherAssignments({String status});
+  Future<List<PendingDiagnosisEntity>> getPendingDiagnoses({int limit});
+  Future<LabelResultEntity> labelDiagnosis({
+    required String diagnosisId,
+    required String confirmedSubtype,
+    required String confirmedSeverity,
+    required String confirmedRiskLevel,
+    String? notes,
+  });
 }

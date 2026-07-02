@@ -16,6 +16,14 @@ abstract class ScreeningRemoteDataSource {
   Future<DiagnosisModel?> getLatestRisk(String studentId);
   Future<List<PendingModuleModel>> getStudentAssignments(String studentId);
   Future<List<TeacherAssignmentModel>> getTeacherAssignments({String status});
+  Future<List<PendingDiagnosisModel>> getPendingDiagnoses({int limit});
+  Future<LabelResultModel> labelDiagnosis({
+    required String diagnosisId,
+    required String confirmedSubtype,
+    required String confirmedSeverity,
+    required String confirmedRiskLevel,
+    String? notes,
+  });
 }
 
 class ScreeningRemoteDataSourceImpl implements ScreeningRemoteDataSource {
@@ -126,5 +134,36 @@ class ScreeningRemoteDataSourceImpl implements ScreeningRemoteDataSource {
       if (kDebugMode) debugPrint('getTeacherAssignments error: $e');
       return [];
     }
+  }
+
+  @override
+  Future<List<PendingDiagnosisModel>> getPendingDiagnoses({int limit = 50}) async {
+    try {
+      final json = await client.get('/screening/diagnoses/pending-review?limit=$limit');
+      return (json as List).map((e) => PendingDiagnosisModel.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (e) {
+      if (kDebugMode) debugPrint('getPendingDiagnoses error: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<LabelResultModel> labelDiagnosis({
+    required String diagnosisId,
+    required String confirmedSubtype,
+    required String confirmedSeverity,
+    required String confirmedRiskLevel,
+    String? notes,
+  }) async {
+    final json = await client.post(
+      '/screening/diagnoses/$diagnosisId/label',
+      data: {
+        'confirmed_subtype': confirmedSubtype,
+        'confirmed_severity': confirmedSeverity,
+        'confirmed_risk_level': confirmedRiskLevel,
+        if (notes != null) 'notes': notes,
+      },
+    );
+    return LabelResultModel.fromJson(json as Map<String, dynamic>);
   }
 }

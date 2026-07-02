@@ -51,4 +51,23 @@ class ScreeningRepositoryImpl implements ScreeningRepository {
   @override
   Future<List<TeacherAssignmentEntity>> getTeacherAssignments({String status = 'PENDING,IN_PROGRESS'}) =>
       remote.getTeacherAssignments(status: status);
+
+  @override
+  Future<List<PendingDiagnosisEntity>> getPendingDiagnoses({int limit = 50}) =>
+      remote.getPendingDiagnoses(limit: limit);
+
+  @override
+  Future<LabelResultEntity> labelDiagnosis({
+    required String diagnosisId,
+    required String confirmedSubtype,
+    required String confirmedSeverity,
+    required String confirmedRiskLevel,
+    String? notes,
+  }) => remote.labelDiagnosis(
+    diagnosisId: diagnosisId,
+    confirmedSubtype: confirmedSubtype,
+    confirmedSeverity: confirmedSeverity,
+    confirmedRiskLevel: confirmedRiskLevel,
+    notes: notes,
+  );
 }

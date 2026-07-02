@@ -9,15 +9,17 @@ import '../../features/exercise/presentation/screens/exercise_screen.dart';
 import '../../features/tracking/presentation/screens/alerts_screen.dart';
 import '../../features/tracking/presentation/screens/learning_curve_screen.dart';
 import '../../features/child/presentation/screens/child_home_screen.dart';
+import '../../features/specialist/presentation/screens/specialist_review_screen.dart';
 
 class AppRouter {
-  static const String splash    = '/';
-  static const String login     = '/login';
-  static const String dashboard = '/dashboard';
-  static const String students  = '/students';
-  static const String tests     = '/tests';
-  static const String alerts    = '/alerts';
-  static const String progress  = '/student/:id/progress';
+  static const String splash             = '/';
+  static const String login              = '/login';
+  static const String dashboard          = '/dashboard';
+  static const String students           = '/students';
+  static const String tests              = '/tests';
+  static const String alerts             = '/alerts';
+  static const String progress           = '/student/:id/progress';
+  static const String specialistReview   = '/specialist/review';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -65,6 +67,12 @@ class AppRouter {
             moduleTitle: extra?['moduleTitle'] ?? 'Módulo',
           );
         },
+      ),
+
+      // Revisión clínica para SPECIALIST
+      GoRoute(
+        path: specialistReview,
+        builder: (c, s) => const SpecialistReviewScreen(),
       ),
 
       // Modo niño — pantalla gamificada entregada al alumno por el docente

@@ -4,6 +4,7 @@ import '../../../../core/di/service_locator.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../auth/domain/entities/user_entity.dart';
 import '../viewmodels/dashboard_viewmodel.dart';
 import '../widgets/dashboard_widgets.dart';
 
@@ -91,6 +92,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 24),
+                    ],
+                    if (user?.role == UserRole.specialist || user?.role == UserRole.admin) ...[
+                      _sectionLabel(context, 'REVISIÓN CLÍNICA'),
+                      const SizedBox(height: 10),
+                      _SpecialistBanner(onTap: () => context.push(AppRouter.specialistReview)),
                       const SizedBox(height: 24),
                     ],
                     if (_vm.pendingAssignments.isNotEmpty) ...[
@@ -182,6 +189,42 @@ class _BottomNav extends StatelessWidget {
       ),
     );
   }
+}
+
+class _SpecialistBanner extends StatelessWidget {
+  final VoidCallback onTap;
+  const _SpecialistBanner({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppTheme.primary.withValues(alpha: 0.08), AppTheme.tertiary.withValues(alpha: 0.08)],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
+      ),
+      child: Row(children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: AppTheme.primaryContainer, shape: BoxShape.circle),
+          child: const Icon(Icons.rate_review_rounded, color: AppTheme.primary, size: 20),
+        ),
+        const SizedBox(width: 14),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Diagnósticos pendientes de revisión',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 2),
+          Text('Confirma o corrige los resultados del modelo ML',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+        ])),
+        const Icon(Icons.chevron_right_rounded, color: AppTheme.primary),
+      ]),
+    ),
+  );
 }
 
 class _AssignmentTile extends StatelessWidget {

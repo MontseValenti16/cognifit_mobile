@@ -47,7 +47,12 @@ import '../../features/tests/domain/usecases/diagnose_usecase.dart';
 import '../../features/tests/domain/usecases/get_latest_risk_usecase.dart';
 import '../../features/tests/domain/usecases/get_student_assignments_usecase.dart';
 import '../../features/tests/domain/usecases/get_teacher_assignments_usecase.dart';
+import '../../features/tests/domain/usecases/get_pending_diagnoses_usecase.dart';
+import '../../features/tests/domain/usecases/label_diagnosis_usecase.dart';
 import '../../features/tests/presentation/viewmodels/tests_viewmodel.dart';
+
+// SPECIALIST
+import '../../features/specialist/presentation/viewmodels/specialist_viewmodel.dart';
 
 // EXERCISE (consumes screening repository)
 import '../../features/exercise/presentation/viewmodels/exercise_viewmodel.dart';
@@ -111,6 +116,7 @@ class ServiceLocator {
   StudentProfileViewModel? _studentProfile;
   DashboardViewModel? _dashboard;
   ReportsViewModel? _reports;
+  SpecialistViewModel? _specialist;
 
   AuthViewModel get authViewModel => _auth ??= AuthViewModel(
     login: LoginUseCase(_authRepo),
@@ -185,9 +191,15 @@ class ServiceLocator {
     downloadReport: DownloadReportUseCase(_reportRepo),
   );
 
+  SpecialistViewModel get specialistViewModel => _specialist ??= SpecialistViewModel(
+    getPending: GetPendingDiagnosesUseCase(_screeningRepo),
+    label: LabelDiagnosisUseCase(_screeningRepo),
+  );
+
   /// Call after logout to drop cached state tied to the previous session.
   void resetSessionScopedViewModels() {
     _students = null; _tests = null; _exercise = null; _tracking = null;
-    _learningCurve = null; _studentProfile = null; _dashboard = null; _reports = null;
+    _learningCurve = null; _studentProfile = null; _dashboard = null;
+    _reports = null; _specialist = null;
   }
 }

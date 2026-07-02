@@ -269,3 +269,73 @@ class TeacherAssignmentEntity {
   bool get isPending => status == 'PENDING' || status == 'IN_PROGRESS';
   bool get isCompleted => status == 'COMPLETED';
 }
+
+// ── Specialist review (revisión clínica para reentrenamiento ML) ──────────────
+class PendingDiagnosisEntity {
+  final String id;
+  final String autoSubtype;
+  final String autoSeverity;
+  final String autoRiskLevel;
+  final double riskProbability;
+  final List<String> mainErrorCodes;
+  final Map<String, dynamic> errorBreakdown;
+  final String plnSource;
+  final String diagnosedAt;
+  final String studentName;
+  final int? grade;
+
+  const PendingDiagnosisEntity({
+    required this.id,
+    required this.autoSubtype,
+    required this.autoSeverity,
+    required this.autoRiskLevel,
+    required this.riskProbability,
+    required this.mainErrorCodes,
+    required this.errorBreakdown,
+    required this.plnSource,
+    required this.diagnosedAt,
+    required this.studentName,
+    this.grade,
+  });
+
+  String get subtypeLabel => _subtypeLabel(autoSubtype);
+  String get severityLabel => _severityLabel(autoSeverity);
+
+  static String _subtypeLabel(String v) => switch (v) {
+    'PHONOLOGICAL'   => 'Fonológico',
+    'VISUAL_SURFACE' => 'Visual/Superficial',
+    'MIXED'          => 'Mixto',
+    'FLUENCY'        => 'Fluidez',
+    'COMPREHENSION'  => 'Comprensión',
+    'RISK_ONLY'      => 'Solo riesgo',
+    'NO_DYSLEXIA'    => 'Sin riesgo',
+    _                => v,
+  };
+
+  static String _severityLabel(String v) => switch (v) {
+    'MILD'       => 'Leve',
+    'MODERATE'   => 'Moderado',
+    'SEVERE'     => 'Severo',
+    'NONE'       => 'Sin riesgo',
+    'VERY_SEVERE'=> 'Muy severo',
+    _            => v,
+  };
+}
+
+class LabelResultEntity {
+  final String id;
+  final String diagnosisId;
+  final String confirmedSubtype;
+  final String confirmedSeverity;
+  final String confirmedRiskLevel;
+  final String labeledAt;
+
+  const LabelResultEntity({
+    required this.id,
+    required this.diagnosisId,
+    required this.confirmedSubtype,
+    required this.confirmedSeverity,
+    required this.confirmedRiskLevel,
+    required this.labeledAt,
+  });
+}
