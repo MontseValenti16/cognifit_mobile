@@ -10,6 +10,7 @@ abstract class StudentRemoteDataSource {
   Future<void> deleteStudent(String id);
   Future<void> permanentDeleteStudent(String id);
   Future<StudentModel> activateStudent(String id);
+  Future<LinkedStudentResult?> getLinkedStudent();
 }
 
 /// Maps to ESTUDIANTES section of API_UI_GUIA.md
@@ -55,5 +56,15 @@ class StudentRemoteDataSourceImpl implements StudentRemoteDataSource {
   Future<StudentModel> activateStudent(String id) async {
     final json = await client.patch('/students/$id/activate');
     return StudentModel.fromJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<LinkedStudentResult?> getLinkedStudent() async {
+    try {
+      final json = await client.get('/students/linked');
+      return LinkedStudentModel.fromJson(json as Map<String, dynamic>);
+    } catch (_) {
+      return null;
+    }
   }
 }

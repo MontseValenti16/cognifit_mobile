@@ -4,6 +4,8 @@ import '../../../../core/di/service_locator.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../widgets/circuit_background.dart';
+import '../../../auth/domain/entities/user_entity.dart';
+import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -22,12 +24,26 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkSession() async {
-    final restored = await ServiceLocator.instance.authViewModel.tryRestoreSession();
+    final vm = ServiceLocator.instance.authViewModel;
+    final restored = await vm.tryRestoreSession();
     if (!mounted) return;
     if (restored) {
-      context.go(AppRouter.dashboard);
+      _navigateByRole(vm);
     } else {
       setState(() => _checkedSession = true);
+    }
+  }
+
+  void _navigateByRole(AuthViewModel vm) {
+    final role = vm.currentUser?.role;
+    final linkedId = vm.linkedStudentId;
+    final linkedName = vm.linkedStudentName ?? 'Alumno';
+    if (role == UserRole.student && linkedId != null) {
+      context.go(AppRouter.childHomeOf(linkedId), extra: {'name': linkedName});
+    } else if (role == UserRole.parent && linkedId != null) {
+      context.go(AppRouter.parentHome, extra: {'studentId': linkedId, 'name': linkedName});
+    } else {
+      context.go(AppRouter.dashboard);
     }
   }
 

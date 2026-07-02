@@ -24,6 +24,7 @@ import '../../features/students/domain/usecases/update_student_usecase.dart';
 import '../../features/students/domain/usecases/delete_student_usecase.dart';
 import '../../features/students/domain/usecases/permanent_delete_student_usecase.dart';
 import '../../features/students/domain/usecases/activate_student_usecase.dart';
+import '../../features/students/domain/usecases/get_linked_student_usecase.dart';
 import '../../features/students/presentation/viewmodels/students_viewmodel.dart';
 
 // GROUPS
@@ -124,6 +125,7 @@ class ServiceLocator {
     getMe: GetMeUseCase(_authRepo),
     register: RegisterUseCase(_authRepo),
     tokenStorage: tokenStorage,
+    getLinkedStudent: GetLinkedStudentUseCase(_studentRepo),
   );
 
   StudentsViewModel get studentsViewModel => _students ??= StudentsViewModel(

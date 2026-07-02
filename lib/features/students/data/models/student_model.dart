@@ -1,5 +1,12 @@
 import '../../domain/entities/student_entity.dart';
 
+class LinkedStudentModel extends LinkedStudentResult {
+  const LinkedStudentModel({required super.id, required super.fullName});
+
+  factory LinkedStudentModel.fromJson(Map<String, dynamic> json) =>
+      LinkedStudentModel(id: json['id'] as String, fullName: json['full_name'] as String);
+}
+
 class StudentModel extends StudentEntity {
   const StudentModel({
     required super.id,

@@ -20,4 +20,6 @@ class StudentRepositoryImpl implements StudentRepository {
   Future<void> permanentDeleteStudent(String id) => remote.permanentDeleteStudent(id);
   @override
   Future<StudentEntity> activateStudent(String id) => remote.activateStudent(id);
+  @override
+  Future<LinkedStudentResult?> getLinkedStudent() => remote.getLinkedStudent();
 }

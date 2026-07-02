@@ -13,4 +13,5 @@ abstract class StudentRepository {
   Future<void> deleteStudent(String id);
   Future<void> permanentDeleteStudent(String id);
   Future<StudentEntity> activateStudent(String id);
+  Future<LinkedStudentResult?> getLinkedStudent();
 }
