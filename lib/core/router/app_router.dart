@@ -11,6 +11,7 @@ import '../../features/tracking/presentation/screens/learning_curve_screen.dart'
 import '../../features/child/presentation/screens/child_home_screen.dart';
 import '../../features/specialist/presentation/screens/specialist_review_screen.dart';
 import '../../features/parent/presentation/screens/parent_home_screen.dart';
+import '../../features/admin/presentation/screens/admin_users_screen.dart';
 
 class AppRouter {
   static const String splash             = '/';
@@ -22,6 +23,7 @@ class AppRouter {
   static const String progress           = '/student/:id/progress';
   static const String specialistReview   = '/specialist/review';
   static const String parentHome         = '/parent';
+  static const String adminUsers         = '/admin/users';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -75,6 +77,12 @@ class AppRouter {
       GoRoute(
         path: specialistReview,
         builder: (c, s) => const SpecialistReviewScreen(),
+      ),
+
+      // Panel de administración — solo ADMIN
+      GoRoute(
+        path: adminUsers,
+        builder: (c, s) => const AdminUsersScreen(),
       ),
 
       // Vista de padre: perfil de su hijo en modo lectura

@@ -55,6 +55,15 @@ import '../../features/tests/presentation/viewmodels/tests_viewmodel.dart';
 // SPECIALIST
 import '../../features/specialist/presentation/viewmodels/specialist_viewmodel.dart';
 
+// ADMIN PANEL
+import '../../features/admin/data/datasources/admin_remote_datasource.dart';
+import '../../features/admin/data/repositories/admin_repository_impl.dart';
+import '../../features/admin/domain/usecases/get_users_usecase.dart';
+import '../../features/admin/domain/usecases/create_user_usecase.dart';
+import '../../features/admin/domain/usecases/update_user_usecase.dart';
+import '../../features/admin/domain/usecases/deactivate_user_usecase.dart';
+import '../../features/admin/presentation/viewmodels/admin_viewmodel.dart';
+
 // EXERCISE (consumes screening repository)
 import '../../features/exercise/presentation/viewmodels/exercise_viewmodel.dart';
 
@@ -106,6 +115,7 @@ class ServiceLocator {
   late final TrackingRepositoryImpl _trackingRepo = TrackingRepositoryImpl(TrackingRemoteDataSourceImpl(apiClient));
   late final InterventionRepositoryImpl _interventionRepo = InterventionRepositoryImpl(InterventionRemoteDataSourceImpl(apiClient));
   late final ReportRepositoryImpl _reportRepo = ReportRepositoryImpl(ReportRemoteDataSourceImpl(apiClient));
+  late final AdminRepositoryImpl _adminRepo = AdminRepositoryImpl(AdminRemoteDataSourceImpl(apiClient));
 
   // ── ViewModels (lazily instantiated, cached) ────────────────────────────────
   AuthViewModel? _auth;
@@ -118,6 +128,7 @@ class ServiceLocator {
   DashboardViewModel? _dashboard;
   ReportsViewModel? _reports;
   SpecialistViewModel? _specialist;
+  AdminViewModel? _admin;
 
   AuthViewModel get authViewModel => _auth ??= AuthViewModel(
     login: LoginUseCase(_authRepo),
@@ -198,10 +209,17 @@ class ServiceLocator {
     label: LabelDiagnosisUseCase(_screeningRepo),
   );
 
+  AdminViewModel get adminViewModel => _admin ??= AdminViewModel(
+    getUsers: GetUsersUseCase(_adminRepo),
+    createUser: CreateUserUseCase(_adminRepo),
+    updateUser: UpdateUserUseCase(_adminRepo),
+    deactivateUser: DeactivateUserUseCase(_adminRepo),
+  );
+
   /// Call after logout to drop cached state tied to the previous session.
   void resetSessionScopedViewModels() {
     _students = null; _tests = null; _exercise = null; _tracking = null;
     _learningCurve = null; _studentProfile = null; _dashboard = null;
-    _reports = null; _specialist = null;
+    _reports = null; _specialist = null; _admin = null;
   }
 }
