@@ -33,11 +33,12 @@ class CogniFitTextField extends StatelessWidget {
   final bool obscureText;
   final TextInputType keyboardType;
   final ValueChanged<String>? onChanged;
+  final TextEditingController? controller;
 
   const CogniFitTextField({
     super.key, required this.label, required this.hint,
     this.prefixIcon, this.suffixWidget, this.obscureText = false,
-    this.keyboardType = TextInputType.text, this.onChanged,
+    this.keyboardType = TextInputType.text, this.onChanged, this.controller,
   });
 
   @override
@@ -46,6 +47,7 @@ class CogniFitTextField extends StatelessWidget {
       Text(label, style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: 8),
       TextField(
+        controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
         onChanged: onChanged,

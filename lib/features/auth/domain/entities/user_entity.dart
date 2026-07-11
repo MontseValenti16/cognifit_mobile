@@ -1,6 +1,7 @@
-enum UserRole { admin, specialist, teacher, parent, student }
+enum UserRole { superadmin, admin, specialist, teacher, parent, student }
 
 UserRole roleFromString(String s) => switch (s.toUpperCase()) {
+  'SUPERADMIN' => UserRole.superadmin,
   'ADMIN' => UserRole.admin,
   'SPECIALIST' => UserRole.specialist,
   'TEACHER' => UserRole.teacher,
@@ -10,6 +11,7 @@ UserRole roleFromString(String s) => switch (s.toUpperCase()) {
 };
 
 String roleToString(UserRole r) => switch (r) {
+  UserRole.superadmin => 'SUPERADMIN',
   UserRole.admin => 'ADMIN',
   UserRole.specialist => 'SPECIALIST',
   UserRole.teacher => 'TEACHER',

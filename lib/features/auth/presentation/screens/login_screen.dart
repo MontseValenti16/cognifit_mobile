@@ -63,6 +63,11 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    if (role == UserRole.superadmin) {
+      context.go(AppRouter.superadminInstitutions);
+      return;
+    }
+
     if (role == UserRole.parent && linkedId != null) {
       context.go(AppRouter.parentHome, extra: {'studentId': linkedId, 'name': linkedName});
     } else {
@@ -125,6 +130,16 @@ class _LoginScreenState extends State<LoginScreen> {
               Text('¿Olvidaste tu contraseña? Contacta al administrador del centro.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+              const SizedBox(height: 12),
+
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Text('¿Tu institución no está registrada? ', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+                GestureDetector(
+                  onTap: () => context.push(AppRouter.registerInstitution),
+                  child: Text('Regístrala aquí',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.w600)),
+                ),
+              ]),
 
               const SizedBox(height: 40),
             ]),

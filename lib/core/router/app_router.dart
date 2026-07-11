@@ -12,6 +12,8 @@ import '../../features/child/presentation/screens/child_home_screen.dart';
 import '../../features/specialist/presentation/screens/specialist_review_screen.dart';
 import '../../features/parent/presentation/screens/parent_home_screen.dart';
 import '../../features/admin/presentation/screens/admin_users_screen.dart';
+import '../../features/institutions/presentation/screens/register_institution_screen.dart';
+import '../../features/institutions/presentation/screens/institutions_approval_screen.dart';
 
 class AppRouter {
   static const String splash             = '/';
@@ -24,12 +26,16 @@ class AppRouter {
   static const String specialistReview   = '/specialist/review';
   static const String parentHome         = '/parent';
   static const String adminUsers         = '/admin/users';
+  static const String registerInstitution = '/register-institution';
+  static const String superadminInstitutions = '/superadmin/institutions';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
     routes: [
       GoRoute(path: splash,    builder: (c, s) => const SplashScreen()),
       GoRoute(path: login,     builder: (c, s) => const LoginScreen()),
+      GoRoute(path: registerInstitution, builder: (c, s) => const RegisterInstitutionScreen()),
+      GoRoute(path: superadminInstitutions, builder: (c, s) => const InstitutionsApprovalScreen()),
       GoRoute(path: dashboard, builder: (c, s) => const DashboardScreen()),
       GoRoute(
         path: students,

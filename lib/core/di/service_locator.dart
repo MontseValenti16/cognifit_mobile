@@ -101,6 +101,14 @@ import '../../features/reports/presentation/viewmodels/reports_viewmodel.dart';
 // DASHBOARD (composes students + tracking)
 import '../../features/dashboard/presentation/viewmodels/dashboard_viewmodel.dart';
 
+// INSTITUTIONS (self-signup + aprobación SUPERADMIN)
+import '../../features/institutions/data/datasources/institution_remote_datasource.dart';
+import '../../features/institutions/data/repositories/institution_repository_impl.dart';
+import '../../features/institutions/domain/usecases/register_institution_usecase.dart';
+import '../../features/institutions/domain/usecases/get_pending_institutions_usecase.dart';
+import '../../features/institutions/domain/usecases/approve_institution_usecase.dart';
+import '../../features/institutions/presentation/viewmodels/institution_viewmodel.dart';
+
 class ServiceLocator {
   ServiceLocator._();
   static final ServiceLocator instance = ServiceLocator._();
@@ -118,6 +126,7 @@ class ServiceLocator {
   late final InterventionRepositoryImpl _interventionRepo = InterventionRepositoryImpl(InterventionRemoteDataSourceImpl(apiClient));
   late final ReportRepositoryImpl _reportRepo = ReportRepositoryImpl(ReportRemoteDataSourceImpl(apiClient));
   late final AdminRepositoryImpl _adminRepo = AdminRepositoryImpl(AdminRemoteDataSourceImpl(apiClient));
+  late final InstitutionRepositoryImpl _institutionRepo = InstitutionRepositoryImpl(InstitutionRemoteDataSourceImpl(apiClient));
 
   // ── ViewModels (lazily instantiated, cached) ────────────────────────────────
   AuthViewModel? _auth;
@@ -131,6 +140,7 @@ class ServiceLocator {
   ReportsViewModel? _reports;
   SpecialistViewModel? _specialist;
   AdminViewModel? _admin;
+  InstitutionViewModel? _institution;
 
   AuthViewModel get authViewModel => _auth ??= AuthViewModel(
     login: LoginUseCase(_authRepo),
@@ -220,10 +230,16 @@ class ServiceLocator {
     linkParent: LinkParentUseCase(_adminRepo),
   );
 
+  InstitutionViewModel get institutionViewModel => _institution ??= InstitutionViewModel(
+    register: RegisterInstitutionUseCase(_institutionRepo),
+    getPending: GetPendingInstitutionsUseCase(_institutionRepo),
+    approve: ApproveInstitutionUseCase(_institutionRepo),
+  );
+
   /// Call after logout to drop cached state tied to the previous session.
   void resetSessionScopedViewModels() {
     _students = null; _tests = null; _exercise = null; _tracking = null;
     _learningCurve = null; _studentProfile = null; _dashboard = null;
-    _reports = null; _specialist = null; _admin = null;
+    _reports = null; _specialist = null; _admin = null; _institution = null;
   }
 }
