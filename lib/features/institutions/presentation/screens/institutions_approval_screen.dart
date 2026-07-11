@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/institution_entity.dart';
 import '../viewmodels/institution_viewmodel.dart';
@@ -40,6 +42,12 @@ class _InstitutionsApprovalScreenState extends State<InstitutionsApprovalScreen>
     setState(() {});
   }
 
+  Future<void> _logout() async {
+    await ServiceLocator.instance.authViewModel.logout();
+    ServiceLocator.instance.resetSessionScopedViewModels();
+    if (mounted) context.go(AppRouter.login);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,6 +56,7 @@ class _InstitutionsApprovalScreenState extends State<InstitutionsApprovalScreen>
         title: const Text('Instituciones pendientes'),
         actions: [
           IconButton(icon: const Icon(Icons.refresh_rounded), onPressed: _vm.loadPending),
+          IconButton(icon: const Icon(Icons.logout_rounded), tooltip: 'Cerrar sesión', onPressed: _logout),
         ],
       ),
       body: _vm.isLoading

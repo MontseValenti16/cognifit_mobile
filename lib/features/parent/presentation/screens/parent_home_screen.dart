@@ -26,6 +26,7 @@ class ParentHomeScreen extends StatelessWidget {
             tooltip: 'Cerrar sesión',
             onPressed: () async {
               await ServiceLocator.instance.authViewModel.logout();
+              ServiceLocator.instance.resetSessionScopedViewModels();
               if (context.mounted) context.go('/');
             },
           ),

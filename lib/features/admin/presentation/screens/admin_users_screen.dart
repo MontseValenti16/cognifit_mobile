@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/admin_user_entity.dart';
 import '../viewmodels/admin_viewmodel.dart';
@@ -42,6 +44,12 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     setState(() {});
   }
 
+  Future<void> _logout() async {
+    await ServiceLocator.instance.authViewModel.logout();
+    ServiceLocator.instance.resetSessionScopedViewModels();
+    if (mounted) context.go(AppRouter.login);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,6 +64,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               onPressed: _vm.toggleInactive,
             ),
           ),
+          IconButton(icon: const Icon(Icons.logout_rounded), tooltip: 'Cerrar sesión', onPressed: _logout),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
