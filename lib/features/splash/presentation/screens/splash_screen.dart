@@ -46,6 +46,11 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
+    if (role == UserRole.superadmin) {
+      context.go(AppRouter.superadminInstitutions);
+      return;
+    }
+
     if (role == UserRole.parent && linkedId != null) {
       context.go(AppRouter.parentHome, extra: {'studentId': linkedId, 'name': linkedName});
     } else {
