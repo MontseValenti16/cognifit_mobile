@@ -132,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
               const SizedBox(height: 12),
 
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Wrap(alignment: WrapAlignment.center, crossAxisAlignment: WrapCrossAlignment.center, children: [
                 Text('¿Tu institución no está registrada? ', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
                 GestureDetector(
                   onTap: () => context.push(AppRouter.registerInstitution),

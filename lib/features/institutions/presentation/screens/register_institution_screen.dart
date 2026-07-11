@@ -153,7 +153,7 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
         ),
       ),
       const SizedBox(height: 24),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      Wrap(alignment: WrapAlignment.center, crossAxisAlignment: WrapCrossAlignment.center, children: [
         Text('¿Ya tienes cuenta? ', style: Theme.of(context).textTheme.bodyMedium),
         GestureDetector(
           onTap: () => context.pop(),
