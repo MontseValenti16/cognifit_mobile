@@ -83,6 +83,11 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 48),
               const AuthHeader(subtitle: 'Inicia sesión para continuar'),
               const SizedBox(height: 32),
+              Image.asset(
+    'assets/images/foto.png',
+    height: 100, // Ajusta la altura según lo que necesites
+    fit: BoxFit.contain,
+  ),
 
               CogniFitTextField(
                 label: 'Correo institucional',
