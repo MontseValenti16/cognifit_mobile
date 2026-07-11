@@ -28,7 +28,7 @@ class ApiException implements Exception {
   factory ApiException.fromStatus(int? code, {String? backendMessage, String? field}) {
     final msg = switch (code) {
       401 => 'Tu sesión expiró. Inicia sesión de nuevo.',
-      403 => 'No tienes permisos para esta acción.',
+      403 => backendMessage ?? 'No tienes permisos para esta acción.',
       404 => 'Recurso no encontrado.',
       409 => backendMessage ?? 'Ya existe un registro con estos datos.',
       422 => backendMessage ?? 'Revisa los datos ingresados.',
