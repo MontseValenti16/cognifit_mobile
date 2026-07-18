@@ -218,7 +218,7 @@ class _DiagnosisCard extends StatelessWidget {
           Icon(Icons.warning_amber_rounded, color: _color, size: 18),
           const SizedBox(width: 8),
           Text('DIAGNÓSTICO', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: _color, fontWeight: FontWeight.w700, letterSpacing: 1.0)),
-          if (risk.plnSource == 'fallback') ...[
+          if (risk.plnSource == 'local_fallback') ...[
             const Spacer(),
             Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(color: AppTheme.pendingOrange.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),

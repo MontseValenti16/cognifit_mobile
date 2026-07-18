@@ -25,6 +25,16 @@ class SyncService {
           // Keep in queue; will retry next sync cycle.
           break;
         }
+        // Sin este diagnose, una sesión terminada sin conexión se quedaba para
+        // siempre sin diagnóstico: al finalizarla, ExerciseViewModel llamó a
+        // diagnose() sobre una sesión cuyas respuestas todavía no habían salido
+        // del dispositivo, y ese intento se perdió. Va fuera del try de arriba
+        // para no reencolar respuestas que YA se enviaron correctamente.
+        try {
+          await ds.diagnose(item.sessionId);
+        } catch (_) {
+          // Reintentable: no debe bloquear el resto de la cola.
+        }
       }
     } finally {
       _syncing = false;
