@@ -174,10 +174,18 @@ class SessionItemsResultEntity {
 class ItemResponseSubmission {
   final String itemId;
   final String rawResponse;
+
+  /// Tiempo NETO de resolución: total medido menos el audio de apoyo y el
+  /// tiempo en segundo plano. Es lo que consume el diagnóstico.
   final int responseTimeMs;
   final String captureModality; // stt / teclado / tactil
   final double? sttConfidence;
   final String? responseAudioUrl;
+
+  /// Desglose de dónde salió [responseTimeMs]. Se persiste aparte para poder
+  /// auditar un tiempo lento (¿el niño o el audio?) y para alimentar mejores
+  /// métricas en un reentrenamiento futuro. No lo consume el modelo actual.
+  final ResponseTimingDetail? timingDetail;
 
   const ItemResponseSubmission({
     required this.itemId,
@@ -186,7 +194,38 @@ class ItemResponseSubmission {
     required this.captureModality,
     this.sttConfidence,
     this.responseAudioUrl,
+    this.timingDetail,
   });
+}
+
+class ResponseTimingDetail {
+  final int totalMs;
+  final int ttsMs;
+  final int backgroundMs;
+  final int netMs;
+  final int stimulusChars;
+  final int stimulusWords;
+  final int difficulty;
+
+  const ResponseTimingDetail({
+    required this.totalMs,
+    required this.ttsMs,
+    required this.backgroundMs,
+    required this.netMs,
+    required this.stimulusChars,
+    required this.stimulusWords,
+    required this.difficulty,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'total_ms': totalMs,
+        'tts_ms': ttsMs,
+        'background_ms': backgroundMs,
+        'net_ms': netMs,
+        'stimulus_chars': stimulusChars,
+        'stimulus_words': stimulusWords,
+        'difficulty': difficulty,
+      };
 }
 
 class ResponseResultEntity {

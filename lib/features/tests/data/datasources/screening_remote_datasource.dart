@@ -91,6 +91,7 @@ class ScreeningRemoteDataSourceImpl implements ScreeningRemoteDataSource {
         'capture_modality': r.captureModality,
         if (r.sttConfidence != null) 'stt_confidence': r.sttConfidence,
         if (r.responseAudioUrl != null) 'response_audio_url': r.responseAudioUrl,
+        if (r.timingDetail != null) 'timing_detail': r.timingDetail!.toJson(),
       }).toList(),
     });
     final map = json as Map<String, dynamic>;
