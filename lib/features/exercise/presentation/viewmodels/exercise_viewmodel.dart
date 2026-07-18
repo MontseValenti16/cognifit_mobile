@@ -48,9 +48,13 @@ class ExerciseViewModel extends ChangeNotifier with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      if (_backgroundTimer.isRunning) _backgroundTimer.stop();
       if (_items.isNotEmpty && _status == ExerciseStatus.active) _itemTimer.start();
     } else {
-      if (_itemTimer.isRunning) _itemTimer.stop();
+      if (_itemTimer.isRunning) {
+        _itemTimer.stop();
+        _backgroundTimer.start();
+      }
     }
   }
 
@@ -65,6 +69,10 @@ class ExerciseViewModel extends ChangeNotifier with WidgetsBindingObserver {
   /// un ajuste de hora del sistema, y se puede pausar cuando la app pasa a
   /// segundo plano.
   final Stopwatch _itemTimer = Stopwatch();
+
+  /// Acumulado del tiempo que el ítem actual pasó con la app en segundo plano.
+  /// Se registra para poder auditarlo, aunque ya está excluido de _itemTimer.
+  final Stopwatch _backgroundTimer = Stopwatch();
   String? _selectedAnswer;
   DiagnosisEntity? _diagnosis;
   bool? _lastAnswerCorrect;
@@ -112,6 +120,9 @@ class ExerciseViewModel extends ChangeNotifier with WidgetsBindingObserver {
   /// reproducción del TTS, para que cada ítem mida solo su propio audio.
   void _startItemTimer() {
     _resetTtsPlayback();
+    _backgroundTimer
+      ..stop()
+      ..reset();
     _itemTimer
       ..reset()
       ..start();
@@ -128,12 +139,26 @@ class ExerciseViewModel extends ChangeNotifier with WidgetsBindingObserver {
     // audio dos veces terminaba pareciendo lento (subtipo "fluidez").
     final ttsMs = _ttsPlaybackMs();
     final netMs = (totalMs - ttsMs).clamp(0, totalMs);
+    final estimulo = current!.stimulusText.trim();
     _collected.add(ItemResponseSubmission(
       itemId: current!.itemId,
       rawResponse: rawResponse,
       responseTimeMs: netMs,
       captureModality: captureModality,
       sttConfidence: sttConfidence,
+      // Se guarda el desglose para poder auditar de donde salio el tiempo y
+      // para alimentar mejores metricas en un reentrenamiento futuro. La
+      // longitud del estimulo importa: hoy leer "b" y responder "¿Cuantas
+      // silabas tiene mariposa?" se promedian en el mismo numero.
+      timingDetail: ResponseTimingDetail(
+        totalMs: totalMs + _backgroundTimer.elapsedMilliseconds,
+        ttsMs: ttsMs,
+        backgroundMs: _backgroundTimer.elapsedMilliseconds,
+        netMs: netMs,
+        stimulusChars: estimulo.length,
+        stimulusWords: estimulo.isEmpty ? 0 : estimulo.split(RegExp(r'\s+')).length,
+        difficulty: current!.difficulty,
+      ),
     ));
     _selectedAnswer = rawResponse;
     final expected = current!.expectedResponse?.trim();

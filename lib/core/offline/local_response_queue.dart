@@ -74,6 +74,7 @@ class LocalResponseQueue {
     'response_time_ms': s.responseTimeMs,
     'capture_modality': s.captureModality,
     if (s.sttConfidence != null) 'stt_confidence': s.sttConfidence,
+    if (s.timingDetail != null) 'timing_detail': s.timingDetail!.toJson(),
   };
 
   static ItemResponseSubmission _submissionFromJson(Map<String, dynamic> j) =>
@@ -83,5 +84,16 @@ class LocalResponseQueue {
         responseTimeMs: j['response_time_ms'] as int,
         captureModality: j['capture_modality'] as String,
         sttConfidence: (j['stt_confidence'] as num?)?.toDouble(),
+        timingDetail: j['timing_detail'] == null
+            ? null
+            : ResponseTimingDetail(
+                totalMs: (j['timing_detail']['total_ms'] as num?)?.toInt() ?? 0,
+                ttsMs: (j['timing_detail']['tts_ms'] as num?)?.toInt() ?? 0,
+                backgroundMs: (j['timing_detail']['background_ms'] as num?)?.toInt() ?? 0,
+                netMs: (j['timing_detail']['net_ms'] as num?)?.toInt() ?? 0,
+                stimulusChars: (j['timing_detail']['stimulus_chars'] as num?)?.toInt() ?? 0,
+                stimulusWords: (j['timing_detail']['stimulus_words'] as num?)?.toInt() ?? 0,
+                difficulty: (j['timing_detail']['difficulty'] as num?)?.toInt() ?? 1,
+              ),
       );
 }
