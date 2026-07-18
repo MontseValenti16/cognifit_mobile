@@ -1,4 +1,4 @@
-package com.example.cognifit_mobile
+package com.mobile.cognifit_mobile
 
 import android.os.Bundle
 import android.view.WindowManager

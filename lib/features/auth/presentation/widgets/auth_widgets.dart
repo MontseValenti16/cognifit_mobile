@@ -8,19 +8,23 @@ class AuthHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Container(
-        width: 80, height: 80,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF9B78D8), Color(0xFF5BC8AF)]),
-          boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.25), blurRadius: 16, offset: const Offset(0, 6))],
-        ),
-        child: const Icon(Icons.psychology_rounded, color: Colors.white, size: 42),
+      Image.asset(
+        'assets/images/imagenCognifit.jpeg',
+        width: 90,
+        height: 90,
+        fit: BoxFit.contain,
       ),
       const SizedBox(height: 16),
-      Text('CogniFit', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w800)),
+      Text(
+        'CogniFit',
+        style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w800),
+      ),
       const SizedBox(height: 6),
-      Text(subtitle, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF6B6880)), textAlign: TextAlign.center),
+      Text(
+        subtitle,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF6B6880)),
+        textAlign: TextAlign.center,
+      ),
     ]);
   }
 }
@@ -36,9 +40,15 @@ class CogniFitTextField extends StatelessWidget {
   final TextEditingController? controller;
 
   const CogniFitTextField({
-    super.key, required this.label, required this.hint,
-    this.prefixIcon, this.suffixWidget, this.obscureText = false,
-    this.keyboardType = TextInputType.text, this.onChanged, this.controller,
+    super.key,
+    required this.label,
+    required this.hint,
+    this.prefixIcon,
+    this.suffixWidget,
+    this.obscureText = false,
+    this.keyboardType = TextInputType.text,
+    this.onChanged,
+    this.controller,
   });
 
   @override
@@ -53,7 +63,9 @@ class CogniFitTextField extends StatelessWidget {
         onChanged: onChanged,
         decoration: InputDecoration(
           hintText: hint,
-          prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: const Color(0xFFADA9B9), size: 20) : null,
+          prefixIcon: prefixIcon != null
+              ? Icon(prefixIcon, color: const Color(0xFFADA9B9), size: 20)
+              : null,
           suffix: suffixWidget,
         ),
       ),
@@ -91,7 +103,9 @@ class AuthTabToggle extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isLogin ? Colors.white : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
-                boxShadow: isLogin ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)] : [],
+                boxShadow: isLogin
+                    ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)]
+                    : [],
               ),
               child: Center(
                 child: Text(
@@ -115,7 +129,9 @@ class AuthTabToggle extends StatelessWidget {
               decoration: BoxDecoration(
                 color: !isLogin ? Colors.white : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
-                boxShadow: !isLogin ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)] : [],
+                boxShadow: !isLogin
+                    ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)]
+                    : [],
               ),
               child: Center(
                 child: Text(
