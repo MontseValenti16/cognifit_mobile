@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../widgets/choice_player.dart';
+import '../widgets/dictation_player.dart';
+import '../widgets/reading_player.dart';
 import '../../../../core/utils/responsive.dart';
 import '../viewmodels/intervention_viewmodel.dart';
 
@@ -37,6 +40,52 @@ class _InterventionScreenState extends State<InterventionScreen> {
   }
 
   void _rebuild() { if (mounted) setState(() {}); }
+
+  /// Elige el reproductor según lo que trae el ejercicio. Devuelve null para
+  /// los que todavía no tienen uno (voz y trazo), que siguen con calificación
+  /// manual en vez de fingir una medición que no se hizo.
+  Widget? _reproductor(dynamic exercise) {
+    final texto = exercise.texto as String?;
+    if (texto != null && texto.trim().isNotEmpty) {
+      return ReadingPlayer(
+        texto: texto,
+        instruccion: exercise.instruccion as String,
+        usaTts: exercise.usaTts as bool,
+        metaPalabrasPorMinuto: exercise.metaPalabrasPorMinuto as int?,
+        repeticiones: exercise.repeticiones as int?,
+        onFinish: (accuracy, _) => _rate(accuracy),
+      );
+    }
+
+    final items = (exercise.items as List).cast<Map<String, dynamic>>();
+
+    // Dictado: el ítem solo trae {target}; la app lo dicta y el alumno escribe.
+    if (exercise.modalidad == 'teclado_tts') {
+      final targets = items
+          .map((i) => (i['target'] ?? '').toString())
+          .where((t) => t.isNotEmpty)
+          .toList();
+      if (targets.isNotEmpty) {
+        return DictationPlayer(
+          targets: targets,
+          onFinish: (accuracy, _, __) => _rate(accuracy),
+        );
+      }
+    }
+
+    final preguntas = items
+        .map(ChoiceQuestion.fromItem)
+        .whereType<ChoiceQuestion>()
+        .toList();
+    if (preguntas.isNotEmpty) {
+      return ChoicePlayer(
+        preguntas: preguntas,
+        usaTts: exercise.usaTts as bool,
+        onFinish: (accuracy, _, __) => _rate(accuracy),
+      );
+    }
+    return null;
+  }
 
   void _rate(double accuracy) =>
       widget.vm.recordAndAdvance(widget.studentId, accuracy);
@@ -101,6 +150,21 @@ class _InterventionScreenState extends State<InterventionScreen> {
           )),
         const SizedBox(height: 20),
 
+        // Si el ejercicio trae contenido jugable, el alumno lo hace acá y la
+        // precisión se mide sola. Antes TODO ejercicio se calificaba a mano
+        // ("¿respondió correctamente?"), aunque el contenido ya llegaba en la
+        // respuesta del API sin que nada lo mostrara.
+        if (_reproductor(exercise) case final player?) ...[
+          Text(exercise.titulo,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 6),
+          Text(exercise.instruccion,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: const Color(0xFF6B6880))),
+          const SizedBox(height: 20),
+          player,
+          const SizedBox(height: 24),
+        ] else ...[
+
         // Exercise card
         Container(
           padding: const EdgeInsets.all(24),
@@ -136,7 +200,8 @@ class _InterventionScreenState extends State<InterventionScreen> {
         ),
         const SizedBox(height: 28),
 
-        // Teacher rates accuracy
+        // Calificación manual: solo para los ejercicios que todavía no tienen
+        // reproductor (voz, trazo). Ahí el adulto guía y marca el resultado.
         Text('¿El alumno respondió correctamente?',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           textAlign: TextAlign.center),
@@ -156,6 +221,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.activeGreen),
           )),
         ]),
+        ],
 
         if (vm.current?.support != null) ...[
           const SizedBox(height: 16),

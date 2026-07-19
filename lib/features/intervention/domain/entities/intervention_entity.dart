@@ -24,6 +24,15 @@ class ExerciseDetailEntity {
   final int nivel;
   final List<Map<String, dynamic>> items;
 
+  /// Texto corrido de los ejercicios de lectura (guiada, repetida,
+  /// temporizada, karaoke). 13 de los 29 ejercicios del banco no traen
+  /// `items` sino este texto: sin él la pantalla no tenía nada que mostrar
+  /// y el ejercicio no se podía hacer dentro de la app.
+  final String modalidad;
+  final String? texto;
+  final int? metaPalabrasPorMinuto;
+  final int? repeticiones;
+
   const ExerciseDetailEntity({
     required this.exerciseId,
     required this.tipo,
@@ -33,6 +42,10 @@ class ExerciseDetailEntity {
     required this.usaStt,
     required this.nivel,
     required this.items,
+    this.modalidad = '',
+    this.texto,
+    this.metaPalabrasPorMinuto,
+    this.repeticiones,
   });
 }
 

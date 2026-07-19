@@ -32,6 +32,10 @@ class ExerciseDetailModel extends ExerciseDetailEntity {
     required super.usaStt,
     required super.nivel,
     required super.items,
+    super.modalidad,
+    super.texto,
+    super.metaPalabrasPorMinuto,
+    super.repeticiones,
   });
 
   factory ExerciseDetailModel.fromJson(Map<String, dynamic> j) {
@@ -45,6 +49,13 @@ class ExerciseDetailModel extends ExerciseDetailEntity {
       usaStt: (j['usa_stt'] as bool?) ?? false,
       nivel: (j['nivel'] as num?)?.toInt() ?? 1,
       items: rawItems.cast<Map<String, dynamic>>(),
+      modalidad: (j['modalidad'] ?? '') as String,
+      texto: j['texto'] as String?,
+      // El banco usa dos nombres para lo mismo según el ejercicio.
+      metaPalabrasPorMinuto: (j['meta_palabras_por_minuto'] ?? j['velocidad_palabras_por_minuto']) is num
+          ? ((j['meta_palabras_por_minuto'] ?? j['velocidad_palabras_por_minuto']) as num).toInt()
+          : null,
+      repeticiones: (j['repeticiones'] as num?)?.toInt(),
     );
   }
 }
