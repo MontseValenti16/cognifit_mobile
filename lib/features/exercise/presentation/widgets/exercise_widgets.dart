@@ -204,3 +204,102 @@ class ExerciseCompletedCard extends StatelessWidget {
     ));
   }
 }
+
+/// Respuesta de opción múltiple para ítems de discriminación visual (M10_VD).
+///
+/// Esos ítems traen el estímulo como opciones separadas por pipe
+/// ("b|b|d|b") y la respuesta esperada es la opción distinta ("d"). Sin este
+/// widget el niño veía el texto crudo "b|b|d|b" y un campo de texto, así que
+/// el módulo era inusable: por eso estuvo fuera de la batería aunque su
+/// migración, su test y sus 21 ítems existían desde hace tiempo.
+class MultipleChoiceAnswer extends StatelessWidget {
+  final List<String> options;
+  final ValueChanged<String> onSelect;
+  final String? selected;
+  final bool enabled;
+
+  const MultipleChoiceAnswer({
+    super.key,
+    required this.options,
+    required this.onSelect,
+    this.selected,
+    this.enabled = true,
+  });
+
+  /// "b|b|d|b" -> ["b","b","d","b"]. Devuelve vacío si no es formato de opciones.
+  static List<String> parseOptions(String stimulusText) {
+    if (!stimulusText.contains('|')) return const [];
+    return stimulusText
+        .split('|')
+        .map((o) => o.trim())
+        .where((o) => o.isNotEmpty)
+        .toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 14,
+      runSpacing: 14,
+      children: [
+        for (var i = 0; i < options.length; i++)
+          _OptionButton(
+            // La posición se muestra al niño, no el índice: dos opciones pueden
+            // tener el mismo texto ("b|b|d|b") y deben ser tocables por separado.
+            label: options[i],
+            isSelected: selected == options[i],
+            enabled: enabled,
+            onTap: () => onSelect(options[i]),
+          ),
+      ],
+    );
+  }
+}
+
+class _OptionButton extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final bool enabled;
+  final VoidCallback onTap;
+  const _OptionButton({
+    required this.label,
+    required this.isSelected,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: 'Opción $label',
+      child: InkWell(
+        onTap: enabled ? onTap : null,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: 96,
+          height: 96,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected ? AppTheme.primary.withOpacity(0.12) : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected ? AppTheme.primary : AppTheme.outline.withOpacity(0.5),
+              width: isSelected ? 2.5 : 1.2,
+            ),
+          ),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'serif',
+                  color: isSelected ? AppTheme.primary : null,
+                ),
+          ),
+        ),
+      ),
+    );
+  }
+}

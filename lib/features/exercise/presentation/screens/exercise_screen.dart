@@ -88,6 +88,12 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     _captureModality = 'teclado';
     _sttConfidence = null;
 
+    _afterAnswer();
+  }
+
+  /// Retroalimentación + avance. Compartido entre la respuesta escrita y la
+  /// de opción múltiple para que ambas se comporten igual.
+  void _afterAnswer() {
     if (_vm.lastAnswerCorrect != null) {
       TtsService.instance.speak(_vm.lastAnswerCorrect! ? '¡Muy bien!' : 'Sigamos practicando');
       Future.delayed(const Duration(milliseconds: 1300), () {
@@ -168,6 +174,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     final waitingFeedback = _vm.lastAnswerCorrect != null;
     final showSpeaker = _supportsMode('TTS');
     final showMic = _supportsMode('STT');
+    final opciones = MultipleChoiceAnswer.parseOptions(item.stimulusText);
 
     return Scaffold(
       backgroundColor: AppTheme.surface,
@@ -178,22 +185,43 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
           padding: EdgeInsets.symmetric(horizontal: context.hPad),
           child: Column(children: [
             const SizedBox(height: 24),
-            StimulusCard(
-              stimulusText: item.stimulusText,
-              itemKind: item.itemKind,
-              isPractice: item.isPractice,
-              showSpeaker: showSpeaker,
-              onSpeak: () => TtsService.instance.speak(item.stimulusText),
-            ),
+            // Los ítems de discriminación visual traen las opciones en el
+            // propio estímulo ("b|b|d|b"): se muestran como botones y no
+            // como texto, que era lo que hacía inusable ese módulo.
+            if (opciones.isNotEmpty)
+              StimulusCard(
+                stimulusText: '¿Cuál es diferente?',
+                itemKind: item.itemKind,
+                isPractice: item.isPractice,
+              )
+            else
+              StimulusCard(
+                stimulusText: item.stimulusText,
+                itemKind: item.itemKind,
+                isPractice: item.isPractice,
+                showSpeaker: showSpeaker,
+                onSpeak: () => TtsService.instance.speak(item.stimulusText),
+              ),
             const SizedBox(height: 24),
-            ResponseTextField(
-              controller: _controller,
-              onSubmit: _submitCurrent,
-              showMic: showMic,
-              isListening: _isListening,
-              onMicTap: _startListening,
-              enabled: !waitingFeedback,
-            ),
+            if (opciones.isNotEmpty)
+              MultipleChoiceAnswer(
+                options: opciones,
+                selected: _vm.selectedAnswer,
+                enabled: !waitingFeedback,
+                onSelect: (opcion) {
+                  _vm.answer(opcion, captureModality: 'tactil');
+                  _afterAnswer();
+                },
+              )
+            else
+              ResponseTextField(
+                controller: _controller,
+                onSubmit: _submitCurrent,
+                showMic: showMic,
+                isListening: _isListening,
+                onMicTap: _startListening,
+                enabled: !waitingFeedback,
+              ),
             const SizedBox(height: 8),
             Text('Modalidad: ${item.inputModes.join(", ")}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
