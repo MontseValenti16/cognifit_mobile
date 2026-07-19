@@ -69,3 +69,43 @@ class NextExerciseEntity {
 
   bool get isComplete => action == 'complete' || exerciseId == null;
 }
+
+/// Un ejercicio de la vía de comprensión, tal como lo lista el catálogo del
+/// grado. Es solo el encabezado: el texto y las preguntas llegan aparte, con
+/// `getExerciseDetail`, para no traer 21 textos completos de una vez.
+class ComprehensionExerciseEntity {
+  final String exerciseId;
+  final String titulo;
+  final String subtipo;
+  final String instruccion;
+  final String modalidad;
+  final int totalPreguntas;
+
+  const ComprehensionExerciseEntity({
+    required this.exerciseId,
+    required this.titulo,
+    required this.subtipo,
+    required this.instruccion,
+    required this.modalidad,
+    required this.totalPreguntas,
+  });
+}
+
+/// Catálogo de comprensión de un grado.
+///
+/// Un grado sin contenido llega con la lista vacía y no es un error: significa
+/// "todavía no hay material para este grado". [gradosConContenido] permite que
+/// la interfaz no ofrezca una vía vacía.
+class ComprehensionTrackEntity {
+  final String grade;
+  final List<ComprehensionExerciseEntity> exercises;
+  final List<String> gradosConContenido;
+
+  const ComprehensionTrackEntity({
+    required this.grade,
+    required this.exercises,
+    required this.gradosConContenido,
+  });
+
+  bool get hayContenido => exercises.isNotEmpty;
+}

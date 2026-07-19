@@ -86,6 +86,7 @@ import '../../features/student_profile/presentation/viewmodels/student_profile_v
 // INTERVENTION
 import '../../features/intervention/data/datasources/intervention_remote_datasource.dart';
 import '../../features/intervention/data/repositories/intervention_repository_impl.dart';
+import '../../features/intervention/domain/repositories/intervention_repository.dart';
 import '../../features/intervention/domain/usecases/get_active_path_usecase.dart';
 import '../../features/intervention/domain/usecases/next_exercise_usecase.dart';
 import '../../features/intervention/presentation/viewmodels/intervention_viewmodel.dart';
@@ -209,6 +210,10 @@ class ServiceLocator {
     getActivePath: GetActivePathUseCase(_interventionRepo),
     nextExercise: NextExerciseUseCase(_interventionRepo),
   );
+
+  /// La vía de comprensión no pasa por un ViewModel: la pantalla solo lista un
+  /// catálogo y abre ejercicios, sin estado que coordinar entre sesiones.
+  InterventionRepository get interventionRepository => _interventionRepo;
 
   ReportsViewModel get reportsViewModel => _reports ??= ReportsViewModel(
     requestReport: RequestReportUseCase(_reportRepo),

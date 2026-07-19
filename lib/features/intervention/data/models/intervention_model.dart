@@ -80,3 +80,49 @@ class NextExerciseModel extends NextExerciseEntity {
     );
   }
 }
+
+class ComprehensionExerciseModel extends ComprehensionExerciseEntity {
+  const ComprehensionExerciseModel({
+    required super.exerciseId,
+    required super.titulo,
+    required super.subtipo,
+    required super.instruccion,
+    required super.modalidad,
+    required super.totalPreguntas,
+  });
+
+  factory ComprehensionExerciseModel.fromJson(Map<String, dynamic> j) =>
+      ComprehensionExerciseModel(
+        exerciseId: (j['exercise_id'] ?? '').toString(),
+        titulo: (j['titulo'] ?? '').toString(),
+        subtipo: (j['subtipo'] ?? '').toString(),
+        instruccion: (j['instruccion'] ?? '').toString(),
+        modalidad: (j['modalidad'] ?? '').toString(),
+        totalPreguntas: (j['total_preguntas'] as num?)?.toInt() ?? 0,
+      );
+}
+
+class ComprehensionTrackModel extends ComprehensionTrackEntity {
+  const ComprehensionTrackModel({
+    required super.grade,
+    required super.exercises,
+    required super.gradosConContenido,
+  });
+
+  factory ComprehensionTrackModel.fromJson(Map<String, dynamic> j) {
+    final raw = j['exercises'];
+    return ComprehensionTrackModel(
+      grade: (j['grade'] ?? '').toString(),
+      exercises: raw is List
+          ? raw
+              .map((e) => ComprehensionExerciseModel.fromJson(
+                  Map<String, dynamic>.from(e as Map)))
+              .toList()
+          : const [],
+      gradosConContenido: (j['grados_con_contenido'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+    );
+  }
+}

@@ -4,6 +4,7 @@ import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../child/presentation/screens/child_home_screen.dart';
+import '../../../intervention/presentation/screens/comprehension_track_screen.dart';
 import '../../../intervention/presentation/screens/intervention_screen.dart';
 import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
 import '../../../tests/domain/entities/screening_entity.dart';
@@ -61,6 +62,17 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             onPressed: () => Navigator.push(context, MaterialPageRoute(
               builder: (_) => InterventionScreen(
                 vm: ServiceLocator.instance.interventionViewModel(),
+                studentId: widget.studentId,
+                studentName: widget.studentName,
+              ),
+            )),
+          ),
+          IconButton(
+            icon: const Icon(Icons.menu_book_rounded),
+            tooltip: 'Comprensión lectora',
+            onPressed: () => Navigator.push(context, MaterialPageRoute(
+              builder: (_) => ComprehensionTrackScreen(
+                repository: ServiceLocator.instance.interventionRepository,
                 studentId: widget.studentId,
                 studentName: widget.studentName,
               ),
