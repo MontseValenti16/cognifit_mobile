@@ -36,6 +36,7 @@ class ExerciseDetailModel extends ExerciseDetailEntity {
     super.texto,
     super.metaPalabrasPorMinuto,
     super.repeticiones,
+    super.autoevaluacion,
   });
 
   factory ExerciseDetailModel.fromJson(Map<String, dynamic> j) {
@@ -56,6 +57,7 @@ class ExerciseDetailModel extends ExerciseDetailEntity {
           ? ((j['meta_palabras_por_minuto'] ?? j['velocidad_palabras_por_minuto']) as num).toInt()
           : null,
       repeticiones: (j['repeticiones'] as num?)?.toInt(),
+      autoevaluacion: j['autoevaluacion'] as bool? ?? false,
     );
   }
 }
