@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
+import '../../../../core/di/service_locator.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../intervention/presentation/viewmodels/intervention_viewmodel.dart';
 import '../../data/child_exercises.dart';
 import '../widgets/child_game_widgets.dart';
 
-/// Pantalla de juego de discriminación visual para el niño.
+/// Juego de discriminación visual para el niño.
 /// Contenido basado en "Material de apoyo para la Dislexia" (Profra. J. González García).
-/// No requiere backend — ejercicios locales, aleatorios por sesión.
+///
+/// El resultado de la partida se reporta a la ruta de intervención del alumno
+/// (`/next-exercise`): antes el puntaje se quedaba en memoria y se perdía, así
+/// que la ruta adaptativa —que sube de nivel con >90% de acierto y agrega apoyo
+/// con <40%— nunca recibía datos y no avanzaba nunca.
 class ChildGameScreen extends StatefulWidget {
+  final String studentId;
   final String studentName;
 
-  const ChildGameScreen({super.key, required this.studentName});
+  const ChildGameScreen({super.key, required this.studentId, required this.studentName});
 
   @override
   State<ChildGameScreen> createState() => _ChildGameScreenState();
@@ -27,12 +34,34 @@ class _ChildGameScreenState extends State<ChildGameScreen> {
 
   static const int _exerciseCount = 10;
 
+  late final InterventionViewModel _intervention;
+  bool _reported = false;
+
   @override
   void initState() {
     super.initState();
     _sessionSeed = DateTime.now().millisecondsSinceEpoch;
     _exercises = pickExercises(count: _exerciseCount, seed: _sessionSeed);
     _buildOptions();
+    // Se carga la ruta activa para saber en qué ejercicio va el alumno; si no
+    // tiene ruta (sin diagnóstico todavía), el juego funciona igual: es
+    // práctica libre y simplemente no hay nada que reportar.
+    _intervention = ServiceLocator.instance.interventionViewModel();
+    _intervention.load(widget.studentId);
+  }
+
+  /// Informa el desempeño a la ruta adaptativa una sola vez por partida.
+  Future<void> _reportarDesempeno() async {
+    if (_reported || _exercises.isEmpty) return;
+    _reported = true;
+    // El servicio de recomendación espera precisión entre 0 y 1.
+    final accuracy = _score / _exercises.length;
+    if (_intervention.current == null) return;   // sin ruta activa, nada que avanzar
+    try {
+      await _intervention.recordAndAdvance(widget.studentId, accuracy);
+    } catch (_) {
+      // El avance de ruta no debe romper la pantalla del niño.
+    }
   }
 
   void _buildOptions() {
@@ -57,6 +86,7 @@ class _ChildGameScreenState extends State<ChildGameScreen> {
     TtsService.instance.stop();
     if (_current >= _exercises.length - 1) {
       setState(() => _gameOver = true);
+      _reportarDesempeno();
     } else {
       setState(() {
         _current++;
@@ -75,6 +105,7 @@ class _ChildGameScreenState extends State<ChildGameScreen> {
       _selectedOption = null;
       _score = 0;
       _gameOver = false;
+      _reported = false;
       _buildOptions();
     });
   }
