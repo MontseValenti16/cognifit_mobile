@@ -58,7 +58,7 @@ class ChildHomeScreen extends StatelessWidget {
               subtitle: 'Discriminación visual · Letras · Palabras',
               color: AppTheme.tertiary,
               onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (_) => ChildGameScreen(studentName: studentName),
+                builder: (_) => ChildGameScreen(studentId: studentId, studentName: studentName),
               )),
             ),
             const SizedBox(height: 28),
