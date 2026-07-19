@@ -4,6 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../widgets/choice_player.dart';
 import '../widgets/comprehension_player.dart';
 import '../widgets/dictation_player.dart';
+import '../widgets/naming_player.dart';
 import '../widgets/reading_player.dart';
 import '../../../../core/utils/responsive.dart';
 import '../viewmodels/intervention_viewmodel.dart';
@@ -68,6 +69,28 @@ class _InterventionScreenState extends State<InterventionScreen> {
       }
     }
 
+    // Denominación rápida: rejilla + cronómetro. La medida es el tiempo total
+    // de nombrar las 40 casillas, así que no hace falta reconocimiento de voz
+    // —que era lo que tenía estos tres ejercicios sin jugarse.
+    final grid = (exercise.grid as List).cast<String>();
+    if (grid.isNotEmpty) {
+      final subtipo = exercise.subtipo as String;
+      return NamingPlayer(
+        grid: grid,
+        columnas: exercise.gridColumnas as int,
+        kind: switch (subtipo) {
+          'colores' => NamingKind.colores,
+          'objetos' => NamingKind.objetos,
+          _ => NamingKind.letras,
+        },
+        paleta: (exercise.paleta as Map<String, String>).map(
+          (k, v) => MapEntry(k, _colorDeHex(v)),
+        ),
+        iconos: exercise.iconos as Map<String, String>,
+        onFinish: (accuracy, _) => _rate(accuracy),
+      );
+    }
+
     if (hayTexto) {
       return ReadingPlayer(
         texto: texto,
@@ -105,6 +128,15 @@ class _InterventionScreenState extends State<InterventionScreen> {
       );
     }
     return null;
+  }
+
+  /// "#E53935" → Color. Si el banco trae un valor raro se cae a gris en vez
+  /// de reventar la pantalla por un color mal escrito.
+  static Color _colorDeHex(String hex) {
+    final limpio = hex.replaceFirst('#', '');
+    final v = int.tryParse(limpio, radix: 16);
+    if (v == null || limpio.length != 6) return Colors.grey;
+    return Color(0xFF000000 | v);
   }
 
   void _rate(double accuracy) =>
