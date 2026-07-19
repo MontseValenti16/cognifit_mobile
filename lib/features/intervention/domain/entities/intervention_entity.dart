@@ -33,6 +33,10 @@ class ExerciseDetailEntity {
   final int? metaPalabrasPorMinuto;
   final int? repeticiones;
 
+  /// Pide al alumno predecir cuántas preguntas acertará antes de responder.
+  /// Es el ejercicio de metacognición de la vía de comprensión.
+  final bool autoevaluacion;
+
   const ExerciseDetailEntity({
     required this.exerciseId,
     required this.tipo,
@@ -46,6 +50,7 @@ class ExerciseDetailEntity {
     this.texto,
     this.metaPalabrasPorMinuto,
     this.repeticiones,
+    this.autoevaluacion = false,
   });
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../widgets/choice_player.dart';
+import '../widgets/comprehension_player.dart';
 import '../widgets/dictation_player.dart';
 import '../widgets/reading_player.dart';
 import '../../../../core/utils/responsive.dart';
@@ -46,7 +47,28 @@ class _InterventionScreenState extends State<InterventionScreen> {
   /// manual en vez de fingir una medición que no se hizo.
   Widget? _reproductor(dynamic exercise) {
     final texto = exercise.texto as String?;
-    if (texto != null && texto.trim().isNotEmpty) {
+    final hayTexto = texto != null && texto.trim().isNotEmpty;
+    final items = (exercise.items as List).cast<Map<String, dynamic>>();
+
+    // Comprensión: es el único caso que trae texto Y preguntas a la vez, así
+    // que se resuelve ANTES que la lectura — si no, caería en ReadingPlayer y
+    // las preguntas no se mostrarían nunca.
+    if (hayTexto && items.isNotEmpty) {
+      final preguntas =
+          items.map(ChoiceQuestion.fromItem).whereType<ChoiceQuestion>().toList();
+      if (preguntas.isNotEmpty) {
+        return ComprehensionPlayer(
+          texto: texto,
+          preguntas: preguntas,
+          usaTts: exercise.usaTts as bool,
+          autoevaluacion: exercise.autoevaluacion as bool? ?? false,
+          metaPalabrasPorMinuto: exercise.metaPalabrasPorMinuto as int?,
+          onFinish: (accuracy, _, __, ___) => _rate(accuracy),
+        );
+      }
+    }
+
+    if (hayTexto) {
       return ReadingPlayer(
         texto: texto,
         instruccion: exercise.instruccion as String,
@@ -56,8 +78,6 @@ class _InterventionScreenState extends State<InterventionScreen> {
         onFinish: (accuracy, _) => _rate(accuracy),
       );
     }
-
-    final items = (exercise.items as List).cast<Map<String, dynamic>>();
 
     // Dictado: el ítem solo trae {target}; la app lo dicta y el alumno escribe.
     if (exercise.modalidad == 'teclado_tts') {
