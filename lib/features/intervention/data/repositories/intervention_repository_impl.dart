@@ -20,4 +20,12 @@ class InterventionRepositoryImpl implements InterventionRepository {
     currentRoute: currentRoute,
     sessionHistory: sessionHistory,
   );
+
+  @override
+  Future<ComprehensionTrackEntity> getComprehensionTrack(String studentId) =>
+      remote.getComprehensionTrack(studentId);
+
+  @override
+  Future<ExerciseDetailEntity> getExerciseDetail(String exerciseId) =>
+      remote.getExerciseDetail(exerciseId);
 }
