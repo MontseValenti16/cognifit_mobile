@@ -37,6 +37,11 @@ class ExerciseDetailModel extends ExerciseDetailEntity {
     super.metaPalabrasPorMinuto,
     super.repeticiones,
     super.autoevaluacion,
+    super.grid,
+    super.gridColumnas,
+    super.subtipo,
+    super.paleta,
+    super.iconos,
   });
 
   factory ExerciseDetailModel.fromJson(Map<String, dynamic> j) {
@@ -51,13 +56,29 @@ class ExerciseDetailModel extends ExerciseDetailEntity {
       nivel: (j['nivel'] as num?)?.toInt() ?? 1,
       items: rawItems.cast<Map<String, dynamic>>(),
       modalidad: (j['modalidad'] ?? '') as String,
-      texto: j['texto'] as String?,
+      // El banco guarda el texto de dos maneras: `texto` (uno corrido) y
+      // `textos` (una lista de frases, en la lectura guiada). Leer solo la
+      // primera dejaba TTS_lectura_guiada_N1 sin nada que mostrar, aunque el
+      // servicio sí enviaba sus cinco frases.
+      texto: j['texto'] as String? ??
+          (j['textos'] is List
+              ? (j['textos'] as List).map((e) => e.toString()).join('\n')
+              : null),
       // El banco usa dos nombres para lo mismo según el ejercicio.
       metaPalabrasPorMinuto: (j['meta_palabras_por_minuto'] ?? j['velocidad_palabras_por_minuto']) is num
           ? ((j['meta_palabras_por_minuto'] ?? j['velocidad_palabras_por_minuto']) as num).toInt()
           : null,
       repeticiones: (j['repeticiones'] as num?)?.toInt(),
       autoevaluacion: j['autoevaluacion'] as bool? ?? false,
+      grid: (j['grid'] as List?)?.map((e) => e.toString()).toList() ?? const [],
+      gridColumnas: (j['grid_columnas'] as num?)?.toInt() ?? 5,
+      subtipo: (j['subtipo'] ?? '').toString(),
+      paleta: (j['paleta'] as Map?)
+              ?.map((k, v) => MapEntry(k.toString(), v.toString())) ??
+          const {},
+      iconos: (j['iconos'] as Map?)
+              ?.map((k, v) => MapEntry(k.toString(), v.toString())) ??
+          const {},
     );
   }
 }

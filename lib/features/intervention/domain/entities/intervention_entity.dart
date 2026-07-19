@@ -37,6 +37,19 @@ class ExerciseDetailEntity {
   /// Es el ejercicio de metacognición de la vía de comprensión.
   final bool autoevaluacion;
 
+  /// Denominación rápida: las 40 casillas que el alumno nombra en voz alta.
+  /// El orden viene fijo del banco a propósito — barajarlo por sesión haría
+  /// que los tiempos no se puedan comparar entre alumnos ni entre sesiones.
+  final List<String> grid;
+  final int gridColumnas;
+  final String subtipo;
+
+  /// Solo para la rejilla de colores: nombre → color en hexadecimal.
+  final Map<String, String> paleta;
+
+  /// Solo para la rejilla de objetos: nombre → emoji.
+  final Map<String, String> iconos;
+
   const ExerciseDetailEntity({
     required this.exerciseId,
     required this.tipo,
@@ -51,6 +64,11 @@ class ExerciseDetailEntity {
     this.metaPalabrasPorMinuto,
     this.repeticiones,
     this.autoevaluacion = false,
+    this.grid = const [],
+    this.gridColumnas = 5,
+    this.subtipo = '',
+    this.paleta = const {},
+    this.iconos = const {},
   });
 }
 
