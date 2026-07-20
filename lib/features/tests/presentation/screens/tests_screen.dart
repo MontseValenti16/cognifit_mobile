@@ -163,17 +163,31 @@ class _QuestionnaireStep extends StatelessWidget {
       ),
       const SizedBox(height: 12),
       Expanded(
-        child: ListView.builder(
+        child: ListView(
           padding: EdgeInsets.fromLTRB(context.hPad, 0, context.hPad, 100),
-          itemCount: vm.teacherItems.length,
-          itemBuilder: (context, i) {
-            final item = vm.teacherItems[i];
-            return TeacherQuestionCard(
-              item: item, index: i,
-              selectedValue: vm.answers[item.itemCode],
-              onSelect: (v) => vm.answerQuestion(item.itemCode, v),
-            );
-          },
+          children: [
+            for (final entry in vm.itemsPorCategoria.entries) ...[
+              Padding(
+                padding: const EdgeInsets.only(top: 18, bottom: 8),
+                child: Text(
+                  switch (entry.key) {
+                    'HISTORIA_CLINICA' => 'Antes de empezar: descartar otras causas',
+                    'DISCREPANCIA' => '¿La dificultad es inesperada?',
+                    _ => 'Señales en la lectura y la escritura',
+                  },
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700, color: AppTheme.primary),
+                ),
+              ),
+              for (final item in entry.value)
+                TeacherQuestionCard(
+                  item: item,
+                  index: vm.teacherItems.indexOf(item),
+                  selectedValue: vm.answers[item.itemCode],
+                  onSelect: (v) => vm.answerQuestion(item.itemCode, v),
+                ),
+            ],
+          ],
         ),
       ),
       Padding(
@@ -202,6 +216,8 @@ class _ResultStep extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: context.hPad, vertical: 12),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         TeacherResultCard(result: vm.teacherResult!),
+        if (vm.teacherResult?.requiereDescartarSensorial ?? false)
+          const SensorialAlertBanner(),
         const SizedBox(height: 20),
         if (vm.isSubmitting) const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: AppTheme.primary)))
         else if (vm.assignmentResult != null) ...[
