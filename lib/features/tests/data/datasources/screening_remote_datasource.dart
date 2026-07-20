@@ -5,7 +5,7 @@ import '../models/screening_model.dart';
 
 /// Maps 1:1 to SCREENING section of API_UI_GUIA.md / API_UI_EJEMPLOS.md
 abstract class ScreeningRemoteDataSource {
-  Future<List<TeacherItemModel>> getTeacherItems();
+  Future<List<TeacherItemModel>> getTeacherItems({int? grade});
   Future<TeacherResultModel> submitTeacherResults(String studentId, List<TeacherAnswer> answers);
   Future<List<ScreeningModuleModel>> getCatalog();
   Future<AssignmentResultModel> assignBattery(String studentId, double teacherScore, List<RiskFlag> riskFlags);
@@ -31,9 +31,17 @@ class ScreeningRemoteDataSourceImpl implements ScreeningRemoteDataSource {
   const ScreeningRemoteDataSourceImpl(this.client);
 
   @override
-  Future<List<TeacherItemModel>> getTeacherItems() async {
-    final json = await client.get('/screening/teacher-items');
-    return (json as List).map((e) => TeacherItemModel.fromJson(e)).toList();
+  Future<List<TeacherItemModel>> getTeacherItems({int? grade}) async {
+    // El grado elige el ciclo del cuestionario: PRODISLEX tiene un protocolo
+    // por ciclo y sus preguntas difieren. Sin esto todos los grados reciben
+    // el mismo cuestionario.
+    final json = await client.get(
+      '/screening/teacher-items',
+      query: grade != null ? {'grade': grade} : null,
+    );
+    return (json as List)
+        .map((e) => TeacherItemModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   @override
