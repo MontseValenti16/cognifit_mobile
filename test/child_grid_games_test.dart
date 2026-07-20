@@ -3,20 +3,21 @@
 /// una letra que no está. Estas pruebas lo fijan.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:cognifit_mobile/features/child/data/child_exercises.dart';
 import 'package:cognifit_mobile/features/child/data/child_grid_games.dart';
 import 'package:cognifit_mobile/features/child/presentation/screens/child_grid_game_screen.dart';
 
 void main() {
   group('banco de cuadrículas', () {
-    test('todas son de 5x4 = 20 casillas', () {
-      for (final j in kGridGames) {
+    test('TODOS los juegos son de 5x4 = 20 casillas', () {
+      for (final j in kTodosLosGridGames) {
         expect(j.celdas.length, 20, reason: '${j.id} no tiene 20 casillas');
         expect(j.columnas, 5, reason: '${j.id} no es de 5 columnas');
       }
     });
 
     test('cada juego tiene objetivos y también distractores', () {
-      for (final j in kGridGames) {
+      for (final j in kTodosLosGridGames) {
         expect(j.objetivos, isNotEmpty, reason: '${j.id} no tiene nada que buscar');
         expect(j.objetivos.length, lessThan(20),
             reason: '${j.id} es todo objetivos: no hay que discriminar nada');
@@ -24,7 +25,7 @@ void main() {
     });
 
     test('los índices objetivo caen dentro de la cuadrícula', () {
-      for (final j in kGridGames) {
+      for (final j in kTodosLosGridGames) {
         for (final i in j.objetivos) {
           expect(i, inInclusiveRange(0, j.celdas.length - 1),
               reason: '${j.id} apunta a la casilla $i, que no existe');
@@ -47,7 +48,7 @@ void main() {
     });
 
     test('no hay ids repetidos', () {
-      final ids = kGridGames.map((j) => j.id).toList();
+      final ids = kTodosLosGridGames.map((j) => j.id).toList();
       expect(ids.toSet().length, ids.length);
     });
 
@@ -55,6 +56,31 @@ void main() {
       expect(kGridGames.length, greaterThanOrEqualTo(8));
       expect(kGridGames.map((j) => j.difficulty).toSet().length,
           greaterThan(1), reason: 'todas tienen la misma dificultad');
+    });
+
+    test('los 20 ejercicios originales quedaron convertidos a cuadrícula', () {
+      // Ninguno se puede quedar en la mecánica de fila: se retiró.
+      final convertidos = gridGamesDesdeEjercicios(kChildExercises);
+      expect(convertidos.length, kChildExercises.length);
+      for (final j in convertidos) {
+        expect(j.objetivos.length, 1,
+            reason: '${j.id}: "cuál es diferente" debe tener una sola distinta');
+        expect(j.celdas.length, 20);
+      }
+    });
+
+    test('en los convertidos, la distinta es la única que no se repite', () {
+      for (final j in gridGamesDesdeEjercicios(kChildExercises)) {
+        final pos = j.objetivos.first;
+        final distinta = j.celdas[pos];
+        final iguales = j.celdas.where((c) => c == distinta).length;
+        expect(iguales, 1, reason: '${j.id}: "$distinta" aparece $iguales veces');
+      }
+    });
+
+    test('el conjunto completo suma los dos tipos de juego', () {
+      expect(kTodosLosGridGames.length,
+          kGridGames.length + kChildExercises.length);
     });
   });
 

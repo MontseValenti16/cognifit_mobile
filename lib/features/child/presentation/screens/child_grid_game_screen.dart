@@ -22,7 +22,7 @@ class ChildGridGameScreen extends StatefulWidget {
     super.key,
     required this.studentName,
     List<GridGame>? juegos,
-  }) : juegos = juegos ?? kGridGames;
+  }) : juegos = juegos ?? kTodosLosGridGames;
 
   @override
   State<ChildGridGameScreen> createState() => _ChildGridGameScreenState();
