@@ -278,6 +278,31 @@ class ResponseResultEntity {
 }
 
 // ── Diagnosis ─────────────────────────────────────────────────────────────────────
+class TedePercentil {
+  final int? percentilPorGrado;
+  final int? percentilPorEdad;
+  final int puntajeEscalaTede;
+  /// El puntaje se llevó a la escala de 100 del baremo desde una
+  /// administración más corta: el percentil es orientativo, no exacto.
+  final bool escalado;
+  const TedePercentil({
+    this.percentilPorGrado,
+    this.percentilPorEdad,
+    required this.puntajeEscalaTede,
+    this.escalado = false,
+  });
+
+  static TedePercentil? fromJson(Map<String, dynamic>? j) {
+    if (j == null) return null;
+    return TedePercentil(
+      percentilPorGrado: (j['percentil_por_grado'] as num?)?.toInt(),
+      percentilPorEdad: (j['percentil_por_edad'] as num?)?.toInt(),
+      puntajeEscalaTede: (j['puntaje_escala_tede'] as num?)?.toInt() ?? 0,
+      escalado: j['escalado'] as bool? ?? false,
+    );
+  }
+}
+
 class DiagnosisEntity {
   final String id;
   final String studentId;
@@ -295,6 +320,13 @@ class DiagnosisEntity {
   final String? modelVersion;
   final String? plnSource;
 
+  /// Percentil normativo del TEDE, subtest Nivel Lector. `null` si la sesión
+  /// no tuvo ítems de lectura o el diagnóstico salió del respaldo local.
+  final TedePercentil? tedeNivelLector;
+
+  /// Percentil normativo del TEDE, subtest Errores Específicos.
+  final TedePercentil? tedeErroresEspecificos;
+
   const DiagnosisEntity({
     required this.id,
     required this.studentId,
@@ -311,6 +343,8 @@ class DiagnosisEntity {
     required this.diagnosedAt,
     this.modelVersion,
     this.plnSource,
+    this.tedeNivelLector,
+    this.tedeErroresEspecificos,
   });
 }
 

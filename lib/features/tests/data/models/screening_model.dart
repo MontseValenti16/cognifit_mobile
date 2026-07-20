@@ -202,6 +202,8 @@ class DiagnosisModel extends DiagnosisEntity {
     required super.mainErrorCodes, required super.recommendedRoute,
     required super.recommendationReason, required super.diagnosedAt,
     super.modelVersion, super.plnSource,
+    super.tedeNivelLector,
+    super.tedeErroresEspecificos,
   });
 
   factory DiagnosisModel.fromJson(Map<String, dynamic> j) => DiagnosisModel(
@@ -220,6 +222,8 @@ class DiagnosisModel extends DiagnosisEntity {
     diagnosedAt: j['diagnosed_at'] as String? ?? '',
     modelVersion: j['model_version'] as String?,
     plnSource: j['pln_source'] as String?,
+    tedeNivelLector: TedePercentil.fromJson(j['tede_nivel_lector'] as Map<String, dynamic>?),
+    tedeErroresEspecificos: TedePercentil.fromJson(j['tede_errores_especificos'] as Map<String, dynamic>?),
   );
 }
 
