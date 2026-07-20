@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/validation/input_rules.dart';
 import '../../../auth/presentation/widgets/auth_widgets.dart';
 import '../../../splash/presentation/widgets/circuit_background.dart';
 import '../../domain/entities/institution_entity.dart';
@@ -23,6 +24,7 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
   final _adminPasswordCtrl = TextEditingController();
   bool _obscure = true;
   bool _submitted = false;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -58,6 +60,7 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
   }
 
   Future<void> _submit() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_schoolNameCtrl.text.trim().isEmpty || _adminEmailCtrl.text.trim().isEmpty || _adminPasswordCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Completa nombre de la escuela, correo y contraseña')));
       return;
@@ -92,7 +95,9 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
   }
 
   Widget _buildForm() {
-    return Column(children: [
+    return Form(
+      key: _formKey,
+      child: Column(children: [
       const AuthHeader(subtitle: 'Registra tu escuela para empezar a usar CogniFit'),
       const SizedBox(height: 28),
       CogniFitTextField(
@@ -100,6 +105,7 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
         label: 'Nombre de la escuela',
         hint: 'Escuela Primaria Benito Juárez',
         prefixIcon: Icons.school_outlined,
+        validator: Validators.nombreEscuela,
       ),
       const SizedBox(height: 20),
       CogniFitTextField(
@@ -129,6 +135,7 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
         hint: 'director@escuela.edu',
         prefixIcon: Icons.mail_outline_rounded,
         keyboardType: TextInputType.emailAddress,
+        validator: Validators.correo,
       ),
       const SizedBox(height: 20),
       CogniFitTextField(
@@ -140,6 +147,12 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
         suffixWidget: GestureDetector(
           onTap: () => setState(() => _obscure = !_obscure),
           child: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: const Color(0xFFADA9B9), size: 20),
+        ),
+        // Ocho, no doce: aqui el servidor pide
+        // InstitutionRegister.admin_password = Field(..., min_length=8).
+        validator: (v) => Validators.passwordNueva(
+          v,
+          minimo: InputRules.passwordMinInstitucion,
         ),
       ),
       const SizedBox(height: 32),
@@ -160,7 +173,8 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
           child: Text('Inicia sesión', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.w600)),
         ),
       ]),
-    ]);
+    ]),
+    );
   }
 }
 
