@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/errors/api_exception.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/intervention_entity.dart';
 import '../../domain/repositories/intervention_repository.dart';
@@ -64,13 +65,34 @@ class _ComprehensionTrackScreenState extends State<ComprehensionTrackScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snap.hasError) {
+            // Se distingue el motivo en vez de culpar siempre a la conexión.
+            // Decir "revisa tu internet" cuando el servicio está caído manda
+            // al docente a buscar el problema donde no está.
+            final e = snap.error;
+            final esServicioCaido =
+                e is ApiException && (e.statusCode == 503 || e.statusCode == 502);
+            final sinGrado = e is ApiException && e.statusCode == 409;
+
             return _Aviso(
-              icono: Icons.cloud_off_rounded,
-              titulo: 'No se pudo cargar',
-              detalle: 'Revisa la conexión e inténtalo de nuevo.',
-              accion: () => setState(() {
-                _futuro = widget.repository.getComprehensionTrack(widget.studentId);
-              }),
+              icono: sinGrado
+                  ? Icons.school_outlined
+                  : (esServicioCaido ? Icons.dns_outlined : Icons.wifi_off_rounded),
+              titulo: sinGrado
+                  ? 'Al alumno le falta el grado'
+                  : (esServicioCaido
+                      ? 'El servicio no está disponible'
+                      : 'Sin conexión'),
+              detalle: sinGrado
+                  ? 'La comprensión se entrega por grado escolar. Asigna el alumno a un grupo para continuar.'
+                  : (esServicioCaido
+                      ? 'El material existe, pero el servidor que lo entrega no responde. No es tu conexión; avisa a quien administra el sistema.'
+                      : 'Revisa tu conexión e inténtalo de nuevo.'),
+              accion: sinGrado
+                  ? null
+                  : () => setState(() {
+                        _futuro =
+                            widget.repository.getComprehensionTrack(widget.studentId);
+                      }),
             );
           }
 
