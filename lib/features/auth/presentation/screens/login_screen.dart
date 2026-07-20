@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/validation/input_rules.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../splash/presentation/widgets/circuit_background.dart';
 import '../../domain/entities/user_entity.dart';
@@ -17,6 +18,15 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   late final AuthViewModel _vm;
+  final _formKey = GlobalKey<FormState>();
+
+  /// Valida antes de salir a la red. Si algo no cumple, no se gasta la
+  /// peticion: el servidor devolveria un 422 con el mismo veredicto, pero
+  /// despues de un viaje de ida y vuelta que en una escuela con senal
+  /// intermitente puede costar varios segundos o fallar del todo.
+  void _enviar() {
+    if (_formKey.currentState?.validate() ?? false) _vm.login();
+  }
 
   @override
   void initState() {
@@ -84,7 +94,9 @@ class _LoginScreenState extends State<LoginScreen> {
         SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: context.hPad),
-            child: Column(children: [
+            child: Form(
+              key: _formKey,
+              child: Column(children: [
               const SizedBox(height: 48),
               const AuthHeader(subtitle: 'Inicia sesión para continuar'),
               const SizedBox(height: 32),
@@ -100,6 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 prefixIcon: Icons.mail_outline_rounded,
                 keyboardType: TextInputType.emailAddress,
                 onChanged: _vm.setEmail,
+                validator: Validators.correo,
               ),
               const SizedBox(height: 20),
 
@@ -112,6 +125,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Icon(_vm.obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: const Color(0xFFADA9B9), size: 20),
                   ),
                   onChanged: _vm.setPassword,
+                  // Solo "no vacia": LoginRequest.password no declara minimo,
+                  // y exigir 12 aqui dejaria fuera a las cuentas creadas con
+                  // la regla de 8 del registro de institucion.
+                  validator: Validators.passwordAcceso,
                 ),
               ),
               const SizedBox(height: 32),
@@ -119,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ListenableBuilder(
                 listenable: _vm,
                 builder: (_, __) => ElevatedButton(
-                  onPressed: _vm.isLoading ? null : _vm.login,
+                  onPressed: _vm.isLoading ? null : _enviar,
                   child: _vm.isLoading
                     ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
                     : const Text('Iniciar sesión'),
@@ -143,6 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 40),
             ]),
+            ),
           ),
         ),
       ]),
