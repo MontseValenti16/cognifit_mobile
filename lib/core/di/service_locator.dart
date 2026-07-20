@@ -171,6 +171,7 @@ class ServiceLocator {
     getCatalog: GetCatalogUseCase(_screeningRepo),
     assignBattery: AssignBatteryUseCase(_screeningRepo),
     openSession: OpenSessionUseCase(_screeningRepo),
+    getGroups: GetGroupsUseCase(_groupRepo),
   );
 
   ExerciseViewModel get exerciseViewModel => _exercise ??= ExerciseViewModel(
