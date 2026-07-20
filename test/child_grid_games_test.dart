@@ -8,6 +8,8 @@ import 'package:cognifit_mobile/features/child/data/child_grid_games.dart';
 import 'package:cognifit_mobile/features/child/presentation/screens/child_grid_game_screen.dart';
 
 void main() {
+  _pruebasDePosicion();
+
   group('banco de cuadrículas', () {
     test('TODOS los juegos son de 5x4 = 20 casillas', () {
       for (final j in kTodosLosGridGames) {
@@ -148,6 +150,38 @@ void main() {
       expect(find.textContaining('Se te pas'), findsNothing);
       expect(find.textContaining('de más'), findsNothing);
       expect(find.text('Terminar'), findsOneWidget);
+    });
+  });
+}
+
+/// La posición de la casilla distinta importa: si cae en la primera fila el
+/// alumno la encuentra sin buscar, porque ahí empieza a leer.
+void _pruebasDePosicion() {
+  group('posición de la casilla distinta', () {
+    test('nunca cae en la primera fila', () {
+      for (final j in gridGamesDesdeEjercicios(kChildExercises)) {
+        final pos = j.objetivos.first;
+        expect(pos, greaterThanOrEqualTo(5),
+            reason: '${j.id}: la distinta está en la casilla $pos, '
+                'que se ve sin buscar');
+      }
+    });
+
+    test('dos ejercicios seguidos no la ponen en el mismo lugar', () {
+      final juegos = gridGamesDesdeEjercicios(kChildExercises);
+      for (var i = 1; i < juegos.length; i++) {
+        expect(juegos[i].objetivos.first,
+            isNot(equals(juegos[i - 1].objetivos.first)),
+            reason: 'los juegos ${i - 1} y $i repiten posición seguidos');
+      }
+    });
+
+    test('se usan varias posiciones distintas', () {
+      final usadas = gridGamesDesdeEjercicios(kChildExercises)
+          .map((j) => j.objetivos.first)
+          .toSet();
+      expect(usadas.length, greaterThanOrEqualTo(10),
+          reason: 'se repite demasiado el mismo lugar: $usadas');
     });
   });
 }

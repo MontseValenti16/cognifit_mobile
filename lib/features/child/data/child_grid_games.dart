@@ -67,9 +67,18 @@ class GridGame {
 List<GridGame> gridGamesDesdeEjercicios(List<ChildExercise> ejercicios) {
   // Semilla fija: la posición de la distinta no cambia entre sesiones, así el
   // desempeño de un alumno se puede comparar consigo mismo.
-  final rng = Random(7);
+  //
+  // Se excluye la primera fila. La lectura arranca arriba a la izquierda, así
+  // que una distinta en esas cinco casillas se encuentra sin buscar y el
+  // ejercicio deja de medir rastreo — con la semilla anterior, el primer juego
+  // la ponía justo en la casilla 0.
+  final posiciones = List<int>.generate(15, (i) => i + 5)..shuffle(Random(7));
+  var n = 0;
+
   return ejercicios.map((e) {
-    final pos = rng.nextInt(20);
+    // Se recorren en orden barajado y se reparten: dos ejercicios seguidos no
+    // repiten posición, que si no el alumno aprende dónde mirar.
+    final pos = posiciones[n++ % posiciones.length];
     final celdas = List<String>.filled(20, e.mainOption);
     celdas[pos] = e.oddOption;
     return GridGame(
