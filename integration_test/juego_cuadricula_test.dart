@@ -52,6 +52,14 @@ void main() {
       ),
     ));
     await tester.pumpAndSettle();
+
+    // La conversion de superficie no se hereda entre pruebas: cada testWidgets
+    // que capture tiene que pedirla de nuevo.
+    if (Platform.isAndroid) {
+      await binding.convertFlutterSurfaceToImage();
+      await tester.pumpAndSettle();
+    }
+
     await binding.takeScreenshot('13_cuadricula_cual_es_diferente');
   });
 }
