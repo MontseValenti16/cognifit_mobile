@@ -3,10 +3,16 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../widgets/child_game_widgets.dart';
 import 'child_game_screen.dart';
+import 'child_grid_game_screen.dart';
 
 /// Pantalla de inicio gamificada para el niño.
 /// El docente pulsa "Modo niño" en el perfil del alumno y esta pantalla aparece.
-/// Muestra saludo, barra de XP (local), tarjetas de actividad y logros.
+/// Muestra el saludo y las tarjetas de actividad.
+///
+/// No lleva barra de XP, nivel ni medallas: existían escritas a mano —"Nivel
+/// 3", 72/100 XP, logros con `unlocked` fijo— y nunca cambiaban con lo que el
+/// alumno hacía. Una recompensa que miente es peor que ninguna, sobre todo con
+/// niños que están trabajando una dificultad.
 class ChildHomeScreen extends StatelessWidget {
   final String studentId;
   final String studentName;
@@ -30,8 +36,6 @@ class ChildHomeScreen extends StatelessWidget {
       body: SafeArea(child: CustomScrollView(slivers: [
         // ── Header con saludo ──
         SliverToBoxAdapter(child: _GreetingHeader(firstName: _firstName)),
-        // ── XP Bar ──
-        SliverToBoxAdapter(child: _XpSection()),
         // ── Tarjetas de actividad ──
         SliverToBoxAdapter(child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -61,11 +65,19 @@ class ChildHomeScreen extends StatelessWidget {
                 builder: (_) => ChildGameScreen(studentId: studentId, studentName: studentName),
               )),
             ),
+            const SizedBox(height: 16),
+            _ActivityCard(
+              emoji: '🔎',
+              title: 'Busca y encuentra',
+              subtitle: 'Cuadrículas de letras · b/d · p/q · sílabas',
+              color: AppTheme.pendingOrange,
+              onTap: () => Navigator.push(context, MaterialPageRoute(
+                builder: (_) => ChildGridGameScreen(studentName: studentName),
+              )),
+            ),
             const SizedBox(height: 28),
           ]),
         )),
-        // ── Logros ──
-        SliverToBoxAdapter(child: _AchievementsSection()),
         const SliverToBoxAdapter(child: SizedBox(height: 32)),
       ])),
     );
@@ -113,51 +125,6 @@ class _GreetingHeader extends StatelessWidget {
   }
 }
 
-class _XpSection extends StatelessWidget {
-  const _XpSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5)),
-        ),
-        child: Column(children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text('Ruta exploradora activa',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD))),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(color: AppTheme.primaryContainer, borderRadius: BorderRadius.circular(12)),
-              child: Text('Nivel 3',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: AppTheme.primary, fontWeight: FontWeight.w700)),
-            ),
-          ]),
-          const SizedBox(height: 10),
-          ClipRRect(borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value: 0.72, minHeight: 12,
-              backgroundColor: AppTheme.outline.withValues(alpha: 0.2),
-              valueColor: const AlwaysStoppedAnimation(AppTheme.primary),
-            )),
-          const SizedBox(height: 6),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const SizedBox(),
-            Text('72 / 100 XP',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: AppTheme.primary, fontWeight: FontWeight.w600)),
-          ]),
-        ]),
-      ),
-    );
-  }
-}
 
 class _ActivityCard extends StatelessWidget {
   final String emoji;
@@ -202,25 +169,3 @@ class _ActivityCard extends StatelessWidget {
   }
 }
 
-class _AchievementsSection extends StatelessWidget {
-  const _AchievementsSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('MIS LOGROS',
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: const Color(0xFF9E9CAD), letterSpacing: 1.2, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 14),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: const [
-          AchievementBadge(emoji: '🏅', label: 'Primera práctica', unlocked: true),
-          AchievementBadge(emoji: '🔥', label: '3 días seguidos', unlocked: true),
-          AchievementBadge(emoji: '⭐', label: '5 tests completados', unlocked: false),
-          AchievementBadge(emoji: '🚀', label: 'Nivel explorador', unlocked: false),
-        ]),
-      ]),
-    );
-  }
-}

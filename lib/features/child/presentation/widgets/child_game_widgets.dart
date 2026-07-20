@@ -237,36 +237,3 @@ class ChildGameCompleted extends StatelessWidget {
 }
 
 /// Badge de logro para el panel de inicio del niño.
-class AchievementBadge extends StatelessWidget {
-  final String emoji;
-  final String label;
-  final bool unlocked;
-
-  const AchievementBadge({super.key, required this.emoji, required this.label, this.unlocked = true});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      Container(
-        width: 56, height: 56,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: unlocked ? AppTheme.primaryContainer : AppTheme.outline.withValues(alpha:0.15),
-          border: Border.all(
-            color: unlocked ? AppTheme.primary.withValues(alpha:0.3) : AppTheme.outline.withValues(alpha:0.3),
-            width: 2,
-          ),
-        ),
-        child: Center(child: Text(emoji,
-          style: TextStyle(fontSize: 26, color: unlocked ? null : Colors.transparent))),
-      ),
-      const SizedBox(height: 4),
-      SizedBox(width: 64, child: Text(label, textAlign: TextAlign.center,
-        maxLines: 2,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          fontSize: 10,
-          color: unlocked ? AppTheme.onSurface : AppTheme.outline,
-        ))),
-    ]);
-  }
-}
