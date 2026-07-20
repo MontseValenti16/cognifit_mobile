@@ -38,6 +38,9 @@ class TeacherResultModel extends TeacherResultEntity {
   const TeacherResultModel({
     required super.id, required super.studentId, required super.score,
     required super.batteryMode, required super.riskFlags, required super.enabledModuleCodes,
+    super.alertasClinicas,
+    super.requiereDescartarSensorial,
+    super.indiceDiscrepancia,
   });
 
   factory TeacherResultModel.fromJson(Map<String, dynamic> j) => TeacherResultModel(
@@ -54,6 +57,16 @@ class TeacherResultModel extends TeacherResultEntity {
       return RiskFlag(flag: code.toString(), level: level);
     }).toList(),
     enabledModuleCodes: (j['enabled_module_codes'] as List? ?? []).map((e) => e.toString()).toList(),
+    alertasClinicas: (j['alertas_clinicas'] as List? ?? []).map((a) {
+      final m = a as Map<String, dynamic>;
+      return ClinicalAlert(
+        itemCode: m['item_code'] as String? ?? '',
+        tags: (m['tags'] as List?)?.map((e) => e.toString()).toList() ?? const [],
+        certeza: m['certeza'] as String? ?? 'confirmado',
+      );
+    }).toList(),
+    requiereDescartarSensorial: j['requiere_descartar_sensorial'] as bool? ?? false,
+    indiceDiscrepancia: (j['indice_discrepancia'] as num?)?.toDouble(),
   );
 }
 
