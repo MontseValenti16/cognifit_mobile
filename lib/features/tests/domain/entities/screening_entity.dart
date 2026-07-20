@@ -12,6 +12,13 @@ class TeacherItemEntity {
   /// scale e.g. {"Nunca":0, "A veces":0.5, "Frecuente":1}
   final Map<String, double> scale;
 
+  /// Bloque del protocolo: 'RIESGO' (suma al puntaje), 'HISTORIA_CLINICA'
+  /// (descarta causa alternativa, peso 0) o 'DISCREPANCIA' (índice aparte).
+  final String categoria;
+
+  /// Ciclos de primaria en los que aplica: 1 (1º-2º), 2 (3º-4º), 3 (5º-6º).
+  final List<int> ciclos;
+
   const TeacherItemEntity({
     required this.itemCode,
     required this.prompt,
@@ -19,6 +26,8 @@ class TeacherItemEntity {
     required this.tags,
     this.sourceNote,
     required this.scale,
+    this.categoria = 'RIESGO',
+    this.ciclos = const [1, 2, 3],
   });
 }
 

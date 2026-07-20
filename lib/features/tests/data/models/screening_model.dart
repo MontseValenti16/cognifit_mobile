@@ -4,6 +4,7 @@ class TeacherItemModel extends TeacherItemEntity {
   const TeacherItemModel({
     required super.itemCode, required super.prompt, required super.weight,
     required super.tags, super.sourceNote, required super.scale,
+    super.categoria, super.ciclos,
   });
 
   factory TeacherItemModel.fromJson(Map<String, dynamic> j) => TeacherItemModel(
@@ -13,6 +14,9 @@ class TeacherItemModel extends TeacherItemEntity {
     tags: (j['tags'] as List?)?.map((e) => e.toString()).toList() ?? [],
     sourceNote: j['source_note'] as String?,
     scale: _parseScale(j['scale']),
+    categoria: j['categoria'] as String? ?? 'RIESGO',
+    ciclos: (j['ciclos'] as List?)?.map((e) => (e as num).toInt()).toList()
+        ?? const [1, 2, 3],
   );
 
   // API returns scale as [{label, value}] list OR as {label: value} map.
