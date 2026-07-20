@@ -43,6 +43,14 @@ class RiskFlag {
   const RiskFlag({required this.flag, required this.level});
 }
 
+class ClinicalAlert {
+  final String itemCode;
+  final List<String> tags;
+  /// 'confirmado' (el docente marcó Sí) o 'por_confirmar' (marcó "No lo sé").
+  final String certeza;
+  const ClinicalAlert({required this.itemCode, required this.tags, required this.certeza});
+}
+
 class TeacherResultEntity {
   final String id;
   final String studentId;
@@ -51,6 +59,17 @@ class TeacherResultEntity {
   final List<RiskFlag> riskFlags;
   final List<String> enabledModuleCodes;
 
+  /// Historia clínica marcada: descarta causas alternativas. No suma al score.
+  final List<ClinicalAlert> alertasClinicas;
+
+  /// Hay alteración visual o auditiva sin corregir. El diagnóstico no puede
+  /// leerse como cerrado hasta descartarla.
+  final bool requiereDescartarSensorial;
+
+  /// Índice 0–100 de la discrepancia entre capacidad y rendimiento. `null`
+  /// cuando el cuestionario del ciclo no incluyó ítems de discrepancia.
+  final double? indiceDiscrepancia;
+
   const TeacherResultEntity({
     required this.id,
     required this.studentId,
@@ -58,6 +77,9 @@ class TeacherResultEntity {
     required this.batteryMode,
     required this.riskFlags,
     required this.enabledModuleCodes,
+    this.alertasClinicas = const [],
+    this.requiereDescartarSensorial = false,
+    this.indiceDiscrepancia,
   });
 }
 
