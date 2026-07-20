@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../widgets/child_game_widgets.dart';
-import 'child_game_screen.dart';
 import 'child_grid_game_screen.dart';
 
 /// Pantalla de inicio gamificada para el niño.
@@ -57,20 +56,10 @@ class ChildHomeScreen extends StatelessWidget {
               ),
             if (pendingSessionId != null) const SizedBox(height: 14),
             _ActivityCard(
-              emoji: '🎮',
-              title: 'Mis juegos',
-              subtitle: 'Discriminación visual · Letras · Palabras',
-              color: AppTheme.tertiary,
-              onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (_) => ChildGameScreen(studentId: studentId, studentName: studentName),
-              )),
-            ),
-            const SizedBox(height: 16),
-            _ActivityCard(
               emoji: '🔎',
-              title: 'Busca y encuentra',
-              subtitle: 'Cuadrículas de letras · b/d · p/q · sílabas',
-              color: AppTheme.pendingOrange,
+              title: 'Mis juegos',
+              subtitle: 'Cuadrículas · b/d · p/q · sílabas · palabras',
+              color: AppTheme.tertiary,
               onTap: () => Navigator.push(context, MaterialPageRoute(
                 builder: (_) => ChildGridGameScreen(studentName: studentName),
               )),

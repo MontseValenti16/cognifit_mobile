@@ -12,6 +12,10 @@
 /// letras que recomienda el catálogo de actividades del proyecto.
 library;
 
+import 'dart:math';
+
+import 'child_exercises.dart';
+
 class GridGame {
   final String id;
   final String sectionLabel;
@@ -44,6 +48,49 @@ class GridGame {
 
   int get totalObjetivos => objetivos.length;
 }
+
+/// Convierte los ejercicios de "¿cuál es diferente?" a cuadrícula.
+///
+/// Antes eran una fila de cuatro: tres iguales y una distinta. Con cuatro
+/// opciones lado a lado el alumno las compara entre sí, y acertar por azar
+/// tiene una probabilidad de uno en cuatro. En una cuadrícula de veinte tiene
+/// que reconocer cada casilla por separado mientras sostiene la búsqueda, y el
+/// azar baja a uno en veinte.
+///
+/// Conviene notar que no es una búsqueda fácil aunque haya una sola distinta:
+/// las parejas del banco —b/d, p/q, n/u— son imágenes espejo, así que la
+/// distinta **no salta a la vista** y obliga a revisar casilla por casilla.
+/// Con un color entre otro color sí saltaría; con estas letras, no.
+///
+/// La conversión se hace acá y no duplicando el banco: los ejercicios siguen
+/// definidos en un solo lugar.
+List<GridGame> gridGamesDesdeEjercicios(List<ChildExercise> ejercicios) {
+  // Semilla fija: la posición de la distinta no cambia entre sesiones, así el
+  // desempeño de un alumno se puede comparar consigo mismo.
+  final rng = Random(7);
+  return ejercicios.map((e) {
+    final pos = rng.nextInt(20);
+    final celdas = List<String>.filled(20, e.mainOption);
+    celdas[pos] = e.oddOption;
+    return GridGame(
+      id: 'GRID_${e.id}',
+      sectionLabel: e.sectionLabel,
+      question: e.question,
+      instruction: 'Toca la que es diferente. Están entre otras 19.',
+      celdas: celdas,
+      objetivos: {pos},
+      explanation: e.explanation,
+      difficulty: e.difficulty,
+    );
+  }).toList();
+}
+
+/// Todos los juegos de cuadrícula: los de "toca todas" más los de "toca la
+/// diferente" convertidos del banco original.
+List<GridGame> get kTodosLosGridGames => [
+      ...kGridGames,
+      ...gridGamesDesdeEjercicios(kChildExercises),
+    ];
 
 /// Construye una cuadrícula marcando como objetivo cada casilla que sea igual
 /// a [objetivo]. Evita listar los índices a mano, que es donde se cuelan los
