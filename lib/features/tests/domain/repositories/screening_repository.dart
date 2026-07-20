@@ -1,7 +1,7 @@
 import '../entities/screening_entity.dart';
 
 abstract class ScreeningRepository {
-  Future<List<TeacherItemEntity>> getTeacherItems();
+  Future<List<TeacherItemEntity>> getTeacherItems({int? grade});
   Future<TeacherResultEntity> submitTeacherResults(String studentId, List<TeacherAnswer> answers);
   Future<List<ScreeningModuleEntity>> getCatalog();
   Future<AssignmentResultEntity> assignBattery(String studentId, double teacherScore, List<RiskFlag> riskFlags);

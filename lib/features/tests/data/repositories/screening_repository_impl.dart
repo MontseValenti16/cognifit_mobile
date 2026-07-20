@@ -9,7 +9,8 @@ class ScreeningRepositoryImpl implements ScreeningRepository {
   const ScreeningRepositoryImpl(this.remote);
 
   @override
-  Future<List<TeacherItemEntity>> getTeacherItems() => remote.getTeacherItems();
+  Future<List<TeacherItemEntity>> getTeacherItems({int? grade}) =>
+      remote.getTeacherItems(grade: grade);
 
   @override
   Future<TeacherResultEntity> submitTeacherResults(String studentId, List<TeacherAnswer> answers) =>
