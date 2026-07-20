@@ -234,9 +234,35 @@ class _DiagnosisCard extends StatelessWidget {
             const Spacer(),
             Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(color: AppTheme.pendingOrange.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
-              child: Text('Modo local', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.pendingOrange))),
+              child: Text('Sin el modelo', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.pendingOrange, fontWeight: FontWeight.w700))),
           ],
         ]),
+        // El aviso decía "Modo local", que no le dice nada a un docente. El
+        // riesgo de este caso es que el resultado se ve igual de normal que
+        // uno bueno, así que conviene explicar qué significa y qué hacer.
+        if (risk.plnSource == 'local_fallback') ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppTheme.pendingOrange.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.pendingOrange.withOpacity(0.35)),
+            ),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Icon(Icons.info_outline_rounded, size: 18, color: AppTheme.pendingOrange),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Este resultado se calculó con el método de respaldo porque el '
+                  'servicio de análisis no respondió. Tómalo como orientación y '
+                  'repite el diagnóstico cuando el servicio esté disponible.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: const Color(0xFF6B6880), height: 1.4)),
+              ),
+            ]),
+          ),
+        ],
         const SizedBox(height: 16),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
