@@ -137,3 +137,38 @@ class TeacherResultCard extends StatelessWidget {
     );
   }
 }
+
+/// Se muestra cuando el docente marcó una alteración visual o auditiva sin
+/// corregir. La dislexia se define como dificultad lectora "en ausencia de
+/// alteraciones sensoriales que la justifiquen": si las hay, el resultado no
+/// es un diagnóstico cerrado.
+class SensorialAlertBanner extends StatelessWidget {
+  const SensorialAlertBanner({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppTheme.pendingOrange.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.pendingOrange.withOpacity(0.4)),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Icon(Icons.visibility_off_outlined, color: AppTheme.pendingOrange, size: 20),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            'Se marcó una posible dificultad de visión o audición sin corregir. '
+            'Mientras no se descarte, este resultado no puede leerse como un '
+            'diagnóstico: una dificultad sensorial explica por sí sola la '
+            'dificultad lectora.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: const Color(0xFF6B6880), height: 1.4),
+          ),
+        ),
+      ]),
+    );
+  }
+}
