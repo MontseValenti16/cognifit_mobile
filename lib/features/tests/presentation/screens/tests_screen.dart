@@ -98,7 +98,7 @@ class _TestsScreenState extends State<TestsScreen> {
   };
 
   Widget _buildStep(BuildContext context) {
-    if (_step == 0) return _StudentPickerStep(onPick: (s) { _vm.selectStudent(s.id); setState(() => _step = 1); });
+    if (_step == 0) return _StudentPickerStep(onPick: (s) { _vm.selectStudentAndLoad(s); setState(() => _step = 1); });
     if (_step == 1) return _QuestionnaireStep(vm: _vm, onSubmit: _submitAndAssign);
     return _ResultStep(vm: _vm, onStart: _startFirstModule, onAssignLater: () {
       _showSnack('✓ Batería asignada. El alumno aparecerá con test pendiente.', AppTheme.activeGreen);
