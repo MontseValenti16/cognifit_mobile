@@ -1,0 +1,218 @@
+/// Juegos de cuadrícula para el modo niño.
+///
+/// A diferencia de los ejercicios de una fila —cuatro opciones, se toca una y
+/// se acaba— acá el alumno recorre una cuadrícula de 20 casillas y marca
+/// **todas** las que cumplen la consigna.
+///
+/// El cambio no es solo de tamaño. Elegir entre cuatro opciones puestas una al
+/// lado de la otra permite compararlas; encontrar las mismas letras repartidas
+/// entre distractores obliga a reconocer cada una por sí sola, mientras se
+/// sostiene la búsqueda. Esa carga de rastreo es justamente donde aparecen las
+/// confusiones b/d/p/q que el tamizaje busca, y es la mecánica de sopa de
+/// letras que recomienda el catálogo de actividades del proyecto.
+library;
+
+class GridGame {
+  final String id;
+  final String sectionLabel;
+  final String question;
+  final String instruction;
+
+  /// Las 20 casillas, en el orden en que se muestran.
+  final List<String> celdas;
+
+  /// Cuáles hay que tocar. El resto son distractores.
+  final Set<int> objetivos;
+
+  /// Qué se explica al terminar, sea que acertó o no.
+  final String explanation;
+
+  final int columnas;
+  final int difficulty;
+
+  const GridGame({
+    required this.id,
+    required this.sectionLabel,
+    required this.question,
+    required this.instruction,
+    required this.celdas,
+    required this.objetivos,
+    required this.explanation,
+    this.columnas = 5,
+    this.difficulty = 1,
+  });
+
+  int get totalObjetivos => objetivos.length;
+}
+
+/// Construye una cuadrícula marcando como objetivo cada casilla que sea igual
+/// a [objetivo]. Evita listar los índices a mano, que es donde se cuelan los
+/// errores al agregar juegos nuevos.
+GridGame _porLetra({
+  required String id,
+  required String sectionLabel,
+  required String question,
+  required String instruction,
+  required List<String> celdas,
+  required String objetivo,
+  required String explanation,
+  int difficulty = 1,
+}) {
+  final objetivos = <int>{};
+  for (var i = 0; i < celdas.length; i++) {
+    if (celdas[i] == objetivo) objetivos.add(i);
+  }
+  return GridGame(
+    id: id,
+    sectionLabel: sectionLabel,
+    question: question,
+    instruction: instruction,
+    celdas: celdas,
+    objetivos: objetivos,
+    explanation: explanation,
+    difficulty: difficulty,
+  );
+}
+
+/// Ocho cuadrículas de 5x4, ordenadas de menor a mayor dificultad.
+///
+/// Las parejas confundibles van juntas a propósito: b/d y p/q se distinguen
+/// solo por la orientación, que es la confusión más común en dislexia. Las
+/// últimas mezclan las cuatro, que es el caso difícil.
+final List<GridGame> kGridGames = [
+  _porLetra(
+    id: 'GRID_b_entre_d',
+    sectionLabel: 'BUSCA LA LETRA',
+    question: 'Encuentra todas las b',
+    instruction: 'Toca cada b que veas. Cuidado: la d se le parece mucho.',
+    celdas: const [
+      'd', 'b', 'd', 'd', 'b',
+      'b', 'd', 'd', 'b', 'd',
+      'd', 'd', 'b', 'd', 'b',
+      'b', 'd', 'b', 'd', 'd',
+    ],
+    objetivo: 'b',
+    explanation:
+        'La b tiene la panza a la derecha; la d, a la izquierda. Si dudas, '
+        'piensa en la palabra "bota": empieza con b y la panza mira hacia '
+        'adelante.',
+  ),
+  _porLetra(
+    id: 'GRID_p_entre_q',
+    sectionLabel: 'BUSCA LA LETRA',
+    question: 'Encuentra todas las p',
+    instruction: 'Toca cada p. La q es parecida pero mira al otro lado.',
+    celdas: const [
+      'q', 'p', 'q', 'p', 'q',
+      'p', 'q', 'q', 'q', 'p',
+      'q', 'p', 'q', 'p', 'q',
+      'p', 'q', 'p', 'q', 'q',
+    ],
+    objetivo: 'p',
+    explanation:
+        'La p tiene la panza a la derecha, como la b. La q la tiene a la '
+        'izquierda y suele venir acompañada de la u: "queso", "quince".',
+  ),
+  _porLetra(
+    id: 'GRID_b_entre_p_d',
+    sectionLabel: 'BUSCA LA LETRA',
+    question: 'Encuentra todas las b',
+    instruction: 'Ahora hay tres letras parecidas. Toca solo las b.',
+    celdas: const [
+      'p', 'b', 'd', 'b', 'p',
+      'd', 'p', 'b', 'd', 'b',
+      'b', 'd', 'p', 'p', 'd',
+      'd', 'b', 'p', 'b', 'p',
+    ],
+    objetivo: 'b',
+    explanation:
+        'La b sube y la p baja. Si la letra tiene el palito hacia arriba y la '
+        'panza a la derecha, es una b.',
+    difficulty: 2,
+  ),
+  _porLetra(
+    id: 'GRID_d_entre_todas',
+    sectionLabel: 'BUSCA LA LETRA',
+    question: 'Encuentra todas las d',
+    instruction: 'Están las cuatro letras difíciles. Toca solo las d.',
+    celdas: const [
+      'b', 'd', 'q', 'p', 'd',
+      'd', 'p', 'b', 'q', 'b',
+      'q', 'b', 'd', 'd', 'p',
+      'p', 'd', 'q', 'b', 'q',
+    ],
+    objetivo: 'd',
+    explanation:
+        'La d sube y tiene la panza a la izquierda. Piensa en "dedo": el '
+        'palito va arriba.',
+    difficulty: 3,
+  ),
+  _porLetra(
+    id: 'GRID_silaba_pa',
+    sectionLabel: 'BUSCA LA SÍLABA',
+    question: 'Encuentra todas las "pa"',
+    instruction: 'Toca cada sílaba "pa". Fíjate bien, hay otras parecidas.',
+    celdas: const [
+      'pa', 'ap', 'pa', 'ba', 'pa',
+      'ap', 'pa', 'ba', 'pa', 'ab',
+      'pa', 'ba', 'ap', 'pa', 'pa',
+      'ba', 'pa', 'ap', 'ba', 'pa',
+    ],
+    objetivo: 'pa',
+    explanation:
+        '"pa" empieza con p y termina con a. "ap" tiene las mismas letras '
+        'pero al revés, y suena distinto.',
+    difficulty: 2,
+  ),
+  _porLetra(
+    id: 'GRID_silaba_los',
+    sectionLabel: 'BUSCA LA SÍLABA',
+    question: 'Encuentra todas las "los"',
+    instruction: 'Toca cada "los". Hay otras que se le parecen al leerlas rápido.',
+    celdas: const [
+      'sol', 'los', 'sol', 'los', 'lso',
+      'los', 'lso', 'sol', 'los', 'sol',
+      'lso', 'los', 'los', 'sol', 'lso',
+      'sol', 'lso', 'los', 'sol', 'los',
+    ],
+    objetivo: 'los',
+    explanation:
+        '"los" y "sol" tienen las mismas tres letras en distinto orden. '
+        'Leerlas de izquierda a derecha, sin adivinar, es lo que las separa.',
+    difficulty: 3,
+  ),
+  _porLetra(
+    id: 'GRID_palabra_casa',
+    sectionLabel: 'BUSCA LA PALABRA',
+    question: 'Encuentra todas las "casa"',
+    instruction: 'Toca cada "casa". Las otras se parecen pero no son iguales.',
+    celdas: const [
+      'casa', 'caza', 'casa', 'cosa', 'caza',
+      'cosa', 'casa', 'caza', 'casa', 'cosa',
+      'casa', 'cosa', 'caza', 'caza', 'casa',
+      'caza', 'casa', 'cosa', 'caza', 'cosa',
+    ],
+    objetivo: 'casa',
+    explanation:
+        '"casa" lleva s, "caza" lleva z y "cosa" cambia la primera vocal. '
+        'Una sola letra cambia el significado por completo.',
+    difficulty: 3,
+  ),
+  _porLetra(
+    id: 'GRID_numero_espejo',
+    sectionLabel: 'BUSCA EL NÚMERO',
+    question: 'Encuentra todos los 6',
+    instruction: 'Toca cada 6. El 9 es el mismo número volteado.',
+    celdas: const [
+      '9', '6', '9', '6', '9',
+      '6', '9', '6', '9', '9',
+      '9', '6', '9', '6', '6',
+      '6', '9', '9', '6', '9',
+    ],
+    objetivo: '6',
+    explanation:
+        'El 6 tiene la panza abajo y el 9 arriba. La misma confusión de '
+        'orientación que pasa con b y d ocurre también con los números.',
+    difficulty: 2,
+  ),
+];
