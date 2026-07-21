@@ -83,7 +83,7 @@ void main() {
 
     test('el conjunto completo suma los dos tipos de juego', () {
       expect(kTodosLosGridGames.length,
-          kGridGames.length + kChildExercises.length + kJuegosOrientacion.length);
+          kGridGames.length + kChildExercises.length + kJuegosOrientacion.length + kJuegosSilabas.length + kJuegosFlechas.length);
     });
 
     test('todos los juegos previos son de celdas de texto y tienen categoría', () {
