@@ -85,6 +85,8 @@ class InstitutionViewModel extends ChangeNotifier {
       await loadPending();
       return true;
     } catch (_) {
+      _error = 'No se pudo rechazar la institución';
+      notifyListeners();
       return false;
     }
   }
