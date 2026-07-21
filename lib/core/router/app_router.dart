@@ -5,6 +5,7 @@ import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/students/presentation/screens/students_screen.dart';
 import '../../features/student_profile/presentation/screens/student_profile_screen.dart';
 import '../../features/tests/presentation/screens/tests_screen.dart';
+import '../../features/tests/presentation/screens/calendario_screen.dart';
 import '../../features/exercise/presentation/screens/exercise_screen.dart';
 import '../../features/tracking/presentation/screens/alerts_screen.dart';
 import '../../features/tracking/presentation/screens/learning_curve_screen.dart';
@@ -21,6 +22,7 @@ class AppRouter {
   static const String dashboard          = '/dashboard';
   static const String students           = '/students';
   static const String tests              = '/tests';
+  static const String calendario         = '/calendario';
   static const String alerts             = '/alerts';
   static const String progress           = '/student/:id/progress';
   static const String specialistReview   = '/specialist/review';
@@ -45,6 +47,7 @@ class AppRouter {
         },
       ),
       GoRoute(path: tests,     builder: (c, s) => const TestsScreen()),
+      GoRoute(path: calendario, builder: (c, s) => const CalendarioPage()),
       GoRoute(path: alerts,    builder: (c, s) => const AlertsScreen()),
 
       GoRoute(

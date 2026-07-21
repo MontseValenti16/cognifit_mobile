@@ -68,6 +68,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(width: 10),
                       StatCard(value: _vm.unreadAlerts.length.toString(), label: 'Alertas', color: AppTheme.tertiary, onTap: () => context.push(AppRouter.alerts)),
                     ]),
+                    const SizedBox(height: 12),
+                    _CalendarioBanner(onTap: () => context.push(AppRouter.calendario)),
                     const SizedBox(height: 16),
                     if (_vm.topAlert != null)
                       AlertBanner(
@@ -264,6 +266,40 @@ class _AdminBanner extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
         ])),
         const Icon(Icons.chevron_right_rounded, color: Color(0xFF7C3AED)),
+      ]),
+    ),
+  );
+}
+
+class _CalendarioBanner extends StatelessWidget {
+  final VoidCallback onTap;
+  const _CalendarioBanner({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppTheme.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.22)),
+      ),
+      child: Row(children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.12), shape: BoxShape.circle),
+          child: const Icon(Icons.event_available_rounded, color: AppTheme.primary, size: 20),
+        ),
+        const SizedBox(width: 14),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Qué evaluar y cuándo',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 2),
+          Text('El calendario de tamizaje de tus alumnos',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+        ])),
+        const Icon(Icons.chevron_right_rounded, color: AppTheme.primary),
       ]),
     ),
   );

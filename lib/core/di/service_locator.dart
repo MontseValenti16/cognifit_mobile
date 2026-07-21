@@ -38,6 +38,7 @@ import '../../features/groups/domain/usecases/delete_group_usecase.dart';
 import '../../features/tests/data/datasources/screening_remote_datasource.dart';
 import '../../features/tests/data/repositories/screening_repository_impl.dart';
 import '../../features/tests/domain/usecases/get_teacher_items_usecase.dart';
+import '../../features/tests/domain/usecases/get_calendario_usecase.dart';
 import '../../features/tests/domain/usecases/submit_teacher_results_usecase.dart';
 import '../../features/tests/domain/usecases/get_catalog_usecase.dart';
 import '../../features/tests/domain/usecases/assign_battery_usecase.dart';
@@ -51,6 +52,7 @@ import '../../features/tests/domain/usecases/get_teacher_assignments_usecase.dar
 import '../../features/tests/domain/usecases/get_pending_diagnoses_usecase.dart';
 import '../../features/tests/domain/usecases/label_diagnosis_usecase.dart';
 import '../../features/tests/presentation/viewmodels/tests_viewmodel.dart';
+import '../../features/tests/presentation/viewmodels/calendario_viewmodel.dart';
 
 // SPECIALIST
 import '../../features/specialist/presentation/viewmodels/specialist_viewmodel.dart';
@@ -210,6 +212,10 @@ class ServiceLocator {
   InterventionViewModel interventionViewModel() => InterventionViewModel(
     getActivePath: GetActivePathUseCase(_interventionRepo),
     nextExercise: NextExerciseUseCase(_interventionRepo),
+  );
+
+  CalendarioViewModel calendarioViewModel() => CalendarioViewModel(
+    getCalendario: GetCalendarioUseCase(_screeningRepo),
   );
 
   /// La vía de comprensión no pasa por un ViewModel: la pantalla solo lista un
