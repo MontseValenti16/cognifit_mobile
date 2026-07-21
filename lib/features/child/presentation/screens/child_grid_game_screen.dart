@@ -4,6 +4,7 @@ import '../../../../core/services/tts_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/child_grid_games.dart';
 import '../widgets/child_game_widgets.dart';
+import '../widgets/figura_painter.dart';
 
 /// Juego de búsqueda visual sobre una cuadrícula de 5x4.
 ///
@@ -122,6 +123,28 @@ class _ChildGridGameScreenState extends State<ChildGridGameScreen> {
                           color: AppTheme.primary, fontWeight: FontWeight.w700)),
 
                 const SizedBox(height: 14),
+                if (_juego.modelo != null) ...[
+                  Row(children: [
+                    Container(
+                      width: 54,
+                      height: 54,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppTheme.primary, width: 2),
+                      ),
+                      child: FiguraView(figura: _juego.modelo!, color: AppTheme.primary),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text('Marca las que se ven igual que esta.',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: const Color(0xFF6B6880))),
+                    ),
+                  ]),
+                  const SizedBox(height: 14),
+                ],
                 _Cuadricula(
                   juego: _juego,
                   tocadas: _tocadas,
@@ -286,10 +309,10 @@ class _Cuadricula extends StatelessWidget {
                                 color: AppTheme.onSurface,
                               )),
                         ),
-                      // El caso de figura se implementa en la Task 3; por ahora
-                      // se deja un hueco que no se usa (no hay juegos de figura
-                      // todavía).
-                      FigureCell() => const SizedBox.shrink(),
+                      FigureCell(:final figura) => Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: FiguraView(figura: figura),
+                        ),
                     },
                   ),
                 ),
