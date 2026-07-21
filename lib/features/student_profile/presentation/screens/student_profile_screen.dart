@@ -143,6 +143,10 @@ class _ProfileBody extends StatelessWidget {
 
         if (risk != null) ...[
           _DiagnosisCard(risk: risk),
+          TedePercentilCard(
+            nivelLector: risk.tedeNivelLector,
+            erroresEspecificos: risk.tedeErroresEspecificos,
+          ),
           const SizedBox(height: 16),
         ] else
           _NoDiagnosisCard(),
@@ -413,4 +417,60 @@ class _ActionBtn extends StatelessWidget {
       Text(label, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: textColor, fontWeight: FontWeight.w600)),
       const Spacer(), Icon(Icons.chevron_right_rounded, color: textColor)]),
   ));
+}
+
+/// Percentiles normativos del TEDE, al lado de la severidad del modelo. El
+/// modelo se entrenó con datos sintéticos y no tiene etiquetas de especialista;
+/// el percentil da respaldo normativo. Si coinciden, refuerzan; si difieren,
+/// el desacuerdo es señal de que el modelo conviene revisar.
+class TedePercentilCard extends StatelessWidget {
+  final TedePercentil? nivelLector;
+  final TedePercentil? erroresEspecificos;
+  const TedePercentilCard({super.key, this.nivelLector, this.erroresEspecificos});
+
+  @override
+  Widget build(BuildContext context) {
+    if (nivelLector == null && erroresEspecificos == null) {
+      return const SizedBox.shrink();
+    }
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.outline.withOpacity(0.4)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('TEDE — norma por grado',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: const Color(0xFF9E9CAD), letterSpacing: 1.0, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 12),
+        if (nivelLector != null) _fila(context, 'Nivel lector', nivelLector!),
+        if (erroresEspecificos != null) _fila(context, 'Errores específicos', erroresEspecificos!),
+        if ((nivelLector?.escalado ?? false) || (erroresEspecificos?.escalado ?? false))
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'El percentil es orientativo: se calculó sobre una parte de la prueba.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: const Color(0xFF9E9CAD), fontStyle: FontStyle.italic)),
+          ),
+      ]),
+    );
+  }
+
+  Widget _fila(BuildContext context, String etiqueta, TedePercentil p) {
+    final pg = p.percentilPorGrado;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text(etiqueta, style: Theme.of(context).textTheme.bodyMedium),
+        Text(pg != null ? 'percentil $pg' : '—',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: pg != null && pg < 15 ? AppTheme.riskRed : AppTheme.onSurface)),
+      ]),
+    );
+  }
 }
