@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cognifit_mobile/features/child/data/child_exercises.dart';
 import 'package:cognifit_mobile/features/child/data/child_grid_games.dart';
+import 'package:cognifit_mobile/features/child/data/cuadernillo_grid_games.dart';
 import 'package:cognifit_mobile/features/child/presentation/screens/child_grid_game_screen.dart';
 
 void main() {
@@ -82,19 +83,28 @@ void main() {
 
     test('el conjunto completo suma los dos tipos de juego', () {
       expect(kTodosLosGridGames.length,
-          kGridGames.length + kChildExercises.length);
+          kGridGames.length + kChildExercises.length + kJuegosOrientacion.length);
     });
 
     test('todos los juegos previos son de celdas de texto y tienen categoría', () {
       for (final j in kTodosLosGridGames) {
-        for (final c in j.celdas) {
-          expect(c, isA<TextCell>(), reason: '${j.id} tiene una celda no-texto');
+        if (j.categoria == GridCategory.orientacion) {
+          // Los juegos de orientación tienen FigureCell
+          for (final c in j.celdas) {
+            expect(c, isA<FigureCell>(), reason: '${j.id} debe tener solo FigureCell');
+          }
+        } else {
+          // Los juegos anteriores (letra y cuál es diferente) tienen TextCell
+          for (final c in j.celdas) {
+            expect(c, isA<TextCell>(), reason: '${j.id} tiene una celda no-texto');
+          }
         }
       }
-      // Las categorías previas: letra (banco a mano) y "cuál es diferente".
+      // Las categorías: letra (banco a mano), "cuál es diferente" y orientación (nuevo).
       final cats = kTodosLosGridGames.map((j) => j.categoria).toSet();
       expect(cats, contains(GridCategory.buscaLetra));
       expect(cats, contains(GridCategory.cualEsDiferente));
+      expect(cats, contains(GridCategory.orientacion));
     });
   });
 

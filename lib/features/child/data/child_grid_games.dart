@@ -15,6 +15,7 @@ library;
 import 'dart:math';
 
 import 'child_exercises.dart';
+import 'cuadernillo_grid_games.dart';
 
 /// Categorías con las que el catálogo agrupa los juegos. Es un valor estable,
 /// distinto del `sectionLabel` de display (que puede repetirse o cambiar).
@@ -177,6 +178,7 @@ List<GridGame> gridGamesDesdeEjercicios(List<ChildExercise> ejercicios) {
 List<GridGame> get kTodosLosGridGames => [
       ...kGridGames,
       ...gridGamesDesdeEjercicios(kChildExercises),
+      ...kCuadernilloGridGames,
     ];
 
 /// Construye una cuadrícula marcando como objetivo cada casilla que sea igual
