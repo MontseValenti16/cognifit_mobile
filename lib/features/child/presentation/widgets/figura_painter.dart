@@ -17,6 +17,7 @@ class FiguraView extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomPaint(
       painter: FiguraPainter(figura, color ?? AppTheme.onSurface),
+      child: const SizedBox.expand(),
     );
   }
 }

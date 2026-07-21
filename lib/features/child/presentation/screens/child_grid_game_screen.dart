@@ -125,16 +125,21 @@ class _ChildGridGameScreenState extends State<ChildGridGameScreen> {
                 const SizedBox(height: 14),
                 if (_juego.modelo != null) ...[
                   Row(children: [
-                    Container(
-                      width: 54,
-                      height: 54,
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.primary, width: 2),
+                    Semantics(
+                      label:
+                          'Modelo: ${FigureCell(_juego.modelo!).semanticLabel}',
+                      child: Container(
+                        width: 54,
+                        height: 54,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppTheme.primary, width: 2),
+                        ),
+                        child: FiguraView(
+                            figura: _juego.modelo!, color: AppTheme.primary),
                       ),
-                      child: FiguraView(figura: _juego.modelo!, color: AppTheme.primary),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
