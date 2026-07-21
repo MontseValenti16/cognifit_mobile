@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../widgets/child_game_widgets.dart';
-import 'child_grid_game_screen.dart';
+import 'child_games_catalog_screen.dart';
 
 /// Pantalla de inicio gamificada para el niño.
 /// El docente pulsa "Modo niño" en el perfil del alumno y esta pantalla aparece.
@@ -61,7 +61,7 @@ class ChildHomeScreen extends StatelessWidget {
               subtitle: 'Cuadrículas · b/d · p/q · sílabas · palabras',
               color: AppTheme.tertiary,
               onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (_) => ChildGridGameScreen(studentName: studentName),
+                builder: (_) => ChildGamesCatalogScreen(studentName: studentName),
               )),
             ),
             const SizedBox(height: 28),
