@@ -130,7 +130,124 @@ final List<GridGame> kJuegosOrientacion = [
   ),
 ];
 
+/// Sílabas: se marca todas las iguales a la buscada, entre parecidas (da/ad,
+/// ba/ab, pa/ap…). Es la ficha "busca sílabas" del cuadernillo (pp. 53, 58).
+final List<GridGame> kJuegosSilabas = [
+  porTextoObjetivo(
+    id: 'SIL_da',
+    sectionLabel: 'BUSCA LA SÍLABA',
+    question: 'Encuentra todas las «da»',
+    instruction: 'Toca cada «da». Cuidado con «ad», que lleva las mismas letras.',
+    celdas: const [
+      'da', 'ad', 'ba', 'da', 'ad',
+      'da', 'ba', 'ad', 'da', 'da',
+      'ad', 'da', 'ba', 'ad', 'da',
+      'da', 'ad', 'da', 'ba', 'ad',
+    ],
+    objetivo: 'da',
+    explanation:
+        '«da» empieza con la d y termina con la a. «ad» tiene las mismas letras '
+        'al revés: fíjate por cuál empieza.',
+    categoria: GridCategory.silabas,
+  ),
+  porTextoObjetivo(
+    id: 'SIL_ba',
+    sectionLabel: 'BUSCA LA SÍLABA',
+    question: 'Encuentra todas las «ba»',
+    instruction: 'Toca cada «ba». La «ab» y la «pa» se le parecen.',
+    celdas: const [
+      'ba', 'ab', 'pa', 'ba', 'ab',
+      'ba', 'pa', 'ba', 'ab', 'ba',
+      'pa', 'ab', 'ba', 'ba', 'ab',
+      'ba', 'pa', 'ab', 'ba', 'pa',
+    ],
+    objetivo: 'ba',
+    explanation:
+        '«ba» empieza con la b. «pa» empieza con la p (mira hacia abajo) y «ab» '
+        'empieza con la a.',
+    categoria: GridCategory.silabas,
+    difficulty: 2,
+  ),
+  porTextoObjetivo(
+    id: 'SIL_pa',
+    sectionLabel: 'BUSCA LA SÍLABA',
+    question: 'Encuentra todas las «pa»',
+    instruction: 'Toca cada «pa». La «ap» y la «ba» se le parecen.',
+    celdas: const [
+      'pa', 'ap', 'ba', 'pa', 'ap',
+      'pa', 'ba', 'ap', 'pa', 'pa',
+      'ap', 'ba', 'pa', 'ap', 'pa',
+      'pa', 'ba', 'ap', 'pa', 'ba',
+    ],
+    objetivo: 'pa',
+    explanation:
+        '«pa» empieza con la p, que baja la panza. «ba» sube la panza y «ap» '
+        'empieza con la a.',
+    categoria: GridCategory.silabas,
+    difficulty: 2,
+  ),
+];
+
+/// Flechas: lateralidad. Se marca todas las que apuntan hacia la dirección
+/// pedida. Es la ficha "Las flechas" del cuadernillo (p. 8).
+final List<GridGame> kJuegosFlechas = [
+  porTextoObjetivo(
+    id: 'FLE_derecha',
+    sectionLabel: 'LAS FLECHAS',
+    question: 'Flechas que van a la derecha',
+    instruction: 'Toca todas las flechas que apuntan a la derecha →.',
+    celdas: const [
+      '→', '←', '↑', '→', '↓',
+      '→', '↑', '←', '→', '→',
+      '↓', '→', '←', '↑', '→',
+      '→', '↓', '←', '→', '↑',
+    ],
+    objetivo: '→',
+    explanation:
+        'La derecha es hacia donde apunta la flecha →. Es la mano con la que '
+        'la mayoría escribe.',
+    categoria: GridCategory.flechas,
+  ),
+  porTextoObjetivo(
+    id: 'FLE_izquierda',
+    sectionLabel: 'LAS FLECHAS',
+    question: 'Flechas que van a la izquierda',
+    instruction: 'Toca todas las flechas que apuntan a la izquierda ←.',
+    celdas: const [
+      '←', '→', '↓', '←', '↑',
+      '←', '→', '←', '↓', '←',
+      '↑', '←', '→', '←', '↓',
+      '←', '↑', '→', '←', '→',
+    ],
+    objetivo: '←',
+    explanation:
+        'La izquierda es el lado contrario a la derecha. La flecha ← apunta '
+        'hacia allá.',
+    categoria: GridCategory.flechas,
+    difficulty: 2,
+  ),
+  porTextoObjetivo(
+    id: 'FLE_arriba',
+    sectionLabel: 'LAS FLECHAS',
+    question: 'Flechas que van hacia arriba',
+    instruction: 'Toca todas las flechas que apuntan hacia arriba ↑.',
+    celdas: const [
+      '↑', '→', '↓', '↑', '←',
+      '↑', '↓', '↑', '→', '↑',
+      '←', '↑', '↓', '↑', '→',
+      '↑', '←', '↓', '↑', '↓',
+    ],
+    objetivo: '↑',
+    explanation:
+        'Arriba es hacia el techo. La flecha ↑ apunta hacia allá; ↓ es lo contrario.',
+    categoria: GridCategory.flechas,
+    difficulty: 2,
+  ),
+];
+
 /// Todo el contenido nuevo del cuadernillo. Se amplía en la Task 5.
 List<GridGame> get kCuadernilloGridGames => [
       ...kJuegosOrientacion,
+      ...kJuegosSilabas,
+      ...kJuegosFlechas,
     ];

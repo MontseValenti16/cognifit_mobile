@@ -184,7 +184,7 @@ List<GridGame> get kTodosLosGridGames => [
 /// Construye una cuadrícula marcando como objetivo cada casilla que sea igual
 /// a [objetivo]. Evita listar los índices a mano, que es donde se cuelan los
 /// errores al agregar juegos nuevos.
-GridGame _porLetra({
+GridGame porTextoObjetivo({
   required String id,
   required String sectionLabel,
   required String question,
@@ -218,7 +218,7 @@ GridGame _porLetra({
 /// solo por la orientación, que es la confusión más común en dislexia. Las
 /// últimas mezclan las cuatro, que es el caso difícil.
 final List<GridGame> kGridGames = [
-  _porLetra(
+  porTextoObjetivo(
     id: 'GRID_b_entre_d',
     sectionLabel: 'BUSCA LA LETRA',
     question: 'Encuentra todas las b',
@@ -236,7 +236,7 @@ final List<GridGame> kGridGames = [
         'piensa en la palabra "bota": empieza con b y la panza mira hacia '
         'adelante.',
   ),
-  _porLetra(
+  porTextoObjetivo(
     id: 'GRID_p_entre_q',
     sectionLabel: 'BUSCA LA LETRA',
     question: 'Encuentra todas las p',
@@ -253,7 +253,7 @@ final List<GridGame> kGridGames = [
         'La p tiene la panza a la derecha, como la b. La q la tiene a la '
         'izquierda y suele venir acompañada de la u: "queso", "quince".',
   ),
-  _porLetra(
+  porTextoObjetivo(
     id: 'GRID_b_entre_p_d',
     sectionLabel: 'BUSCA LA LETRA',
     question: 'Encuentra todas las b',
@@ -271,7 +271,7 @@ final List<GridGame> kGridGames = [
         'panza a la derecha, es una b.',
     difficulty: 2,
   ),
-  _porLetra(
+  porTextoObjetivo(
     id: 'GRID_d_entre_todas',
     sectionLabel: 'BUSCA LA LETRA',
     question: 'Encuentra todas las d',
@@ -289,7 +289,7 @@ final List<GridGame> kGridGames = [
         'palito va arriba.',
     difficulty: 3,
   ),
-  _porLetra(
+  porTextoObjetivo(
     id: 'GRID_silaba_pa',
     sectionLabel: 'BUSCA LA SÍLABA',
     question: 'Encuentra todas las "pa"',
@@ -307,7 +307,7 @@ final List<GridGame> kGridGames = [
         'pero al revés, y suena distinto.',
     difficulty: 2,
   ),
-  _porLetra(
+  porTextoObjetivo(
     id: 'GRID_silaba_los',
     sectionLabel: 'BUSCA LA SÍLABA',
     question: 'Encuentra todas las "los"',
@@ -325,7 +325,7 @@ final List<GridGame> kGridGames = [
         'Leerlas de izquierda a derecha, sin adivinar, es lo que las separa.',
     difficulty: 3,
   ),
-  _porLetra(
+  porTextoObjetivo(
     id: 'GRID_palabra_casa',
     sectionLabel: 'BUSCA LA PALABRA',
     question: 'Encuentra todas las "casa"',
@@ -343,7 +343,7 @@ final List<GridGame> kGridGames = [
         'Una sola letra cambia el significado por completo.',
     difficulty: 3,
   ),
-  _porLetra(
+  porTextoObjetivo(
     id: 'GRID_numero_espejo',
     sectionLabel: 'BUSCA EL NÚMERO',
     question: 'Encuentra todos los 6',

@@ -39,4 +39,24 @@ void main() {
       }
     });
   });
+
+  group('juegos de texto del cuadernillo', () {
+    test('están presentes las categorías sílabas y flechas', () {
+      final cats = kCuadernilloGridGames.map((j) => j.categoria).toSet();
+      expect(cats, contains(GridCategory.silabas));
+      expect(cats, contains(GridCategory.flechas));
+    });
+
+    test('los juegos de flechas usan glifos de dirección', () {
+      final flechas = kCuadernilloGridGames
+          .where((j) => j.categoria == GridCategory.flechas);
+      expect(flechas, isNotEmpty);
+      for (final j in flechas) {
+        for (final c in j.celdas) {
+          expect(c, isA<TextCell>());
+          expect('←↑→↓', contains((c as TextCell).texto));
+        }
+      }
+    });
+  });
 }
