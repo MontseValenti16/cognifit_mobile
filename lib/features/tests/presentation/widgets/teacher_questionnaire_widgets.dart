@@ -133,6 +133,27 @@ class TeacherResultCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text('Módulos recomendados: ${result.enabledModuleCodes.length}', style: Theme.of(context).textTheme.bodyMedium),
         ],
+        if (result.indiceDiscrepancia != null) ...[
+          const SizedBox(height: 12),
+          const Divider(height: 1),
+          const SizedBox(height: 12),
+          Row(children: [
+            const Icon(Icons.compare_arrows_rounded, size: 18, color: Color(0xFF6B6880)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Índice de discrepancia: ${result.indiceDiscrepancia!.toStringAsFixed(0)} / 100',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 4),
+          Text(
+            'Distancia entre lo que el alumno puede y lo que rinde en lectura. '
+            'Cuanto más alto, más marcada es la brecha propia de una dificultad específica.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF6B6880), height: 1.4),
+          ),
+        ],
       ]),
     );
   }
