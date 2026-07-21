@@ -16,6 +16,61 @@ import 'dart:math';
 
 import 'child_exercises.dart';
 
+/// Categorías con las que el catálogo agrupa los juegos. Es un valor estable,
+/// distinto del `sectionLabel` de display (que puede repetirse o cambiar).
+enum GridCategory { buscaLetra, silabas, flechas, orientacion, cualEsDiferente }
+
+/// Silueta simple y asimétrica: al espejarla o girarla se nota, que es lo que
+/// hace falta para discriminar orientación (la raíz de la confusión b/d).
+enum FiguraForma { botita, pez, banderin }
+
+/// Una figura y su orientación. Se compara por valor para poder decidir qué
+/// casillas "se ven igual que el modelo" sin listar índices a mano.
+class FigureSpec {
+  final FiguraForma forma;
+  final int cuartosDeGiro; // 0..3, giros de 90°
+  final bool espejada; // reflejo horizontal
+  const FigureSpec(this.forma, {this.cuartosDeGiro = 0, this.espejada = false});
+
+  @override
+  bool operator ==(Object other) =>
+      other is FigureSpec &&
+      other.forma == forma &&
+      other.cuartosDeGiro == cuartosDeGiro &&
+      other.espejada == espejada;
+
+  @override
+  int get hashCode => Object.hash(forma, cuartosDeGiro, espejada);
+}
+
+/// Una casilla de la cuadrícula: o una letra/sílaba/glifo, o una figura.
+sealed class GridCell {
+  const GridCell();
+
+  /// Etiqueta para lectores de pantalla.
+  String get semanticLabel;
+}
+
+class TextCell extends GridCell {
+  final String texto;
+  const TextCell(this.texto);
+
+  @override
+  String get semanticLabel => texto;
+}
+
+class FigureCell extends GridCell {
+  final FigureSpec figura;
+  const FigureCell(this.figura);
+
+  @override
+  String get semanticLabel {
+    final giro = figura.cuartosDeGiro == 0 ? '' : ' girada';
+    final espejo = figura.espejada ? ' espejada' : '';
+    return 'figura ${figura.forma.name}$giro$espejo';
+  }
+}
+
 class GridGame {
   final String id;
   final String sectionLabel;
