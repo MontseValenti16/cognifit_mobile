@@ -110,6 +110,7 @@ import '../../features/institutions/data/repositories/institution_repository_imp
 import '../../features/institutions/domain/usecases/register_institution_usecase.dart';
 import '../../features/institutions/domain/usecases/get_pending_institutions_usecase.dart';
 import '../../features/institutions/domain/usecases/approve_institution_usecase.dart';
+import '../../features/institutions/domain/usecases/reject_institution_usecase.dart';
 import '../../features/institutions/presentation/viewmodels/institution_viewmodel.dart';
 
 class ServiceLocator {
@@ -246,6 +247,7 @@ class ServiceLocator {
     register: RegisterInstitutionUseCase(_institutionRepo),
     getPending: GetPendingInstitutionsUseCase(_institutionRepo),
     approve: ApproveInstitutionUseCase(_institutionRepo),
+    reject: RejectInstitutionUseCase(_institutionRepo),
   );
 
   /// Call after logout to drop cached state tied to the previous session.

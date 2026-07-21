@@ -6,6 +6,7 @@ abstract class InstitutionRemoteDataSource {
   Future<void> register(RegisterInstitutionParams params);
   Future<List<InstitutionModel>> getPending();
   Future<InstitutionModel> approve(String institutionId);
+  Future<void> reject(String institutionId, {String? reason});
 }
 
 class InstitutionRemoteDataSourceImpl implements InstitutionRemoteDataSource {
@@ -34,5 +35,10 @@ class InstitutionRemoteDataSourceImpl implements InstitutionRemoteDataSource {
   Future<InstitutionModel> approve(String institutionId) async {
     final json = await client.post('/institutions/$institutionId/approve');
     return InstitutionModel.fromJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<void> reject(String institutionId, {String? reason}) async {
+    await client.post('/institutions/$institutionId/reject', data: {'reason': reason});
   }
 }

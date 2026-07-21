@@ -118,13 +118,39 @@ class _InstitutionCard extends StatelessWidget {
   }
 
   void _confirmReject(BuildContext context) {
-    showDialog(
+    final motivoCtrl = TextEditingController();
+    showDialog<void>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Rechazar institución'),
-        content: Text('${institution.name} no aparecerá aprobada. Podrás revisarla más tarde si vuelve a solicitarlo.'),
+      builder: (dialogCtx) => AlertDialog(
+        title: Text('Rechazar ${institution.name}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('La solicitud saldrá de pendientes y se avisará por correo a quien la hizo.'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: motivoCtrl,
+              maxLength: 500,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Motivo (opcional)',
+                helperText: 'Se incluye en el correo al solicitante.',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          TextButton(onPressed: () => Navigator.pop(dialogCtx), child: const Text('Cancelar')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.riskRed),
+            onPressed: () {
+              final motivo = motivoCtrl.text.trim();
+              Navigator.pop(dialogCtx);
+              vm.rejectInstitution(institution.id, reason: motivo.isEmpty ? null : motivo);
+            },
+            child: const Text('Rechazar'),
+          ),
         ],
       ),
     );

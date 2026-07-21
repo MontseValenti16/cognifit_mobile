@@ -14,4 +14,8 @@ class InstitutionRepositoryImpl implements InstitutionRepository {
 
   @override
   Future<InstitutionEntity> approve(String institutionId) => remote.approve(institutionId);
+
+  @override
+  Future<void> reject(String institutionId, {String? reason}) =>
+      remote.reject(institutionId, reason: reason);
 }

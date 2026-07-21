@@ -3,6 +3,7 @@ import '../../domain/entities/institution_entity.dart';
 import '../../domain/usecases/register_institution_usecase.dart';
 import '../../domain/usecases/get_pending_institutions_usecase.dart';
 import '../../domain/usecases/approve_institution_usecase.dart';
+import '../../domain/usecases/reject_institution_usecase.dart';
 
 enum RegisterInstitutionStatus { idle, loading, success, error }
 
@@ -10,14 +11,17 @@ class InstitutionViewModel extends ChangeNotifier {
   final RegisterInstitutionUseCase _register;
   final GetPendingInstitutionsUseCase _getPending;
   final ApproveInstitutionUseCase _approve;
+  final RejectInstitutionUseCase _reject;
 
   InstitutionViewModel({
     required RegisterInstitutionUseCase register,
     required GetPendingInstitutionsUseCase getPending,
     required ApproveInstitutionUseCase approve,
+    required RejectInstitutionUseCase reject,
   })  : _register = register,
         _getPending = getPending,
-        _approve = approve;
+        _approve = approve,
+        _reject = reject;
 
   RegisterInstitutionStatus registerStatus = RegisterInstitutionStatus.idle;
   String? registerError;
@@ -70,6 +74,17 @@ class InstitutionViewModel extends ChangeNotifier {
     } catch (e) {
       _error = 'No se pudo aprobar la institución';
       notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> rejectInstitution(String institutionId, {String? reason}) async {
+    try {
+      await _reject(institutionId, reason: reason);
+      // Sale de la lista de pendientes: el backend ya la excluye de /pending.
+      await loadPending();
+      return true;
+    } catch (_) {
       return false;
     }
   }
