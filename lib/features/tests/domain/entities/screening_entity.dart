@@ -426,6 +426,27 @@ class PendingDiagnosisEntity {
   };
 }
 
+// ── Calendario de tamizaje (qué toca hacer con cada alumno) ───────────────────
+class CalendarioEntryEntity {
+  final String studentId;
+  final String studentName;
+  final int grade;
+  /// 'BATERIA_INICIAL', 'BATERIA', 'MONITOREO' o 'AL_DIA'.
+  final String queToca;
+  final String? ultMonitoreo;
+  final String? ultBateria;
+  final bool sinLineaBase;
+  const CalendarioEntryEntity({
+    required this.studentId,
+    required this.studentName,
+    required this.grade,
+    required this.queToca,
+    this.ultMonitoreo,
+    this.ultBateria,
+    this.sinLineaBase = false,
+  });
+}
+
 class LabelResultEntity {
   final String id;
   final String diagnosisId;

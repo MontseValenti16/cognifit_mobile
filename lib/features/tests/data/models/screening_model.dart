@@ -270,6 +270,23 @@ class PendingDiagnosisModel extends PendingDiagnosisEntity {
   );
 }
 
+class CalendarioEntryModel extends CalendarioEntryEntity {
+  const CalendarioEntryModel({
+    required super.studentId, required super.studentName, required super.grade,
+    required super.queToca, super.ultMonitoreo, super.ultBateria, super.sinLineaBase,
+  });
+
+  factory CalendarioEntryModel.fromJson(Map<String, dynamic> j) => CalendarioEntryModel(
+    studentId: j['student_id'].toString(),
+    studentName: j['student_name'] as String? ?? '',
+    grade: (j['grade'] as num?)?.toInt() ?? 0,
+    queToca: j['que_toca'] as String? ?? 'AL_DIA',
+    ultMonitoreo: j['ult_monitoreo'] as String?,
+    ultBateria: j['ult_bateria'] as String?,
+    sinLineaBase: j['sin_linea_base'] as bool? ?? false,
+  );
+}
+
 class LabelResultModel extends LabelResultEntity {
   const LabelResultModel({
     required super.id, required super.diagnosisId,

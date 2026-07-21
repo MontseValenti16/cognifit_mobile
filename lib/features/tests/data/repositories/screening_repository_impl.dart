@@ -71,4 +71,8 @@ class ScreeningRepositoryImpl implements ScreeningRepository {
     confirmedRiskLevel: confirmedRiskLevel,
     notes: notes,
   );
+
+  @override
+  Future<List<CalendarioEntryEntity>> getCalendario({bool soloVencidos = true}) =>
+      remote.getCalendario(soloVencidos: soloVencidos);
 }

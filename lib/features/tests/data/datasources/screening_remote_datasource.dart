@@ -24,6 +24,7 @@ abstract class ScreeningRemoteDataSource {
     required String confirmedRiskLevel,
     String? notes,
   });
+  Future<List<CalendarioEntryModel>> getCalendario({bool soloVencidos});
 }
 
 class ScreeningRemoteDataSourceImpl implements ScreeningRemoteDataSource {
@@ -174,5 +175,14 @@ class ScreeningRemoteDataSourceImpl implements ScreeningRemoteDataSource {
       },
     );
     return LabelResultModel.fromJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<List<CalendarioEntryModel>> getCalendario({bool soloVencidos = true}) async {
+    final json = await client.get('/screening/calendario',
+        query: {'solo_vencidos': soloVencidos});
+    return (json as List)
+        .map((e) => CalendarioEntryModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 }

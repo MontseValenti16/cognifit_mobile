@@ -25,4 +25,5 @@ abstract class ScreeningRepository {
     required String confirmedRiskLevel,
     String? notes,
   });
+  Future<List<CalendarioEntryEntity>> getCalendario({bool soloVencidos});
 }
