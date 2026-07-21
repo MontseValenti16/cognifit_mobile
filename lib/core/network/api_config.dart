@@ -1,7 +1,7 @@
 /// Central place for backend connection settings.
 /// Change [baseUrl] when your Railway/production URL is ready.
 class ApiConfig {
-  static const String baseUrl = 'https://api-production-f37fe.up.railway.app/api/v1';
+  static const String baseUrl = 'https://api-production-2ba0.up.railway.app/api/v1';
 
   // Connection timeouts
   static const Duration connectTimeout = Duration(seconds: 15);
