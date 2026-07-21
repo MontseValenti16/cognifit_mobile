@@ -213,10 +213,10 @@ class _Cuadricula extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // El texto se achica cuando la casilla lleva una palabra en vez de una
-    // sola letra, para que no se corte.
-    final maxLargo =
-        juego.celdas.map((c) => c.length).reduce((a, b) => a > b ? a : b);
+    // Solo las celdas de texto influyen en el tamaño de fuente; las figuras se
+    // pintan aparte. Si no hubiera texto, se usa un tamaño por defecto.
+    final largos = juego.celdas.whereType<TextCell>().map((c) => c.texto.length);
+    final maxLargo = largos.isEmpty ? 1 : largos.reduce((a, b) => a > b ? a : b);
     final fuente = maxLargo <= 1 ? 34.0 : (maxLargo <= 3 ? 22.0 : 16.0);
 
     return GridView.builder(
@@ -262,7 +262,7 @@ class _Cuadricula extends StatelessWidget {
         return Semantics(
           button: !revisado,
           selected: marcada,
-          label: juego.celdas[i],
+          label: juego.celdas[i].semanticLabel,
           child: GestureDetector(
             onTap: () => onTap(i),
             child: AnimatedContainer(
@@ -276,15 +276,21 @@ class _Cuadricula extends StatelessWidget {
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(2),
-                    child: FittedBox(
-                      child: Text(juego.celdas[i],
-                          style: TextStyle(
-                            fontSize: fuente,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'serif',
-                            color: AppTheme.onSurface,
-                          )),
-                    ),
+                    child: switch (juego.celdas[i]) {
+                      TextCell(:final texto) => FittedBox(
+                          child: Text(texto,
+                              style: TextStyle(
+                                fontSize: fuente,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'serif',
+                                color: AppTheme.onSurface,
+                              )),
+                        ),
+                      // El caso de figura se implementa en la Task 3; por ahora
+                      // se deja un hueco que no se usa (no hay juegos de figura
+                      // todavía).
+                      FigureCell() => const SizedBox.shrink(),
+                    },
                   ),
                 ),
                 if (revisado && marcada && esObjetivo)

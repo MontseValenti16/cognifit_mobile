@@ -78,13 +78,20 @@ class GridGame {
   final String instruction;
 
   /// Las 20 casillas, en el orden en que se muestran.
-  final List<String> celdas;
+  final List<GridCell> celdas;
 
   /// Cuáles hay que tocar. El resto son distractores.
   final Set<int> objetivos;
 
   /// Qué se explica al terminar, sea que acertó o no.
   final String explanation;
+
+  /// Categoría estable para agrupar en el catálogo.
+  final GridCategory categoria;
+
+  /// Figura de referencia para los juegos de orientación ("igual que esta").
+  /// Nula en los juegos de texto.
+  final FigureSpec? modelo;
 
   final int columnas;
   final int difficulty;
@@ -97,6 +104,8 @@ class GridGame {
     required this.celdas,
     required this.objetivos,
     required this.explanation,
+    required this.categoria,
+    this.modelo,
     this.columnas = 5,
     this.difficulty = 1,
   });
@@ -134,8 +143,8 @@ List<GridGame> gridGamesDesdeEjercicios(List<ChildExercise> ejercicios) {
     // Se recorren en orden barajado y se reparten: dos ejercicios seguidos no
     // repiten posición, que si no el alumno aprende dónde mirar.
     final pos = posiciones[n++ % posiciones.length];
-    final celdas = List<String>.filled(20, e.mainOption);
-    celdas[pos] = e.oddOption;
+    final celdas = List<GridCell>.filled(20, TextCell(e.mainOption));
+    celdas[pos] = TextCell(e.oddOption);
     return GridGame(
       id: 'GRID_${e.id}',
       sectionLabel: e.sectionLabel,
@@ -144,6 +153,7 @@ List<GridGame> gridGamesDesdeEjercicios(List<ChildExercise> ejercicios) {
       celdas: celdas,
       objetivos: {pos},
       explanation: e.explanation,
+      categoria: GridCategory.cualEsDiferente,
       difficulty: e.difficulty,
     );
   }).toList();
@@ -167,6 +177,7 @@ GridGame _porLetra({
   required List<String> celdas,
   required String objetivo,
   required String explanation,
+  required GridCategory categoria,
   int difficulty = 1,
 }) {
   final objetivos = <int>{};
@@ -178,9 +189,10 @@ GridGame _porLetra({
     sectionLabel: sectionLabel,
     question: question,
     instruction: instruction,
-    celdas: celdas,
+    celdas: [for (final c in celdas) TextCell(c)],
     objetivos: objetivos,
     explanation: explanation,
+    categoria: categoria,
     difficulty: difficulty,
   );
 }
@@ -203,6 +215,7 @@ final List<GridGame> kGridGames = [
       'b', 'd', 'b', 'd', 'd',
     ],
     objetivo: 'b',
+    categoria: GridCategory.buscaLetra,
     explanation:
         'La b tiene la panza a la derecha; la d, a la izquierda. Si dudas, '
         'piensa en la palabra "bota": empieza con b y la panza mira hacia '
@@ -220,6 +233,7 @@ final List<GridGame> kGridGames = [
       'p', 'q', 'p', 'q', 'q',
     ],
     objetivo: 'p',
+    categoria: GridCategory.buscaLetra,
     explanation:
         'La p tiene la panza a la derecha, como la b. La q la tiene a la '
         'izquierda y suele venir acompañada de la u: "queso", "quince".',
@@ -236,6 +250,7 @@ final List<GridGame> kGridGames = [
       'd', 'b', 'p', 'b', 'p',
     ],
     objetivo: 'b',
+    categoria: GridCategory.buscaLetra,
     explanation:
         'La b sube y la p baja. Si la letra tiene el palito hacia arriba y la '
         'panza a la derecha, es una b.',
@@ -253,6 +268,7 @@ final List<GridGame> kGridGames = [
       'p', 'd', 'q', 'b', 'q',
     ],
     objetivo: 'd',
+    categoria: GridCategory.buscaLetra,
     explanation:
         'La d sube y tiene la panza a la izquierda. Piensa en "dedo": el '
         'palito va arriba.',
@@ -270,6 +286,7 @@ final List<GridGame> kGridGames = [
       'ba', 'pa', 'ap', 'ba', 'pa',
     ],
     objetivo: 'pa',
+    categoria: GridCategory.buscaLetra,
     explanation:
         '"pa" empieza con p y termina con a. "ap" tiene las mismas letras '
         'pero al revés, y suena distinto.',
@@ -287,6 +304,7 @@ final List<GridGame> kGridGames = [
       'sol', 'lso', 'los', 'sol', 'los',
     ],
     objetivo: 'los',
+    categoria: GridCategory.buscaLetra,
     explanation:
         '"los" y "sol" tienen las mismas tres letras en distinto orden. '
         'Leerlas de izquierda a derecha, sin adivinar, es lo que las separa.',
@@ -304,6 +322,7 @@ final List<GridGame> kGridGames = [
       'caza', 'casa', 'cosa', 'caza', 'cosa',
     ],
     objetivo: 'casa',
+    categoria: GridCategory.buscaLetra,
     explanation:
         '"casa" lleva s, "caza" lleva z y "cosa" cambia la primera vocal. '
         'Una sola letra cambia el significado por completo.',
@@ -321,6 +340,7 @@ final List<GridGame> kGridGames = [
       '6', '9', '9', '6', '9',
     ],
     objetivo: '6',
+    categoria: GridCategory.buscaLetra,
     explanation:
         'El 6 tiene la panza abajo y el 9 arriba. La misma confusión de '
         'orientación que pasa con b y d ocurre también con los números.',

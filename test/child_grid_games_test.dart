@@ -84,6 +84,18 @@ void main() {
       expect(kTodosLosGridGames.length,
           kGridGames.length + kChildExercises.length);
     });
+
+    test('todos los juegos previos son de celdas de texto y tienen categoría', () {
+      for (final j in kTodosLosGridGames) {
+        for (final c in j.celdas) {
+          expect(c, isA<TextCell>(), reason: '${j.id} tiene una celda no-texto');
+        }
+      }
+      // Las categorías previas: letra (banco a mano) y "cuál es diferente".
+      final cats = kTodosLosGridGames.map((j) => j.categoria).toSet();
+      expect(cats, contains(GridCategory.buscaLetra));
+      expect(cats, contains(GridCategory.cualEsDiferente));
+    });
   });
 
   group('pantalla', () {
@@ -93,12 +105,15 @@ void main() {
         sectionLabel: 'PRUEBA',
         question: 'Encuentra las b',
         instruction: 'Toca cada b.',
-        celdas: const ['b', 'd', 'd', 'b', 'd',
-                       'd', 'd', 'd', 'd', 'd',
-                       'd', 'd', 'd', 'd', 'd',
-                       'd', 'd', 'd', 'd', 'd'],
+        celdas: const [
+          TextCell('b'), TextCell('d'), TextCell('d'), TextCell('b'), TextCell('d'),
+          TextCell('d'), TextCell('d'), TextCell('d'), TextCell('d'), TextCell('d'),
+          TextCell('d'), TextCell('d'), TextCell('d'), TextCell('d'), TextCell('d'),
+          TextCell('d'), TextCell('d'), TextCell('d'), TextCell('d'), TextCell('d'),
+        ],
         objetivos: const {0, 3},
         explanation: 'La b tiene la panza a la derecha.',
+        categoria: GridCategory.buscaLetra,
       ),
     ];
 
