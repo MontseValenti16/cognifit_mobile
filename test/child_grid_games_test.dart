@@ -43,7 +43,7 @@ void main() {
         for (var i = 0; i < j.celdas.length; i++) {
           if (j.celdas[i] == valorObjetivo) {
             expect(j.objetivos.contains(i), isTrue,
-                reason: '${j.id}: la casilla $i es "$valorObjetivo" pero no cuenta como objetivo');
+                reason: '${j.id}: la casilla $i es "${valorObjetivo.semanticLabel}" pero no cuenta como objetivo');
           }
         }
       }
@@ -76,7 +76,7 @@ void main() {
         final pos = j.objetivos.first;
         final distinta = j.celdas[pos];
         final iguales = j.celdas.where((c) => c == distinta).length;
-        expect(iguales, 1, reason: '${j.id}: "$distinta" aparece $iguales veces');
+        expect(iguales, 1, reason: '${j.id}: "${distinta.semanticLabel}" aparece $iguales veces');
       }
     });
 

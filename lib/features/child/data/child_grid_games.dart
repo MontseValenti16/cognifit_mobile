@@ -57,6 +57,12 @@ class TextCell extends GridCell {
 
   @override
   String get semanticLabel => texto;
+
+  @override
+  bool operator ==(Object other) => other is TextCell && other.texto == texto;
+
+  @override
+  int get hashCode => texto.hashCode;
 }
 
 class FigureCell extends GridCell {
@@ -69,6 +75,13 @@ class FigureCell extends GridCell {
     final espejo = figura.espejada ? ' espejada' : '';
     return 'figura ${figura.forma.name}$giro$espejo';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      other is FigureCell && other.figura == figura;
+
+  @override
+  int get hashCode => figura.hashCode;
 }
 
 class GridGame {
