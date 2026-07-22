@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../domain/entities/screening_entity.dart';
 import '../viewmodels/calendario_viewmodel.dart';
 
@@ -15,7 +16,7 @@ class CalendarioScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.surface,
-      appBar: AppBar(title: const Text('Qué evaluar y cuándo')),
+      appBar: AppBar(title: const Text('Qué evaluar y cuándo'), actions: const [ThemeToggleButton()]),
       body: entradas.isEmpty
           ? const Center(child: Text('Nadie tiene evaluaciones pendientes.'))
           : ListView.separated(
@@ -93,7 +94,7 @@ class _CalendarioPageState extends State<CalendarioPage> {
       builder: (_, __) => switch (_vm.status) {
         CalendarioStatus.loading => const Scaffold(body: Center(child: CircularProgressIndicator())),
         CalendarioStatus.error => Scaffold(
-            appBar: AppBar(title: const Text('Qué evaluar y cuándo')),
+            appBar: AppBar(title: const Text('Qué evaluar y cuándo'), actions: const [ThemeToggleButton()]),
             body: Center(child: Padding(
               padding: const EdgeInsets.all(24),
               child: Text(_vm.error ?? 'No se pudo cargar el calendario.', textAlign: TextAlign.center))),

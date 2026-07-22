@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/validation/input_rules.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../../auth/presentation/widgets/auth_widgets.dart';
 import '../../../splash/presentation/widgets/circuit_background.dart';
 import '../../domain/entities/institution_entity.dart';
@@ -80,6 +81,15 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
       backgroundColor: AppTheme.surface,
       body: Stack(children: [
         const CircuitBackground(),
+        SafeArea(
+          child: Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 12, top: 4),
+              child: ThemeToggleButton(),
+            ),
+          ),
+        ),
         SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -189,7 +199,7 @@ class _SuccessView extends StatelessWidget {
       Container(
         width: 88, height: 88,
         decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.activeGreen.withValues(alpha: 0.15)),
-        child: const Icon(Icons.check_circle_rounded, color: AppTheme.activeGreen, size: 52),
+        child: Icon(Icons.check_circle_rounded, color: AppTheme.activeGreen, size: 52),
       ),
       const SizedBox(height: 24),
       Text('Solicitud enviada', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800), textAlign: TextAlign.center),

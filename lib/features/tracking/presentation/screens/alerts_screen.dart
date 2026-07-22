@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../domain/entities/tracking_entity.dart';
 import '../viewmodels/tracking_viewmodel.dart';
 
@@ -52,9 +53,10 @@ class _AlertsScreenState extends State<AlertsScreen> {
             Text('${_vm.unreadAlerts.length} sin leer',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.warning)),
         ]),
+        actions: const [ThemeToggleButton()],
       ),
       body: _vm.isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+          ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : RefreshIndicator(
               onRefresh: _vm.loadAlerts,
               color: AppTheme.primary,

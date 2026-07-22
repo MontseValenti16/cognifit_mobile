@@ -49,7 +49,7 @@ class _PlanSelectionScreenState extends State<PlanSelectionScreen> {
                 style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 20),
             ListTile(
-              leading: const Icon(Icons.credit_card_rounded, color: AppTheme.primary),
+              leading: Icon(Icons.credit_card_rounded, color: AppTheme.primary),
               title: const Text('Tarjeta de crédito o débito'),
               subtitle: const Text('Cargo inmediato'),
               onTap: () {
@@ -58,7 +58,7 @@ class _PlanSelectionScreenState extends State<PlanSelectionScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.storefront_rounded, color: AppTheme.tertiary),
+              leading: Icon(Icons.storefront_rounded, color: AppTheme.tertiary),
               title: const Text('Efectivo en OXXO'),
               subtitle: const Text('Genera una referencia para pagar en tienda'),
               onTap: () {
@@ -80,7 +80,7 @@ class _PlanSelectionScreenState extends State<PlanSelectionScreen> {
       body: SafeArea(
         child: switch (_vm.plansStatus) {
           PlansStatus.loading || PlansStatus.idle =>
-            const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+            Center(child: CircularProgressIndicator(color: AppTheme.primary)),
           PlansStatus.error => Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -136,7 +136,7 @@ class _PlanCard extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 Text('Elegir', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppTheme.primary)),
-                const Icon(Icons.chevron_right_rounded, color: AppTheme.primary),
+                Icon(Icons.chevron_right_rounded, color: AppTheme.primary),
               ]),
             ),
           ]),

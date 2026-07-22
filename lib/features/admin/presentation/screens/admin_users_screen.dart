@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../domain/entities/admin_user_entity.dart';
 import '../viewmodels/admin_viewmodel.dart';
 
@@ -65,6 +66,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             ),
           ),
           IconButton(icon: const Icon(Icons.logout_rounded), tooltip: 'Cerrar sesión', onPressed: _logout),
+          const ThemeToggleButton(),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -75,7 +77,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         foregroundColor: Colors.white,
       ),
       body: _vm.isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+          ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _vm.users.isEmpty
               ? _EmptyView(includeInactive: _vm.includeInactive)
               : _UserList(vm: _vm),
@@ -183,7 +185,7 @@ class _RoleChip extends StatelessWidget {
         color: AppTheme.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(_labels[role] ?? role, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.primary)),
+      child: Text(_labels[role] ?? role, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.primary)),
     );
   }
 }
@@ -211,7 +213,7 @@ class _UserOptionsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(20)),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         const SizedBox(height: 8),
         Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
@@ -222,13 +224,13 @@ class _UserOptionsSheet extends StatelessWidget {
         ),
         const Divider(height: 24),
         ListTile(
-          leading: const Icon(Icons.manage_accounts_rounded, color: AppTheme.primary),
+          leading: Icon(Icons.manage_accounts_rounded, color: AppTheme.primary),
           title: const Text('Cambiar rol'),
           onTap: () { Navigator.pop(context); _showRoleSheet(context); },
         ),
         if (user.role == 'PARENT')
           ListTile(
-            leading: const Icon(Icons.link_rounded, color: AppTheme.warning),
+            leading: Icon(Icons.link_rounded, color: AppTheme.warning),
             title: const Text('Vincular alumno'),
             onTap: () { Navigator.pop(context); _showLinkSheet(context); },
           ),
@@ -240,7 +242,7 @@ class _UserOptionsSheet extends StatelessWidget {
           )
         else
           ListTile(
-            leading: const Icon(Icons.person_rounded, color: AppTheme.activeGreen),
+            leading: Icon(Icons.person_rounded, color: AppTheme.activeGreen),
             title: const Text('Reactivar cuenta'),
             onTap: () { Navigator.pop(context); vm.reactivateUser(user.id); },
           ),
@@ -313,7 +315,7 @@ class _ChangeRoleSheetState extends State<_ChangeRoleSheet> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(20)),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         const SizedBox(height: 8),
         Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
@@ -323,7 +325,7 @@ class _ChangeRoleSheetState extends State<_ChangeRoleSheet> {
         ..._roles.map((role) => ListTile(
           title: Text(_labels[role] ?? role),
           trailing: _selected == role
-              ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary)
+              ? Icon(Icons.check_circle_rounded, color: AppTheme.primary)
               : const Icon(Icons.circle_outlined, color: Colors.grey),
           onTap: () => setState(() => _selected = role),
         )),
@@ -387,7 +389,7 @@ class _LinkStudentSheetState extends State<_LinkStudentSheet> {
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+        decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(20)),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           const SizedBox(height: 8),
           Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
@@ -406,8 +408,8 @@ class _LinkStudentSheetState extends State<_LinkStudentSheet> {
             ),
           ),
           if (widget.vm.isLoadingStudents)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
               child: CircularProgressIndicator(color: AppTheme.primary),
             )
           else
@@ -426,10 +428,10 @@ class _LinkStudentSheetState extends State<_LinkStudentSheet> {
                         final id = s['id'] as String;
                         final name = s['full_name'] as String? ?? 'Alumno';
                         return ListTile(
-                          leading: const Icon(Icons.child_care_rounded, color: AppTheme.primary),
+                          leading: Icon(Icons.child_care_rounded, color: AppTheme.primary),
                           title: Text(name),
                           trailing: _selectedId == id
-                              ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary)
+                              ? Icon(Icons.check_circle_rounded, color: AppTheme.primary)
                               : const Icon(Icons.circle_outlined, color: Colors.grey),
                           onTap: () => setState(() => _selectedId = id),
                         );
@@ -493,7 +495,7 @@ class _CreateUserSheetState extends State<_CreateUserSheet> {
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+        decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(20)),
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -539,7 +541,7 @@ class _CreateUserSheetState extends State<_CreateUserSheet> {
             ),
             if (_localError != null) ...[
               const SizedBox(height: 10),
-              Text(_localError!, style: const TextStyle(color: AppTheme.riskRed, fontSize: 13)),
+              Text(_localError!, style: TextStyle(color: AppTheme.riskRed, fontSize: 13)),
             ],
             const SizedBox(height: 20),
             SizedBox(

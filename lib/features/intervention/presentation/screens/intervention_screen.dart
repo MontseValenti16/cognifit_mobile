@@ -7,6 +7,7 @@ import '../widgets/dictation_player.dart';
 import '../widgets/naming_player.dart';
 import '../widgets/reading_player.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../viewmodels/intervention_viewmodel.dart';
 
 class InterventionScreen extends StatefulWidget {
@@ -153,6 +154,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
           Text('Intervención', style: Theme.of(context).textTheme.titleLarge),
           Text(widget.studentName, style: Theme.of(context).textTheme.bodyMedium),
         ]),
+        actions: const [ThemeToggleButton()],
       ),
       body: SafeArea(child: _body(context, vm)),
     );
@@ -160,7 +162,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
 
   Widget _body(BuildContext context, InterventionViewModel vm) {
     if (vm.isLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+      return Center(child: CircularProgressIndicator(color: AppTheme.primary));
     }
     if (vm.status == InterventionStatus.noPath) {
       return _centeredMessage(context,
@@ -220,14 +222,14 @@ class _InterventionScreenState extends State<InterventionScreen> {
         // Exercise card
         Container(
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4))),
+          decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4))),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(child: Text(exercise.titulo,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700))),
               if (exercise.usaTts)
                 IconButton(
-                  icon: const Icon(Icons.volume_up_rounded, color: AppTheme.primary),
+                  icon: Icon(Icons.volume_up_rounded, color: AppTheme.primary),
                   onPressed: () => TtsService.instance.speak(exercise.instruccion),
                   tooltip: 'Escuchar instrucción',
                 ),
@@ -241,7 +243,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
               ...exercise.items.take(5).map((item) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(children: [
-                  const Icon(Icons.arrow_right_rounded, color: AppTheme.primary, size: 20),
+                  Icon(Icons.arrow_right_rounded, color: AppTheme.primary, size: 20),
                   const SizedBox(width: 6),
                   Expanded(child: Text(_formatItem(item),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500))),
@@ -263,7 +265,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
             icon: const Icon(Icons.close_rounded),
             label: const Text('Incorrecto'),
             onPressed: () => _rate(0.0),
-            style: OutlinedButton.styleFrom(foregroundColor: AppTheme.riskRed, side: const BorderSide(color: AppTheme.riskRed)),
+            style: OutlinedButton.styleFrom(foregroundColor: AppTheme.riskRed, side: BorderSide(color: AppTheme.riskRed)),
           )),
           const SizedBox(width: 12),
           Expanded(child: ElevatedButton.icon(

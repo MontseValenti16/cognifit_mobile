@@ -210,7 +210,7 @@ class _TextoPlegable extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               child: Row(children: [
-                const Icon(Icons.article_outlined, size: 20, color: AppTheme.primary),
+                Icon(Icons.article_outlined, size: 20, color: AppTheme.primary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(expandido ? 'El texto' : 'Ver el texto otra vez',
@@ -233,7 +233,7 @@ class _TextoPlegable extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerRight,
                   child: IconButton(
-                    icon: const Icon(Icons.volume_up_rounded, color: AppTheme.primary),
+                    icon: Icon(Icons.volume_up_rounded, color: AppTheme.primary),
                     tooltip: 'Escuchar el texto',
                     onPressed: () => TtsService.instance.speak(texto),
                   ),
@@ -370,7 +370,7 @@ class _BloquePreguntas extends StatelessWidget {
         ),
         if (usaTts)
           IconButton(
-            icon: const Icon(Icons.volume_up_rounded, color: AppTheme.primary),
+            icon: Icon(Icons.volume_up_rounded, color: AppTheme.primary),
             tooltip: 'Escuchar la pregunta',
             onPressed: () => TtsService.instance.speak(pregunta.enunciado),
           ),
@@ -515,9 +515,9 @@ class _OpcionLarga extends StatelessWidget {
                       )),
             ),
             if (estado == _Estado.correcta)
-              const Icon(Icons.check_circle_rounded, color: AppTheme.activeGreen),
+              Icon(Icons.check_circle_rounded, color: AppTheme.activeGreen),
             if (estado == _Estado.incorrecta)
-              const Icon(Icons.cancel_rounded, color: AppTheme.riskRed),
+              Icon(Icons.cancel_rounded, color: AppTheme.riskRed),
           ]),
         ),
       ),

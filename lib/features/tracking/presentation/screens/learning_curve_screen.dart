@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../viewmodels/learning_curve_viewmodel.dart';
 import '../widgets/learning_curve_chart.dart';
 
@@ -46,9 +47,10 @@ class _LearningCurveScreenState extends State<LearningCurveScreen> {
           Text('Progreso', style: Theme.of(context).textTheme.titleLarge),
           Text(widget.studentName, style: Theme.of(context).textTheme.bodyMedium),
         ]),
+        actions: const [ThemeToggleButton()],
       ),
       body: _vm.isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+          ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _vm.status == LearningCurveStatus.error
               ? _ErrorBody(message: _vm.error ?? 'Error al cargar', onRetry: () => _vm.load(widget.studentId))
               : RefreshIndicator(

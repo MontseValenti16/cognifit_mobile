@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../../../features/tests/domain/entities/screening_entity.dart';
 import '../viewmodels/specialist_viewmodel.dart';
 
@@ -36,7 +37,7 @@ class _SpecialistReviewScreenState extends State<SpecialistReviewScreen> {
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
         title: const Text('Revisión clínica'),
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.cardColor,
         foregroundColor: AppTheme.onSurface,
         elevation: 0,
         bottom: PreferredSize(
@@ -63,10 +64,11 @@ class _SpecialistReviewScreenState extends State<SpecialistReviewScreen> {
                 ),
               ),
             ),
+          const ThemeToggleButton(),
         ],
       ),
       body: _vm.isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+          ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _vm.error != null
               ? _ErrorView(message: _vm.error!, onRetry: _vm.load)
               : _vm.pending.isEmpty
@@ -145,8 +147,8 @@ class _DiagnosisCard extends StatelessWidget {
           Row(children: [
             Container(
               width: 36, height: 36,
-              decoration: const BoxDecoration(color: AppTheme.primaryContainer, shape: BoxShape.circle),
-              child: const Icon(Icons.person_rounded, color: AppTheme.primary, size: 18),
+              decoration: BoxDecoration(color: AppTheme.primaryContainer, shape: BoxShape.circle),
+              child: Icon(Icons.person_rounded, color: AppTheme.primary, size: 18),
             ),
             const SizedBox(width: 10),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

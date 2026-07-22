@@ -4,6 +4,7 @@ import '../../../../core/di/service_locator.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../viewmodels/dashboard_viewmodel.dart';
 import '../widgets/dashboard_widgets.dart';
@@ -49,7 +50,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: AppTheme.surface,
       body: SafeArea(
         child: _vm.isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+          ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : RefreshIndicator(
               onRefresh: _vm.loadDashboard,
               color: AppTheme.primary,
@@ -167,13 +168,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Padding(
       padding: EdgeInsets.fromLTRB(context.hPad, 16, context.hPad, 0),
       child: Row(children: [
-        Container(width: 48, height: 48, decoration: const BoxDecoration(color: AppTheme.primaryContainer, shape: BoxShape.circle),
-          child: const Icon(Icons.person_rounded, color: AppTheme.primary)),
+        Container(width: 48, height: 48, decoration: BoxDecoration(color: AppTheme.primaryContainer, shape: BoxShape.circle),
+          child: Icon(Icons.person_rounded, color: AppTheme.primary)),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(email.isNotEmpty ? email.split('@').first : 'Docente', style: Theme.of(context).textTheme.titleLarge),
           Text('Panel de control', style: Theme.of(context).textTheme.bodyMedium),
         ])),
+        const ThemeToggleButton(),
         IconButton(icon: const Icon(Icons.logout_rounded), onPressed: _logout, color: AppTheme.onSurface),
       ]),
     );
@@ -225,7 +227,7 @@ class _SpecialistBanner extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(color: AppTheme.primaryContainer, shape: BoxShape.circle),
-          child: const Icon(Icons.rate_review_rounded, color: AppTheme.primary, size: 20),
+          child: Icon(Icons.rate_review_rounded, color: AppTheme.primary, size: 20),
         ),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -235,7 +237,7 @@ class _SpecialistBanner extends StatelessWidget {
           Text('Confirma o corrige los resultados del modelo ML',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
         ])),
-        const Icon(Icons.chevron_right_rounded, color: AppTheme.primary),
+        Icon(Icons.chevron_right_rounded, color: AppTheme.primary),
       ]),
     ),
   );
@@ -295,7 +297,7 @@ class _BillingBanner extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(color: AppTheme.tertiary.withValues(alpha: 0.15), shape: BoxShape.circle),
-          child: const Icon(Icons.workspace_premium_rounded, color: AppTheme.tertiary, size: 20),
+          child: Icon(Icons.workspace_premium_rounded, color: AppTheme.tertiary, size: 20),
         ),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -305,7 +307,7 @@ class _BillingBanner extends StatelessWidget {
           Text('Mejora el plan de tu escuela con tarjeta o efectivo',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
         ])),
-        const Icon(Icons.chevron_right_rounded, color: AppTheme.tertiary),
+        Icon(Icons.chevron_right_rounded, color: AppTheme.tertiary),
       ]),
     ),
   );
@@ -329,7 +331,7 @@ class _CalendarioBanner extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.12), shape: BoxShape.circle),
-          child: const Icon(Icons.event_available_rounded, color: AppTheme.primary, size: 20),
+          child: Icon(Icons.event_available_rounded, color: AppTheme.primary, size: 20),
         ),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -339,7 +341,7 @@ class _CalendarioBanner extends StatelessWidget {
           Text('El calendario de tamizaje de tus alumnos',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
         ])),
-        const Icon(Icons.chevron_right_rounded, color: AppTheme.primary),
+        Icon(Icons.chevron_right_rounded, color: AppTheme.primary),
       ]),
     ),
   );

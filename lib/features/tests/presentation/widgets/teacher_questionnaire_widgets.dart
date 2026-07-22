@@ -96,7 +96,7 @@ class QuestionnaireProgress extends StatelessWidget {
       ]),
       const SizedBox(height: 6),
       ClipRRect(borderRadius: BorderRadius.circular(8),
-        child: LinearProgressIndicator(value: pct, minHeight: 8, backgroundColor: AppTheme.outline.withValues(alpha: 0.3), valueColor: const AlwaysStoppedAnimation(AppTheme.primary))),
+        child: LinearProgressIndicator(value: pct, minHeight: 8, backgroundColor: AppTheme.outline.withValues(alpha: 0.3), valueColor: AlwaysStoppedAnimation(AppTheme.primary))),
     ]);
   }
 }
@@ -177,7 +177,7 @@ class SensorialAlertBanner extends StatelessWidget {
         border: Border.all(color: AppTheme.pendingOrange.withValues(alpha: 0.4)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Icon(Icons.visibility_off_outlined, color: AppTheme.pendingOrange, size: 20),
+        Icon(Icons.visibility_off_outlined, color: AppTheme.pendingOrange, size: 20),
         const SizedBox(width: 10),
         Expanded(
           child: Text(

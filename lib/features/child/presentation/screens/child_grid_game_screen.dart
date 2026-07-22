@@ -36,9 +36,6 @@ class _ChildGridGameScreenState extends State<ChildGridGameScreen> {
 
   GridGame get _juego => widget.juegos[_indice];
 
-  /// Marcadas correctamente.
-  Set<int> get _aciertos => _tocadas.intersection(_juego.objetivos);
-
   /// Marcadas que no correspondían.
   Set<int> get _errores => _tocadas.difference(_juego.objetivos);
 
@@ -322,19 +319,19 @@ class _Cuadricula extends StatelessWidget {
                   ),
                 ),
                 if (revisado && marcada && esObjetivo)
-                  const Positioned(
+                  Positioned(
                       top: 3,
                       right: 3,
                       child: Icon(Icons.check_rounded,
                           size: 15, color: AppTheme.activeGreen)),
                 if (revisado && marcada && !esObjetivo)
-                  const Positioned(
+                  Positioned(
                       top: 3,
                       right: 3,
                       child: Icon(Icons.close_rounded,
                           size: 15, color: AppTheme.riskRed)),
                 if (revisado && omitidas.contains(i))
-                  const Positioned(
+                  Positioned(
                       top: 3,
                       right: 3,
                       child: Icon(Icons.remove_red_eye_outlined,
@@ -364,7 +361,7 @@ class _BotonAuxiliar extends StatelessWidget {
       onPressed: onTap,
       icon: Icon(icon, size: 20, color: AppTheme.tertiary),
       label: Text(label,
-          style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.tertiary)),
+          style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.tertiary)),
       style: OutlinedButton.styleFrom(
         side: BorderSide(color: AppTheme.tertiary.withValues(alpha: 0.4)),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),

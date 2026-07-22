@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../../child/presentation/screens/child_home_screen.dart';
 import '../../../intervention/presentation/screens/comprehension_track_screen.dart';
 import '../../../intervention/presentation/screens/intervention_screen.dart';
@@ -97,10 +98,11 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             tooltip: 'Asignar nuevo test',
             onPressed: () => context.push('/tests'),
           ),
+          const ThemeToggleButton(),
         ],
       ),
       body: _vm.isLoading
-        ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+        ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
         : _vm.status == StudentProfileStatus.error && _vm.student == null
           ? _ErrorBody(message: _vm.error ?? 'Error', onRetry: () => _vm.load(widget.studentId))
           : _ProfileBody(vm: _vm),
@@ -181,10 +183,10 @@ class _StudentHeaderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
+      decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
       child: Row(children: [
         CircleAvatar(radius: 28, backgroundColor: AppTheme.primaryContainer,
-          child: Text(student.fullName.substring(0,1), style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700, fontSize: 22))),
+          child: Text(student.fullName.substring(0,1), style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700, fontSize: 22))),
         const SizedBox(width: 16),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(student.fullName, style: Theme.of(context).textTheme.titleLarge),
@@ -206,7 +208,7 @@ class _NoDiagnosisCard extends StatelessWidget {
     padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(color: AppTheme.primaryContainer.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(20)),
     child: Row(children: [
-      const Icon(Icons.info_outline_rounded, color: AppTheme.primary),
+      Icon(Icons.info_outline_rounded, color: AppTheme.primary),
       const SizedBox(width: 12),
       Expanded(child: Text('Este alumno aún no tiene un diagnóstico. Asígnale una batería desde "Tests".',
         style: Theme.of(context).textTheme.bodyMedium)),
@@ -254,7 +256,7 @@ class _DiagnosisCard extends StatelessWidget {
               border: Border.all(color: AppTheme.pendingOrange.withValues(alpha: 0.35)),
             ),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Icon(Icons.info_outline_rounded, size: 18, color: AppTheme.pendingOrange),
+              Icon(Icons.info_outline_rounded, size: 18, color: AppTheme.pendingOrange),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -376,7 +378,7 @@ class _PendingModulesSection extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(color: AppTheme.primaryContainer, borderRadius: BorderRadius.circular(10)),
-              child: const Icon(Icons.psychology_outlined, color: AppTheme.primary, size: 20),
+              child: Icon(Icons.psychology_outlined, color: AppTheme.primary, size: 20),
             ),
             const SizedBox(width: 14),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -385,7 +387,7 @@ class _PendingModulesSection extends StatelessWidget {
               Text(module.moduleCode, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD))),
             ])),
             vm.openingAssignmentId == module.assignmentId
-              ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primary))
+              ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primary))
               : TextButton(
                   onPressed: vm.openingAssignmentId != null ? null : () async {
                     final result = await vm.openModule(module);

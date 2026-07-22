@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../../students/domain/entities/student_entity.dart';
 import '../viewmodels/tests_viewmodel.dart';
 import '../widgets/teacher_questionnaire_widgets.dart';
@@ -79,9 +80,10 @@ class _TestsScreenState extends State<TestsScreen> {
               Text(_titleFor(_step), style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w700)),
               Text(_subtitleFor(_step), style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF6B6880))),
             ])),
+            const ThemeToggleButton(),
           ]),
         ),
-        Expanded(child: _vm.isLoading ? const Center(child: CircularProgressIndicator(color: AppTheme.primary)) : _buildStep(context)),
+        Expanded(child: _vm.isLoading ? Center(child: CircularProgressIndicator(color: AppTheme.primary)) : _buildStep(context)),
       ])),
     );
   }
@@ -117,7 +119,7 @@ class _StudentPickerStep extends StatelessWidget {
     return ListenableBuilder(
       listenable: sVm,
       builder: (context, _) {
-        if (sVm.isLoading) return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+        if (sVm.isLoading) return Center(child: CircularProgressIndicator(color: AppTheme.primary));
         if (sVm.students.isEmpty) {
           return Center(child: Padding(padding: const EdgeInsets.all(32), child: Text(
             'No hay alumnos registrados. Agrega uno desde "Alumnos" primero.',
@@ -133,9 +135,9 @@ class _StudentPickerStep extends StatelessWidget {
               child: Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
+                decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
                 child: Row(children: [
-                  CircleAvatar(backgroundColor: AppTheme.primaryContainer, child: Text(s.fullName.substring(0,1), style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700))),
+                  CircleAvatar(backgroundColor: AppTheme.primaryContainer, child: Text(s.fullName.substring(0,1), style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700))),
                   const SizedBox(width: 14),
                   Expanded(child: Text(s.fullName, style: Theme.of(context).textTheme.titleMedium)),
                   const Icon(Icons.chevron_right_rounded, color: Color(0xFFADA9B9)),
@@ -211,7 +213,7 @@ class _ResultStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (vm.teacherResult == null) return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+    if (vm.teacherResult == null) return Center(child: CircularProgressIndicator(color: AppTheme.primary));
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: context.hPad, vertical: 12),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -219,16 +221,16 @@ class _ResultStep extends StatelessWidget {
         if (vm.teacherResult?.requiereDescartarSensorial ?? false)
           const SensorialAlertBanner(),
         const SizedBox(height: 20),
-        if (vm.isSubmitting) const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: AppTheme.primary)))
+        if (vm.isSubmitting) Center(child: Padding(padding: const EdgeInsets.all(24), child: CircularProgressIndicator(color: AppTheme.primary)))
         else if (vm.assignmentResult != null) ...[
           Text('BATERÍA ASIGNADA', style: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 1.1, fontWeight: FontWeight.w700, color: const Color(0xFF9E9CAD))),
           const SizedBox(height: 10),
           ...vm.assignmentResult!.assignments.map((a) => Container(
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
+            decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
             child: Row(children: [
-              const Icon(Icons.assignment_outlined, color: AppTheme.primary, size: 20),
+              Icon(Icons.assignment_outlined, color: AppTheme.primary, size: 20),
               const SizedBox(width: 10),
               Expanded(child: Text(vm.moduleName(a.moduleCode), style: Theme.of(context).textTheme.bodyMedium)),
               Text(a.status, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.pendingOrange)),

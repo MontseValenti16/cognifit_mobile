@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../domain/entities/institution_entity.dart';
 import '../viewmodels/institution_viewmodel.dart';
 
@@ -57,10 +58,11 @@ class _InstitutionsApprovalScreenState extends State<InstitutionsApprovalScreen>
         actions: [
           IconButton(icon: const Icon(Icons.refresh_rounded), onPressed: _vm.loadPending),
           IconButton(icon: const Icon(Icons.logout_rounded), tooltip: 'Cerrar sesión', onPressed: _logout),
+          const ThemeToggleButton(),
         ],
       ),
       body: _vm.isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+          ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _vm.pending.isEmpty
               ? const _EmptyView()
               : ListView.separated(

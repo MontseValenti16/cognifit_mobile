@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/errors/api_exception.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../domain/entities/intervention_entity.dart';
 import '../../domain/repositories/intervention_repository.dart';
 import '../widgets/choice_player.dart';
@@ -46,6 +47,7 @@ class _ComprehensionTrackScreenState extends State<ComprehensionTrackScreen> {
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
         title: const Text('Comprensión lectora'),
+        actions: const [ThemeToggleButton()],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(20),
           child: Padding(
@@ -185,7 +187,7 @@ class _EjercicioScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.surface,
-      appBar: AppBar(title: Text(detalle.titulo)),
+      appBar: AppBar(title: Text(detalle.titulo), actions: const [ThemeToggleButton()]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(18),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -264,7 +266,7 @@ class _Tarjeta extends StatelessWidget {
               color: AppTheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.menu_book_rounded, color: AppTheme.primary),
+            child: Icon(Icons.menu_book_rounded, color: AppTheme.primary),
           ),
           const SizedBox(width: 14),
           Expanded(

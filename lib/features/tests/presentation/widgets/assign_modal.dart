@@ -56,7 +56,7 @@ class AssignTestModal extends StatelessWidget {
 
         // Student list
         if (vm.isLoading)
-          const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: AppTheme.primary)))
+          Center(child: Padding(padding: const EdgeInsets.all(24), child: CircularProgressIndicator(color: AppTheme.primary)))
         else
           ...students.map((s) => _StudentOption(
             student: s,
@@ -135,7 +135,7 @@ class _StudentOption extends StatelessWidget {
             Text(student.fullName, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500)),
             Text(student.grade, style: Theme.of(context).textTheme.bodyMedium),
           ])),
-          if (isSelected) const Icon(Icons.check_circle_rounded, color: AppTheme.primary, size: 24)
+          if (isSelected) Icon(Icons.check_circle_rounded, color: AppTheme.primary, size: 24)
           else Container(width: 22, height: 22, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppTheme.outline))),
         ]),
       ),

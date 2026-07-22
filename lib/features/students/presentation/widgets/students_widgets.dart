@@ -11,7 +11,7 @@ String _initialsOf(String name) {
 }
 
 Color _avatarColor(String seed) {
-  const colors = [AppTheme.primary, AppTheme.tertiary, AppTheme.secondary, AppTheme.pendingOrange, AppTheme.activeGreen];
+  final colors = [AppTheme.primary, AppTheme.tertiary, AppTheme.secondary, AppTheme.pendingOrange, AppTheme.activeGreen];
   final idx = seed.codeUnits.fold<int>(0, (a, b) => a + b) % colors.length;
   return colors[idx];
 }
@@ -85,7 +85,7 @@ class StudentListTile extends StatelessWidget {
                 },
                 itemBuilder: (_) => [
                   PopupMenuItem(value: 'edit', child: Row(children: [
-                    const Icon(Icons.edit_outlined, size: 18, color: AppTheme.primary), const SizedBox(width: 10), const Text('Editar'),
+                    Icon(Icons.edit_outlined, size: 18, color: AppTheme.primary), const SizedBox(width: 10), const Text('Editar'),
                   ])),
                   if (student.isActive)
                     PopupMenuItem(value: 'deactivate', child: Row(children: [
@@ -124,10 +124,10 @@ class StudentsSearchBar extends StatelessWidget {
         hintText: 'Buscar alumno...',
         prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFFADA9B9), size: 20),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        fillColor: Colors.white, filled: true,
+        fillColor: AppTheme.cardColor, filled: true,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.outline)),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.outline)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppTheme.primary, width: 2)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.primary, width: 2)),
       ),
     );
   }

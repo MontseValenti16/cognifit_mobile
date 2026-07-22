@@ -60,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     if (!_checkedSession) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppTheme.surface,
         body: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
       );

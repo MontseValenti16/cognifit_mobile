@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../data/child_grid_games.dart';
 import 'child_grid_game_screen.dart';
 
@@ -59,7 +60,7 @@ class ChildGamesCatalogScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.surface,
-      appBar: AppBar(title: const Text('Mis juegos')),
+      appBar: AppBar(title: const Text('Mis juegos'), actions: const [ThemeToggleButton()]),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

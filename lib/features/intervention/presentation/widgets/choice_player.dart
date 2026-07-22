@@ -156,7 +156,7 @@ class _ChoicePlayerState extends State<ChoicePlayer> {
                   )),
           if (widget.usaTts && _q.enunciado.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.volume_up_rounded, color: AppTheme.primary),
+              icon: Icon(Icons.volume_up_rounded, color: AppTheme.primary),
               tooltip: 'Escuchar',
               onPressed: () => TtsService.instance.speak(_q.enunciado),
             ),

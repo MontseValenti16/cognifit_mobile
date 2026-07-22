@@ -49,7 +49,7 @@ class AlertBanner extends StatelessWidget {
             const SizedBox(height: 2),
             Text('Ver alerta →', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.warning, fontWeight: FontWeight.w600)),
           ])),
-          const Icon(Icons.chevron_right_rounded, color: AppTheme.warning),
+          Icon(Icons.chevron_right_rounded, color: AppTheme.warning),
         ]),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import 'child_games_catalog_screen.dart';
 
 /// Pantalla de inicio gamificada para el niño.
@@ -32,6 +33,12 @@ class ChildHomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.surface,
       body: SafeArea(child: CustomScrollView(slivers: [
+        const SliverToBoxAdapter(
+          child: Align(alignment: Alignment.topRight, child: Padding(
+            padding: EdgeInsets.only(right: 16, top: 4),
+            child: ThemeToggleButton(),
+          )),
+        ),
         // ── Header con saludo ──
         SliverToBoxAdapter(child: _GreetingHeader(firstName: _firstName)),
         // ── Tarjetas de actividad ──

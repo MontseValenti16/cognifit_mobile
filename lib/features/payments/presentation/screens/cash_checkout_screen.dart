@@ -90,7 +90,7 @@ class _CashCheckoutScreenState extends State<CashCheckoutScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(children: [
-            const Icon(Icons.receipt_long_rounded, color: AppTheme.primary),
+            Icon(Icons.receipt_long_rounded, color: AppTheme.primary),
             const SizedBox(width: 12),
             Expanded(child: Text('${widget.plan.name} — ${widget.plan.priceLabel}${widget.plan.periodLabel}',
                 style: Theme.of(context).textTheme.titleSmall)),
@@ -126,7 +126,7 @@ class _ReferenceView extends StatelessWidget {
         Container(
           width: 88, height: 88,
           decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.activeGreen.withValues(alpha: 0.15)),
-          child: const Icon(Icons.check_circle_rounded, color: AppTheme.activeGreen, size: 52),
+          child: Icon(Icons.check_circle_rounded, color: AppTheme.activeGreen, size: 52),
         ),
         const SizedBox(height: 24),
         Text('Pago recibido', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800), textAlign: TextAlign.center),
@@ -142,7 +142,7 @@ class _ReferenceView extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(color: AppTheme.pendingOrange.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.schedule_rounded, color: AppTheme.pendingOrange, size: 18),
+          Icon(Icons.schedule_rounded, color: AppTheme.pendingOrange, size: 18),
           const SizedBox(width: 8),
           Text('Pendiente de pago', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.pendingOrange, fontWeight: FontWeight.w700)),
         ]),

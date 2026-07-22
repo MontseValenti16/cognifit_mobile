@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../../groups/domain/entities/group_entity.dart';
 import '../../domain/entities/student_entity.dart';
 import '../viewmodels/students_viewmodel.dart';
@@ -259,6 +260,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                           ],
                         ),
                       ),
+                      const ThemeToggleButton(),
                       IconButton.filled(
                         onPressed: () => _openForm(),
                         icon: const Icon(Icons.add_rounded),
@@ -287,7 +289,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
             Expanded(
               child: _vm.isLoading
-                  ? const Center(
+                  ? Center(
                       child: CircularProgressIndicator(color: AppTheme.primary),
                     )
                   : _vm.error != null && _vm.students.isEmpty

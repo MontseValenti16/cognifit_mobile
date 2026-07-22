@@ -104,11 +104,11 @@ class TestSearchBar extends StatelessWidget {
         hintText: 'Buscar por habilidad...',
         prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFFADA9B9), size: 20),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        fillColor: Colors.white,
+        fillColor: AppTheme.cardColor,
         filled: true,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.outline)),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.outline)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppTheme.primary, width: 2)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.primary, width: 2)),
       ),
     );
   }

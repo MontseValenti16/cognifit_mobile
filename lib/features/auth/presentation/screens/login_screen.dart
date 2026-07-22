@@ -5,6 +5,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/validation/input_rules.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../../splash/presentation/widgets/circuit_background.dart';
 import '../../domain/entities/user_entity.dart';
 import '../viewmodels/auth_viewmodel.dart';
@@ -91,6 +92,15 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: AppTheme.surface,
       body: Stack(children: [
         const CircuitBackground(),
+        SafeArea(
+          child: Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 12, top: 4),
+              child: ThemeToggleButton(),
+            ),
+          ),
+        ),
         SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: context.hPad),

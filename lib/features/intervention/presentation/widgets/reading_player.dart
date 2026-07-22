@@ -127,7 +127,7 @@ class _ReadingPlayerState extends State<ReadingPlayer> {
             Align(
               alignment: Alignment.centerRight,
               child: IconButton(
-                icon: const Icon(Icons.volume_up_rounded, color: AppTheme.primary),
+                icon: Icon(Icons.volume_up_rounded, color: AppTheme.primary),
                 tooltip: 'Escuchar el texto',
                 onPressed: () => TtsService.instance.speak(widget.texto),
               ),

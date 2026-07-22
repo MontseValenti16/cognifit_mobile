@@ -16,7 +16,7 @@ class ExerciseProgressBar extends StatelessWidget {
         Row(children: [
           IconButton(icon: const Icon(Icons.close_rounded, size: 22), onPressed: onClose, color: AppTheme.onSurface, padding: EdgeInsets.zero),
           Expanded(child: ClipRRect(borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(value: progress, minHeight: 8, backgroundColor: AppTheme.outline.withValues(alpha: 0.3), valueColor: const AlwaysStoppedAnimation(AppTheme.primary)))),
+            child: LinearProgressIndicator(value: progress, minHeight: 8, backgroundColor: AppTheme.outline.withValues(alpha: 0.3), valueColor: AlwaysStoppedAnimation(AppTheme.primary)))),
           const SizedBox(width: 10),
           Text('${(progress * 100).toStringAsFixed(0)}%', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.w700)),
         ]),
@@ -56,9 +56,9 @@ class ResponseTextField extends StatelessWidget {
         style: Theme.of(context).textTheme.headlineMedium,
         decoration: InputDecoration(
           hintText: isListening ? 'Escuchando...' : 'Escribe la respuesta...',
-          filled: true, fillColor: Colors.white,
+          filled: true, fillColor: AppTheme.cardColor,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppTheme.outline)),
-          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppTheme.primary, width: 2)),
+          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppTheme.primary, width: 2)),
           suffixIcon: showMic
               ? IconButton(
                   icon: Icon(isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
@@ -94,7 +94,7 @@ class StimulusCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4))),
+      decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4))),
       child: Column(children: [
         if (isPractice)
           Container(
@@ -108,7 +108,7 @@ class StimulusCard extends StatelessWidget {
         if (showSpeaker) ...[
           const SizedBox(height: 12),
           IconButton(
-            icon: const Icon(Icons.volume_up_rounded, color: AppTheme.primary, size: 28),
+            icon: Icon(Icons.volume_up_rounded, color: AppTheme.primary, size: 28),
             onPressed: onSpeak,
             tooltip: 'Escuchar',
           ),

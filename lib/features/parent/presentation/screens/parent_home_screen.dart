@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/theme_toggle_button.dart';
 
 class ParentHomeScreen extends StatelessWidget {
   final String studentId;
@@ -30,6 +31,7 @@ class ParentHomeScreen extends StatelessWidget {
               if (context.mounted) context.go('/');
             },
           ),
+          const ThemeToggleButton(),
         ],
       ),
       body: SafeArea(

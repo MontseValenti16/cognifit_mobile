@@ -50,7 +50,7 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
-            const Icon(Icons.picture_as_pdf_rounded, color: AppTheme.primary),
+            Icon(Icons.picture_as_pdf_rounded, color: AppTheme.primary),
             const SizedBox(width: 10),
             Expanded(child: Text('Generar reporte — ${widget.studentName}',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700))),
@@ -81,7 +81,7 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
           // Busy state
           if (vm.isBusy) ...[
             const SizedBox(height: 16),
-            const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+            Center(child: CircularProgressIndicator(color: AppTheme.primary)),
             const SizedBox(height: 12),
             Text(_statusLabel(), textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'theme_toggle_button.dart';
 
 /// Shared AppBar used across all teacher screens.
 class CogniFitAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -38,7 +39,7 @@ class CogniFitAppBar extends StatelessWidget implements PreferredSizeWidget {
               Text(subtitle!, style: Theme.of(context).textTheme.bodyMedium),
             ])
           : Text(title, style: Theme.of(context).textTheme.titleLarge),
-      actions: actions,
+      actions: [...?actions, const ThemeToggleButton()],
     );
   }
 }

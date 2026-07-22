@@ -108,7 +108,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   @override
   Widget build(BuildContext context) {
     if (_vm.isLoading) {
-      return const Scaffold(backgroundColor: AppTheme.surface, body: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
+      return Scaffold(backgroundColor: AppTheme.surface, body: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
     }
 
     if (_vm.status == ExerciseStatus.error) {
@@ -140,12 +140,12 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     }
 
     if (_vm.isSubmitting) {
-      return const Scaffold(backgroundColor: AppTheme.surface, body: Center(child: Padding(
-        padding: EdgeInsets.all(32),
+      return Scaffold(backgroundColor: AppTheme.surface, body: Center(child: Padding(
+        padding: const EdgeInsets.all(32),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           CircularProgressIndicator(color: AppTheme.primary),
-          SizedBox(height: 16),
-          Text('Generando diagnóstico...'),
+          const SizedBox(height: 16),
+          const Text('Generando diagnóstico...'),
         ]),
       )));
     }
