@@ -113,6 +113,17 @@ import '../../features/institutions/domain/usecases/approve_institution_usecase.
 import '../../features/institutions/domain/usecases/reject_institution_usecase.dart';
 import '../../features/institutions/presentation/viewmodels/institution_viewmodel.dart';
 
+// PAYMENTS (licencia de la escuela vía Conekta: tarjeta + efectivo OXXO)
+import '../../features/payments/data/datasources/conekta_tokenization_datasource.dart';
+import '../../features/payments/data/datasources/payment_remote_datasource.dart';
+import '../../features/payments/data/repositories/payment_repository_impl.dart';
+import '../../features/payments/domain/usecases/checkout_with_card_usecase.dart';
+import '../../features/payments/domain/usecases/checkout_with_cash_usecase.dart';
+import '../../features/payments/domain/usecases/get_payment_usecase.dart';
+import '../../features/payments/domain/usecases/get_plans_usecase.dart';
+import '../../features/payments/domain/usecases/tokenize_card_usecase.dart';
+import '../../features/payments/presentation/viewmodels/payment_viewmodel.dart';
+
 class ServiceLocator {
   ServiceLocator._();
   static final ServiceLocator instance = ServiceLocator._();
@@ -131,6 +142,10 @@ class ServiceLocator {
   late final ReportRepositoryImpl _reportRepo = ReportRepositoryImpl(ReportRemoteDataSourceImpl(apiClient));
   late final AdminRepositoryImpl _adminRepo = AdminRepositoryImpl(AdminRemoteDataSourceImpl(apiClient));
   late final InstitutionRepositoryImpl _institutionRepo = InstitutionRepositoryImpl(InstitutionRemoteDataSourceImpl(apiClient));
+  late final PaymentRepositoryImpl _paymentRepo = PaymentRepositoryImpl(PaymentRemoteDataSourceImpl(apiClient));
+  // Tokenizador de tarjeta: su propio Dio hacia api.conekta.io, nunca hacia
+  // nuestro backend (ver conekta_tokenization_datasource.dart).
+  late final CardTokenizerRepositoryImpl _cardTokenizerRepo = CardTokenizerRepositoryImpl(ConektaTokenizationDataSource());
 
   // ── ViewModels (lazily instantiated, cached) ────────────────────────────────
   AuthViewModel? _auth;
@@ -145,6 +160,7 @@ class ServiceLocator {
   SpecialistViewModel? _specialist;
   AdminViewModel? _admin;
   InstitutionViewModel? _institution;
+  PaymentViewModel? _payment;
 
   AuthViewModel get authViewModel => _auth ??= AuthViewModel(
     login: LoginUseCase(_authRepo),
@@ -250,10 +266,19 @@ class ServiceLocator {
     reject: RejectInstitutionUseCase(_institutionRepo),
   );
 
+  PaymentViewModel get paymentViewModel => _payment ??= PaymentViewModel(
+    getPlans: GetPlansUseCase(_paymentRepo),
+    tokenizeCard: TokenizeCardUseCase(_cardTokenizerRepo),
+    checkoutWithCard: CheckoutWithCardUseCase(_paymentRepo),
+    checkoutWithCash: CheckoutWithCashUseCase(_paymentRepo),
+    getPayment: GetPaymentUseCase(_paymentRepo),
+  );
+
   /// Call after logout to drop cached state tied to the previous session.
   void resetSessionScopedViewModels() {
     _students = null; _tests = null; _exercise = null; _tracking = null;
     _learningCurve = null; _studentProfile = null; _dashboard = null;
     _reports = null; _specialist = null; _admin = null; _institution = null;
+    _payment = null;
   }
 }

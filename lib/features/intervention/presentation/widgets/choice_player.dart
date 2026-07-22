@@ -145,7 +145,7 @@ class _ChoicePlayerState extends State<ChoicePlayer> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppTheme.outline.withOpacity(0.4)),
+          border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
         ),
         child: Column(children: [
           Text(_q.enunciado,
@@ -213,10 +213,10 @@ class _OpcionBoton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: color?.withOpacity(0.12) ?? Colors.white,
+            color: color?.withValues(alpha: 0.12) ?? Colors.white,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: borde.withOpacity(estado == _EstadoOpcion.neutral ? 0.5 : 1),
+              color: borde.withValues(alpha: estado == _EstadoOpcion.neutral ? 0.5 : 1),
               width: estado == _EstadoOpcion.neutral ? 1.2 : 2.5,
             ),
           ),

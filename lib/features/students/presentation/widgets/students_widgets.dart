@@ -38,7 +38,7 @@ class StudentListTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.outline.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -51,7 +51,7 @@ class StudentListTile extends StatelessWidget {
             child: Row(children: [
               Container(
                 width: 44, height: 44,
-                decoration: BoxDecoration(color: color.withOpacity(0.15), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: color.withValues(alpha: 0.15), shape: BoxShape.circle),
                 child: Center(child: Text(_initialsOf(student.fullName),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(color: color, fontWeight: FontWeight.w700))),
               ),
@@ -69,7 +69,7 @@ class StudentListTile extends StatelessWidget {
                   if (!student.isActive)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: AppTheme.riskRed.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                      decoration: BoxDecoration(color: AppTheme.riskRed.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
                       child: Text('Inactivo', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.riskRed)),
                     ),
                 ]),

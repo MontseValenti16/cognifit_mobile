@@ -15,6 +15,10 @@ import '../../features/parent/presentation/screens/parent_home_screen.dart';
 import '../../features/admin/presentation/screens/admin_users_screen.dart';
 import '../../features/institutions/presentation/screens/register_institution_screen.dart';
 import '../../features/institutions/presentation/screens/institutions_approval_screen.dart';
+import '../../features/payments/domain/entities/plan_entity.dart';
+import '../../features/payments/presentation/screens/plan_selection_screen.dart';
+import '../../features/payments/presentation/screens/card_checkout_screen.dart';
+import '../../features/payments/presentation/screens/cash_checkout_screen.dart';
 
 class AppRouter {
   static const String splash             = '/';
@@ -30,6 +34,9 @@ class AppRouter {
   static const String adminUsers         = '/admin/users';
   static const String registerInstitution = '/register-institution';
   static const String superadminInstitutions = '/superadmin/institutions';
+  static const String plans          = '/billing/plans';
+  static const String cardCheckout   = '/billing/checkout/card';
+  static const String cashCheckout   = '/billing/checkout/cash';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -38,6 +45,21 @@ class AppRouter {
       GoRoute(path: login,     builder: (c, s) => const LoginScreen()),
       GoRoute(path: registerInstitution, builder: (c, s) => const RegisterInstitutionScreen()),
       GoRoute(path: superadminInstitutions, builder: (c, s) => const InstitutionsApprovalScreen()),
+      GoRoute(path: plans, builder: (c, s) => const PlanSelectionScreen()),
+      GoRoute(
+        path: cardCheckout,
+        builder: (c, s) {
+          final extra = s.extra as Map<String, dynamic>?;
+          return CardCheckoutScreen(plan: extra?['plan'] as PlanEntity);
+        },
+      ),
+      GoRoute(
+        path: cashCheckout,
+        builder: (c, s) {
+          final extra = s.extra as Map<String, dynamic>?;
+          return CashCheckoutScreen(plan: extra?['plan'] as PlanEntity);
+        },
+      ),
       GoRoute(path: dashboard, builder: (c, s) => const DashboardScreen()),
       GoRoute(
         path: students,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../data/child_exercises.dart';
 
 /// Barra de progreso estilo niño: colorida, con estrella y contador.
 class ChildProgressBar extends StatelessWidget {

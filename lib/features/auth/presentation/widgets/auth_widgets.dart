@@ -101,7 +101,7 @@ class AuthTabToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppTheme.outline.withOpacity(0.2),
+        color: AppTheme.outline.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(children: [
@@ -115,7 +115,7 @@ class AuthTabToggle extends StatelessWidget {
                 color: isLogin ? Colors.white : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: isLogin
-                    ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)]
+                    ? [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)]
                     : [],
               ),
               child: Center(
@@ -141,7 +141,7 @@ class AuthTabToggle extends StatelessWidget {
                 color: !isLogin ? Colors.white : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: !isLogin
-                    ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)]
+                    ? [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)]
                     : [],
               ),
               child: Center(

@@ -17,11 +17,11 @@ class StatCard extends StatelessWidget {
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(18)),
+          decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(18)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(value, style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: color, fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),
-            Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color.withOpacity(0.8))),
+            Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color.withValues(alpha: 0.8))),
           ]),
         ),
       ),
@@ -40,7 +40,7 @@ class AlertBanner extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(color: AppTheme.warning.withOpacity(0.12), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.warning.withOpacity(0.3))),
+        decoration: BoxDecoration(color: AppTheme.warning.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.warning.withValues(alpha: 0.3))),
         child: Row(children: [
           Icon(Icons.warning_amber_rounded, color: AppTheme.warning, size: 22),
           const SizedBox(width: 12),
@@ -70,7 +70,7 @@ class GroupRiskSummaryCard extends StatelessWidget {
       width: 200,
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withOpacity(0.4))),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(summary.displayName, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
         Text('${summary.totalStudents} alumnos', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
@@ -83,15 +83,17 @@ class GroupRiskSummaryCard extends StatelessWidget {
             if (summary.mediumRisk > 0) Flexible(flex: summary.mediumRisk, child: Container(height: 8, color: AppTheme.pendingOrange)),
             if (summary.lowRisk > 0) Flexible(flex: summary.lowRisk, child: Container(height: 8, color: AppTheme.activeGreen)),
             Flexible(flex: total - summary.highRisk - summary.mediumRisk - summary.lowRisk > 0 ? total - summary.highRisk - summary.mediumRisk - summary.lowRisk : 0,
-                child: Container(height: 8, color: AppTheme.outline.withOpacity(0.2))),
+                child: Container(height: 8, color: AppTheme.outline.withValues(alpha: 0.2))),
           ].where((w) => true).toList()),
         ),
         const SizedBox(height: 10),
-        Row(children: [
+        // Wrap en vez de Row: con las tres etiquetas completas ("0 Alto",
+        // "0 Medio", "0 Bajo") el contenido no cabe en los 200px fijos de la
+        // tarjeta y un Row desbordaba (banda de overflow amarilla/negra). Con
+        // Wrap el chip que no entra baja a una segunda línea en vez de salirse.
+        Wrap(spacing: 6, runSpacing: 6, children: [
           _RiskChip(count: summary.highRisk, color: AppTheme.riskRed, label: 'Alto'),
-          const SizedBox(width: 6),
           _RiskChip(count: summary.mediumRisk, color: AppTheme.pendingOrange, label: 'Medio'),
-          const SizedBox(width: 6),
           _RiskChip(count: summary.lowRisk, color: AppTheme.activeGreen, label: 'Bajo'),
         ]),
       ]),
@@ -110,7 +112,7 @@ class _RiskChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
       child: Text('$count $label', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.w600)),
     );
   }
@@ -131,7 +133,7 @@ class DashboardStudentTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         margin: const EdgeInsets.symmetric(vertical: 5),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.outline.withOpacity(0.5))),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
         child: Row(children: [
           Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: color)),
           const SizedBox(width: 14),
@@ -141,7 +143,7 @@ class DashboardStudentTile extends StatelessWidget {
           ])),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
             child: Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color, fontWeight: FontWeight.w600)),
           ),
           const SizedBox(width: 8),

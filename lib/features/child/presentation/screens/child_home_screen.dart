@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../widgets/child_game_widgets.dart';
 import 'child_games_catalog_screen.dart';
 
 /// Pantalla de inicio gamificada para el niño.

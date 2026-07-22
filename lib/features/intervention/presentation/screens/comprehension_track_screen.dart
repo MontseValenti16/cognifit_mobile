@@ -254,14 +254,14 @@ class _Tarjeta extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppTheme.outline.withOpacity(0.4)),
+          border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
         ),
         child: Row(children: [
           Container(
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color: AppTheme.primary.withOpacity(0.1),
+              color: AppTheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(Icons.menu_book_rounded, color: AppTheme.primary),

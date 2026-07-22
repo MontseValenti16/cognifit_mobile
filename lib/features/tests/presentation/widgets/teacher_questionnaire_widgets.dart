@@ -23,7 +23,7 @@ class TeacherQuestionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: answered ? AppTheme.primary.withOpacity(0.4) : AppTheme.outline.withOpacity(0.5), width: answered ? 1.5 : 1),
+        border: Border.all(color: answered ? AppTheme.primary.withValues(alpha: 0.4) : AppTheme.outline.withValues(alpha: 0.5), width: answered ? 1.5 : 1),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -96,7 +96,7 @@ class QuestionnaireProgress extends StatelessWidget {
       ]),
       const SizedBox(height: 6),
       ClipRRect(borderRadius: BorderRadius.circular(8),
-        child: LinearProgressIndicator(value: pct, minHeight: 8, backgroundColor: AppTheme.outline.withOpacity(0.3), valueColor: const AlwaysStoppedAnimation(AppTheme.primary))),
+        child: LinearProgressIndicator(value: pct, minHeight: 8, backgroundColor: AppTheme.outline.withValues(alpha: 0.3), valueColor: const AlwaysStoppedAnimation(AppTheme.primary))),
     ]);
   }
 }
@@ -111,7 +111,7 @@ class TeacherResultCard extends StatelessWidget {
     final color = result.score >= 60 ? AppTheme.riskRed : result.score >= 30 ? AppTheme.pendingOrange : AppTheme.activeGreen;
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: color.withOpacity(0.06), borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withOpacity(0.2))),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withValues(alpha: 0.2))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Icon(Icons.insights_rounded, color: color, size: 20),
@@ -126,7 +126,7 @@ class TeacherResultCard extends StatelessWidget {
         const SizedBox(height: 12),
         if (result.riskFlags.isNotEmpty) Wrap(spacing: 8, runSpacing: 8, children: result.riskFlags.map((f) => Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
           child: Text('${f.flag} · ${f.level}', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color, fontWeight: FontWeight.w600)),
         )).toList()),
         if (result.enabledModuleCodes.isNotEmpty) ...[
@@ -172,9 +172,9 @@ class SensorialAlertBanner extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppTheme.pendingOrange.withOpacity(0.10),
+        color: AppTheme.pendingOrange.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.pendingOrange.withOpacity(0.4)),
+        border: Border.all(color: AppTheme.pendingOrange.withValues(alpha: 0.4)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Icon(Icons.visibility_off_outlined, color: AppTheme.pendingOrange, size: 20),

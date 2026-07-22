@@ -120,7 +120,7 @@ class _ReadingPlayerState extends State<ReadingPlayer> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppTheme.outline.withOpacity(0.4)),
+          border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           if (widget.usaTts)
@@ -195,9 +195,9 @@ class _ResultadoLectura extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(children: [
         Text('$ppm palabras por minuto',

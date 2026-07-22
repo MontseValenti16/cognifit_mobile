@@ -133,7 +133,7 @@ class _StudentPickerStep extends StatelessWidget {
               child: Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.outline.withOpacity(0.5))),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
                 child: Row(children: [
                   CircleAvatar(backgroundColor: AppTheme.primaryContainer, child: Text(s.fullName.substring(0,1), style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700))),
                   const SizedBox(width: 14),
@@ -226,7 +226,7 @@ class _ResultStep extends StatelessWidget {
           ...vm.assignmentResult!.assignments.map((a) => Container(
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.outline.withOpacity(0.5))),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
             child: Row(children: [
               const Icon(Icons.assignment_outlined, color: AppTheme.primary, size: 20),
               const SizedBox(width: 10),

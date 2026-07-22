@@ -116,7 +116,7 @@ class _ErrorBody extends StatelessWidget {
   Widget build(BuildContext context) => Center(child: Padding(
     padding: const EdgeInsets.all(32),
     child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Icon(Icons.wifi_off_rounded, size: 48, color: AppTheme.riskRed.withOpacity(0.6)),
+      Icon(Icons.wifi_off_rounded, size: 48, color: AppTheme.riskRed.withValues(alpha: 0.6)),
       const SizedBox(height: 12),
       Text(message, textAlign: TextAlign.center),
       const SizedBox(height: 16),
@@ -181,7 +181,7 @@ class _StudentHeaderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withOpacity(0.5))),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
       child: Row(children: [
         CircleAvatar(radius: 28, backgroundColor: AppTheme.primaryContainer,
           child: Text(student.fullName.substring(0,1), style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700, fontSize: 22))),
@@ -193,7 +193,7 @@ class _StudentHeaderCard extends StatelessWidget {
         ])),
         if (!student.isActive)
           Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(color: AppTheme.riskRed.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: AppTheme.riskRed.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
             child: Text('Inactivo', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.riskRed))),
       ]),
     );
@@ -204,7 +204,7 @@ class _NoDiagnosisCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(color: AppTheme.primaryContainer.withOpacity(0.5), borderRadius: BorderRadius.circular(20)),
+    decoration: BoxDecoration(color: AppTheme.primaryContainer.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(20)),
     child: Row(children: [
       const Icon(Icons.info_outline_rounded, color: AppTheme.primary),
       const SizedBox(width: 12),
@@ -228,7 +228,7 @@ class _DiagnosisCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity, padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: _color.withOpacity(0.05), borderRadius: BorderRadius.circular(20), border: Border.all(color: _color.withOpacity(0.15))),
+      decoration: BoxDecoration(color: _color.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(20), border: Border.all(color: _color.withValues(alpha: 0.15))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Icon(Icons.warning_amber_rounded, color: _color, size: 18),
@@ -237,7 +237,7 @@ class _DiagnosisCard extends StatelessWidget {
           if (risk.plnSource == 'local_fallback') ...[
             const Spacer(),
             Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(color: AppTheme.pendingOrange.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: AppTheme.pendingOrange.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
               child: Text('Sin el modelo', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.pendingOrange, fontWeight: FontWeight.w700))),
           ],
         ]),
@@ -249,9 +249,9 @@ class _DiagnosisCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.pendingOrange.withOpacity(0.08),
+              color: AppTheme.pendingOrange.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.pendingOrange.withOpacity(0.35)),
+              border: Border.all(color: AppTheme.pendingOrange.withValues(alpha: 0.35)),
             ),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const Icon(Icons.info_outline_rounded, size: 18, color: AppTheme.pendingOrange),
@@ -282,7 +282,7 @@ class _DiagnosisCard extends StatelessWidget {
         ]),
         const SizedBox(height: 16),
         ClipRRect(borderRadius: BorderRadius.circular(8), child: LinearProgressIndicator(
-          value: risk.riskProbability, minHeight: 8, backgroundColor: AppTheme.outline.withOpacity(0.3), valueColor: AlwaysStoppedAnimation(_color))),
+          value: risk.riskProbability, minHeight: 8, backgroundColor: AppTheme.outline.withValues(alpha: 0.3), valueColor: AlwaysStoppedAnimation(_color))),
         const SizedBox(height: 6),
         Text('Riesgo ${risk.riskLevel} · ${(risk.riskProbability * 100).toStringAsFixed(0)}%',
           style: Theme.of(context).textTheme.labelMedium?.copyWith(color: _color, fontWeight: FontWeight.w600)),
@@ -290,7 +290,7 @@ class _DiagnosisCard extends StatelessWidget {
           const SizedBox(height: 14),
           Wrap(spacing: 8, runSpacing: 8, children: risk.mainErrorCodes.map((c) => Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(color: _color.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+            decoration: BoxDecoration(color: _color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
             child: Text(c, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: _color, fontWeight: FontWeight.w600)),
           )).toList()),
         ],
@@ -322,7 +322,7 @@ class _MetricsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withOpacity(0.5))),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text('Progreso de ejercicios', style: Theme.of(context).textTheme.titleMedium),
@@ -370,7 +370,7 @@ class _PendingModulesSection extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.outline.withOpacity(0.5)),
+            border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5)),
           ),
           child: Row(children: [
             Container(
@@ -439,7 +439,7 @@ class TedePercentilCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.outline.withOpacity(0.4)),
+        border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('TEDE — norma por grado',

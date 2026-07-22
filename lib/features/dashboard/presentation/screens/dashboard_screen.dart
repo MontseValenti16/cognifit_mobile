@@ -81,7 +81,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _sectionLabel(context, 'GRUPOS'),
                       const SizedBox(height: 12),
                       SizedBox(
-                        height: 148,
+                        // 148 se quedaba corto: con las 3 etiquetas de riesgo
+                        // completas ("0 Alto"/"0 Medio"/"0 Bajo") el Wrap de
+                        // GroupRiskSummaryCard casi siempre baja a 2 líneas,
+                        // y a 148 el contenido no entraba (overflow inferior).
+                        height: 168,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: _vm.groupSummaries.length,
@@ -100,6 +104,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _sectionLabel(context, 'ADMINISTRACIÓN'),
                       const SizedBox(height: 10),
                       _AdminBanner(onTap: () => context.push(AppRouter.adminUsers)),
+                      const SizedBox(height: 12),
+                      _BillingBanner(onTap: () => context.push(AppRouter.plans)),
                       const SizedBox(height: 24),
                     ],
                     if (user?.role == UserRole.specialist || user?.role == UserRole.admin) ...[
@@ -185,8 +191,8 @@ class _BottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: AppTheme.outline.withOpacity(0.4))),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, -4))]),
+      decoration: BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: AppTheme.outline.withValues(alpha: 0.4))),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, -4))]),
       child: BottomNavigationBar(
         currentIndex: selected, onTap: onTap,
         items: const [
@@ -266,6 +272,40 @@ class _AdminBanner extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
         ])),
         const Icon(Icons.chevron_right_rounded, color: Color(0xFF7C3AED)),
+      ]),
+    ),
+  );
+}
+
+class _BillingBanner extends StatelessWidget {
+  final VoidCallback onTap;
+  const _BillingBanner({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppTheme.tertiary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.tertiary.withValues(alpha: 0.25)),
+      ),
+      child: Row(children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: AppTheme.tertiary.withValues(alpha: 0.15), shape: BoxShape.circle),
+          child: const Icon(Icons.workspace_premium_rounded, color: AppTheme.tertiary, size: 20),
+        ),
+        const SizedBox(width: 14),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Licencia y pagos',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 2),
+          Text('Mejora el plan de tu escuela con tarjeta o efectivo',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+        ])),
+        const Icon(Icons.chevron_right_rounded, color: AppTheme.tertiary),
       ]),
     ),
   );

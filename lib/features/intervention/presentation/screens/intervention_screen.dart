@@ -196,7 +196,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
         if (vm.path != null)
           Align(alignment: Alignment.centerLeft, child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(color: AppTheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+            decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
             child: Text('${vm.path!.routeCode} · Nivel ${vm.path!.currentDifficulty}',
               style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.w700)),
           )),
@@ -220,7 +220,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
         // Exercise card
         Container(
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppTheme.outline.withOpacity(0.4))),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4))),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(child: Text(exercise.titulo,
@@ -279,7 +279,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(color: AppTheme.tertiary.withOpacity(0.08), borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.tertiary.withOpacity(0.3))),
+            decoration: BoxDecoration(color: AppTheme.tertiary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.tertiary.withValues(alpha: 0.3))),
             child: Row(children: [
               Icon(Icons.lightbulb_outline_rounded, color: AppTheme.tertiary, size: 18),
               const SizedBox(width: 8),
@@ -308,7 +308,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
     return Center(child: Padding(
       padding: const EdgeInsets.all(32),
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Container(width: 90, height: 90, decoration: BoxDecoration(shape: BoxShape.circle, color: color.withOpacity(0.1)),
+        Container(width: 90, height: 90, decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: 0.1)),
           child: Icon(icon, color: color, size: 48)),
         const SizedBox(height: 20),
         Text(title, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700), textAlign: TextAlign.center),

@@ -36,7 +36,7 @@ class AssignTestModal extends StatelessWidget {
         // Header
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(color: AppTheme.warning.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(color: AppTheme.warning.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.assignment_rounded, color: AppTheme.warning, size: 16),
             const SizedBox(width: 6),
@@ -88,8 +88,8 @@ class AssignTestModal extends StatelessWidget {
               icon: const Icon(Icons.play_arrow_rounded, size: 20),
               label: const Text('Iniciar test ahora con el alumno'),
               style: OutlinedButton.styleFrom(
-                backgroundColor: AppTheme.activeGreen.withOpacity(0.08),
-                side: BorderSide(color: AppTheme.activeGreen.withOpacity(0.4)),
+                backgroundColor: AppTheme.activeGreen.withValues(alpha: 0.08),
+                side: BorderSide(color: AppTheme.activeGreen.withValues(alpha: 0.4)),
                 foregroundColor: AppTheme.activeGreen,
               ),
             ),
@@ -118,7 +118,7 @@ class _StudentOption extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.primaryContainer : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? AppTheme.primary : AppTheme.outline.withOpacity(0.5), width: isSelected ? 2 : 1),
+          border: Border.all(color: isSelected ? AppTheme.primary : AppTheme.outline.withValues(alpha: 0.5), width: isSelected ? 2 : 1),
         ),
         child: Row(children: [
           // Avatar initials

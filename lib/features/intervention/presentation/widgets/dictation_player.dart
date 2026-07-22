@@ -112,7 +112,7 @@ class _DictationPlayerState extends State<DictationPlayer> {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: (_ultimoCorrecto! ? AppTheme.activeGreen : AppTheme.riskRed).withOpacity(0.1),
+            color: (_ultimoCorrecto! ? AppTheme.activeGreen : AppTheme.riskRed).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Row(children: [

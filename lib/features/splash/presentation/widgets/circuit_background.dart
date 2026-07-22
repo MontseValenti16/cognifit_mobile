@@ -16,11 +16,11 @@ class _CircuitPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppTheme.primary.withOpacity(0.08)
+      ..color = AppTheme.primary.withValues(alpha: 0.08)
       ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
     final dot = Paint()
-      ..color = AppTheme.primary.withOpacity(0.15)
+      ..color = AppTheme.primary.withValues(alpha: 0.15)
       ..style = PaintingStyle.fill;
 
     void line(List<Offset> pts) {

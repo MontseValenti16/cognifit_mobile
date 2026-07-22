@@ -48,7 +48,7 @@ class TestTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.outline.withOpacity(0.5)),
+          border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5)),
         ),
         child: Row(children: [
           Container(

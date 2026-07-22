@@ -92,7 +92,7 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
           if (vm.status == ReportStatus.error && vm.error != null) ...[
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: AppTheme.riskRed.withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(color: AppTheme.riskRed.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)),
               child: Text(vm.error!, style: TextStyle(color: AppTheme.riskRed)),
             ),
             const SizedBox(height: 16),
@@ -102,7 +102,7 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
           if (vm.isReady) ...[
             Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppTheme.activeGreen.withOpacity(0.08), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.activeGreen.withOpacity(0.3))),
+              decoration: BoxDecoration(color: AppTheme.activeGreen.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.activeGreen.withValues(alpha: 0.3))),
               child: Row(children: [
                 Icon(Icons.check_circle_rounded, color: AppTheme.activeGreen),
                 const SizedBox(width: 8),
@@ -157,9 +157,9 @@ class _TypeOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: selected ? AppTheme.primary.withOpacity(0.06) : Colors.white,
+          color: selected ? AppTheme.primary.withValues(alpha: 0.06) : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: selected ? AppTheme.primary : AppTheme.outline.withOpacity(0.4), width: selected ? 1.5 : 1),
+          border: Border.all(color: selected ? AppTheme.primary : AppTheme.outline.withValues(alpha: 0.4), width: selected ? 1.5 : 1),
         ),
         child: Row(children: [
           Radio<String>(value: value, groupValue: groupValue, onChanged: (v) => onChanged(v!), activeColor: AppTheme.primary, materialTapTargetSize: MaterialTapTargetSize.shrinkWrap),

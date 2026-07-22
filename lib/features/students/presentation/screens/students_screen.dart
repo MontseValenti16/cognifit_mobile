@@ -344,7 +344,7 @@ class _ErrorState extends StatelessWidget {
           Icon(
             Icons.wifi_off_rounded,
             size: 48,
-            color: AppTheme.riskRed.withOpacity(0.6),
+            color: AppTheme.riskRed.withValues(alpha: 0.6),
           ),
           const SizedBox(height: 12),
           Text(

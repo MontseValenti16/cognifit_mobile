@@ -200,7 +200,7 @@ class _TextoPlegable extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.outline.withOpacity(0.4)),
+        border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         if (onToggle != null)
@@ -413,7 +413,7 @@ class _BloqueResultado extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.primary.withOpacity(0.06),
+        color: AppTheme.primary.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(children: [
@@ -497,10 +497,10 @@ class _OpcionLarga extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: 60),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           decoration: BoxDecoration(
-            color: color?.withOpacity(0.1) ?? Colors.white,
+            color: color?.withValues(alpha: 0.1) ?? Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: borde.withOpacity(estado == _Estado.neutral ? 0.5 : 1),
+              color: borde.withValues(alpha: estado == _Estado.neutral ? 0.5 : 1),
               width: estado == _Estado.neutral ? 1.2 : 2.2,
             ),
           ),

@@ -150,7 +150,7 @@ class _StudentFormModalState extends State<StudentFormModal> {
               const SizedBox(height: 8),
               if (widget.groups.isNotEmpty && !_creatingGroup) ...[
                 DropdownButtonFormField<String>(
-                  value: _selectedGroupId,
+                  initialValue: _selectedGroupId,
                   isExpanded: true,
                   decoration: InputDecoration(
                     errorText: _groupError,
@@ -202,7 +202,7 @@ class _StudentFormModalState extends State<StudentFormModal> {
             Text('Año de nacimiento', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             DropdownButtonFormField<int>(
-              value: _birthYear,
+              initialValue: _birthYear,
               isExpanded: true,
               hint: const Text('Selecciona el año'),
               decoration: const InputDecoration(
@@ -268,7 +268,7 @@ class _GroupCreateForm extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppTheme.primaryContainer.withOpacity(0.4),
+        color: AppTheme.primaryContainer.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppTheme.outline),
       ),
@@ -282,7 +282,7 @@ class _GroupCreateForm extends StatelessWidget {
             children: [
               Expanded(
                 child: DropdownButtonFormField<int>(
-                  value: grade,
+                  initialValue: grade,
                   isExpanded: true,
                   decoration: const InputDecoration(labelText: 'Grado'),
                   items: [1,2,3,4,5,6]

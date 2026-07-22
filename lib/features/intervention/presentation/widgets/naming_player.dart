@@ -99,7 +99,7 @@ class _NamingPlayerState extends State<NamingPlayer> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppTheme.outline.withOpacity(0.4)),
+          border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
         ),
         child: GridView.builder(
           shrinkWrap: true,
@@ -138,7 +138,7 @@ class _NamingPlayerState extends State<NamingPlayer> {
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: AppTheme.primary.withOpacity(0.07),
+            color: AppTheme.primary.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(children: [
