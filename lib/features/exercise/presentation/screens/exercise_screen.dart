@@ -6,6 +6,7 @@ import '../../../../core/offline/sync_service.dart';
 import '../../../../core/services/stt_service.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/child_theme.dart';
 import '../../../../core/widgets/offline_banner.dart';
 import '../../../../core/utils/responsive.dart';
 import '../viewmodels/exercise_viewmodel.dart';
@@ -107,6 +108,16 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Un solo wrapper cubre las cinco variantes de Scaffold que devuelve
+    // _buildScaffold (cargando, error, completado, enviando, sin ítems,
+    // contenido) sin repetir el Theme() en cada return.
+    return Theme(
+      data: childTheme(Theme.of(context)),
+      child: _buildScaffold(context),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     if (_vm.isLoading) {
       return Scaffold(backgroundColor: AppTheme.surface, body: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
     }

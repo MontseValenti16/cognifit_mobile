@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/errors/api_exception.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/child_theme.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../domain/entities/intervention_entity.dart';
 import '../../domain/repositories/intervention_repository.dart';
@@ -43,6 +44,13 @@ class _ComprehensionTrackScreenState extends State<ComprehensionTrackScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return Theme(
+      data: childTheme(Theme.of(context)),
+      child: _buildScaffold(context),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
@@ -185,6 +193,13 @@ class _EjercicioScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Theme(
+      data: childTheme(Theme.of(context)),
+      child: _buildScaffold(context),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: AppBar(title: Text(detalle.titulo), actions: const [ThemeToggleButton()]),

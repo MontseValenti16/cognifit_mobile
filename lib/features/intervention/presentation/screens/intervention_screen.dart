@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/child_theme.dart';
 import '../widgets/choice_player.dart';
 import '../widgets/comprehension_player.dart';
 import '../widgets/dictation_player.dart';
@@ -145,6 +146,13 @@ class _InterventionScreenState extends State<InterventionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return Theme(
+      data: childTheme(Theme.of(context)),
+      child: _buildScaffold(context),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     final vm = widget.vm;
     return Scaffold(
       backgroundColor: AppTheme.surface,
@@ -152,7 +160,8 @@ class _InterventionScreenState extends State<InterventionScreen> {
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20), onPressed: () => Navigator.pop(context)),
         title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Intervención', style: Theme.of(context).textTheme.titleLarge),
-          Text(widget.studentName, style: Theme.of(context).textTheme.bodyMedium),
+          Text(widget.studentName, style: Theme.of(context).textTheme.bodyMedium,
+            maxLines: 1, overflow: TextOverflow.ellipsis),
         ]),
         actions: const [ThemeToggleButton()],
       ),
