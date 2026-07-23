@@ -57,11 +57,24 @@ class DashboardViewModel extends ChangeNotifier {
   List<TeacherAssignmentEntity> get recentCompleted => _recentCompleted;
 
   int get totalStudents => _students.length;
+
+  /// Antes contaba alertas HIGH sin leer, no el riesgo real: un alumno con
+  /// diagnóstico de riesgo alto pero sin alerta generada (o con la alerta ya
+  /// leída) no se sumaba aquí, aunque las tarjetas de "Grupos" sí lo
+  /// mostraran correctamente — mismo dato, dos números distintos en la
+  /// misma pantalla. Ahora suma el mismo highRisk por grupo que ya se ve
+  /// abajo, así los dos coinciden siempre.
+  int get atRiskCount => _groupSummaries.fold(0, (sum, g) => sum + g.highRisk);
+  int get mediumRiskCount => _groupSummaries.fold(0, (sum, g) => sum + g.mediumRisk);
+  int get lowRiskCount => _groupSummaries.fold(0, (sum, g) => sum + g.lowRisk);
+
   Set<String> get _atRiskStudentIds => _alerts.where((a) => a.urgency == 'HIGH').map((a) => a.studentId).toSet();
-  int get atRiskCount => _atRiskStudentIds.length;
   List<AlertEntity> get unreadAlerts => _alerts.where((a) => !a.isRead).toList();
   AlertEntity? get topAlert => unreadAlerts.isEmpty ? null : unreadAlerts.first;
 
+  /// Sigue basado en alertas: es para el badge de la lista de "Alumnos", que
+  /// no tiene acceso al riesgo por alumno (getGroupMetrics solo trae el
+  /// conteo agregado del grupo, no qué alumno específico es cada uno).
   bool isStudentAtRisk(String studentId) => _atRiskStudentIds.contains(studentId);
 
   Future<void> loadDashboard() async {
