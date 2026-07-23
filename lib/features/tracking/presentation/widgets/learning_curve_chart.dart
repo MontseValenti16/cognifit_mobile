@@ -42,7 +42,7 @@ class LearningCurveChart extends StatelessWidget {
                   reservedSize: 36,
                   interval: 25,
                   getTitlesWidget: (v, _) => Text('${v.toInt()}%',
-                    style: const TextStyle(fontSize: 10, color: Color(0xFF9E9CAD))),
+                    style: TextStyle(fontSize: 10, color: AppTheme.mutedText)),
                 ),
               ),
               bottomTitles: AxisTitles(
@@ -50,7 +50,7 @@ class LearningCurveChart extends StatelessWidget {
                   showTitles: true,
                   reservedSize: 22,
                   getTitlesWidget: (v, _) => Text('S${v.toInt()}',
-                    style: const TextStyle(fontSize: 10, color: Color(0xFF9E9CAD))),
+                    style: TextStyle(fontSize: 10, color: AppTheme.mutedText)),
                 ),
               ),
               topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -127,7 +127,7 @@ class _LegendDot extends StatelessWidget {
   Widget build(BuildContext context) => Row(children: [
     Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
     const SizedBox(width: 5),
-    Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: const Color(0xFF6B6880))),
+    Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.mutedText)),
   ]);
 }
 
@@ -144,7 +144,7 @@ class _EmptyChart extends StatelessWidget {
       Icon(Icons.show_chart_rounded, size: 36, color: AppTheme.outline.withValues(alpha: 0.5)),
       const SizedBox(height: 8),
       Text('Aún no hay sesiones registradas',
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
     ])),
   );
 }

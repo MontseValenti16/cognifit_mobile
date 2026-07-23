@@ -132,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   label: 'Contraseña', hint: '• • • • • • • •', obscureText: _vm.obscurePassword,
                   suffixWidget: GestureDetector(
                     onTap: _vm.togglePasswordVisibility,
-                    child: Icon(_vm.obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: const Color(0xFFADA9B9), size: 20),
+                    child: Icon(_vm.obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: AppTheme.mutedText, size: 20),
                   ),
                   onChanged: _vm.setPassword,
                   // Solo "no vacia": LoginRequest.password no declara minimo,
@@ -156,11 +156,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
               Text('¿Olvidaste tu contraseña? Contacta al administrador del centro.',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
               const SizedBox(height: 12),
 
               Wrap(alignment: WrapAlignment.center, crossAxisAlignment: WrapCrossAlignment.center, children: [
-                Text('¿Tu institución no está registrada? ', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+                Text('¿Tu institución no está registrada? ', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
                 GestureDetector(
                   onTap: () => context.push(AppRouter.registerInstitution),
                   child: Text('Regístrala aquí',

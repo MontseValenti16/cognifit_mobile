@@ -45,7 +45,7 @@ class AlertBanner extends StatelessWidget {
           Icon(Icons.warning_amber_rounded, color: AppTheme.warning, size: 22),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF5C4200), fontWeight: FontWeight.w500)),
+            Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.onSurface, fontWeight: FontWeight.w500)),
             const SizedBox(height: 2),
             Text('Ver alerta →', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.warning, fontWeight: FontWeight.w600)),
           ])),
@@ -70,10 +70,10 @@ class GroupRiskSummaryCard extends StatelessWidget {
       width: 200,
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4))),
+      decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(summary.displayName, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
-        Text('${summary.totalStudents} alumnos', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+        Text('${summary.totalStudents} alumnos', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
         const SizedBox(height: 12),
         // Proportional color bar
         ClipRRect(
@@ -133,7 +133,7 @@ class DashboardStudentTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         margin: const EdgeInsets.symmetric(vertical: 5),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
+        decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
         child: Row(children: [
           Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: color)),
           const SizedBox(width: 14),
@@ -147,7 +147,7 @@ class DashboardStudentTile extends StatelessWidget {
             child: Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color, fontWeight: FontWeight.w600)),
           ),
           const SizedBox(width: 8),
-          Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400, size: 20),
+          Icon(Icons.chevron_right_rounded, color: AppTheme.mutedText, size: 20),
         ]),
       ),
     );

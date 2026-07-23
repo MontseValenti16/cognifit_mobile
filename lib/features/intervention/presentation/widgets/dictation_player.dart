@@ -73,7 +73,7 @@ class _DictationPlayerState extends State<DictationPlayer> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Text('${_indice + 1} de ${widget.targets.length}',
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(color: const Color(0xFF9E9CAD))),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppTheme.mutedText)),
       const SizedBox(height: 20),
 
       Center(
@@ -88,7 +88,7 @@ class _DictationPlayerState extends State<DictationPlayer> {
       const SizedBox(height: 8),
       Text('Toca para escuchar otra vez',
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
 
       const SizedBox(height: 24),
       TextField(
@@ -101,7 +101,7 @@ class _DictationPlayerState extends State<DictationPlayer> {
         decoration: InputDecoration(
           hintText: 'Escribe lo que escuchaste',
           filled: true,
-          fillColor: Colors.white,
+          fillColor: AppTheme.cardColor,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
         ),
         onSubmitted: (_) => _comprobar(),

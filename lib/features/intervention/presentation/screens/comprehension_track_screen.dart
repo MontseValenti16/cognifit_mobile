@@ -56,7 +56,7 @@ class _ComprehensionTrackScreenState extends State<ComprehensionTrackScreen> {
                 style: Theme.of(context)
                     .textTheme
                     .bodySmall
-                    ?.copyWith(color: const Color(0xFF9E9CAD))),
+                    ?.copyWith(color: AppTheme.mutedText)),
           ),
         ),
       ),
@@ -195,7 +195,7 @@ class _EjercicioScreen extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .bodyLarge
-                  ?.copyWith(color: const Color(0xFF6B6880), height: 1.45)),
+                  ?.copyWith(color: AppTheme.mutedText, height: 1.45)),
           const SizedBox(height: 18),
           ComprehensionPlayer(
             texto: texto,
@@ -235,7 +235,7 @@ class _Encabezado extends StatelessWidget {
             style: Theme.of(context)
                 .textTheme
                 .bodySmall
-                ?.copyWith(color: const Color(0xFF9E9CAD))),
+                ?.copyWith(color: AppTheme.mutedText)),
       ]),
     );
   }
@@ -254,7 +254,7 @@ class _Tarjeta extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
         ),
@@ -281,10 +281,10 @@ class _Tarjeta extends StatelessWidget {
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall
-                      ?.copyWith(color: const Color(0xFF9E9CAD))),
+                      ?.copyWith(color: AppTheme.mutedText)),
             ]),
           ),
-          const Icon(Icons.chevron_right_rounded, color: Color(0xFF9E9CAD)),
+          Icon(Icons.chevron_right_rounded, color: AppTheme.mutedText),
         ]),
       ),
     );
@@ -310,7 +310,7 @@ class _Aviso extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(icono, size: 52, color: const Color(0xFF9E9CAD)),
+          Icon(icono, size: 52, color: AppTheme.mutedText),
           const SizedBox(height: 16),
           Text(titulo,
               textAlign: TextAlign.center,
@@ -324,7 +324,7 @@ class _Aviso extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
-                  ?.copyWith(color: const Color(0xFF9E9CAD))),
+                  ?.copyWith(color: AppTheme.mutedText)),
           if (accion != null) ...[
             const SizedBox(height: 18),
             ElevatedButton(onPressed: accion, child: const Text('Reintentar')),

@@ -157,7 +157,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         body: SafeArea(child: Center(child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            const Icon(Icons.inbox_rounded, size: 56, color: Color(0xFFADA9B9)),
+            Icon(Icons.inbox_rounded, size: 56, color: AppTheme.mutedText),
             const SizedBox(height: 16),
             const Text('Esta sesión no tiene ítems configurados.\nContacta al administrador.',
               textAlign: TextAlign.center),
@@ -224,7 +224,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               ),
             const SizedBox(height: 8),
             Text('Modalidad: ${item.inputModes.join(", ")}',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
             if (waitingFeedback) AnswerFeedbackBanner(isCorrect: _vm.lastAnswerCorrect!),
           ]),
         )),

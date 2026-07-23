@@ -198,7 +198,7 @@ class _TextoPlegable extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
       ),
@@ -248,7 +248,7 @@ class _TextoPlegable extends StatelessWidget {
                   style: Theme.of(context)
                       .textTheme
                       .labelMedium
-                      ?.copyWith(color: const Color(0xFF9E9CAD))),
+                      ?.copyWith(color: AppTheme.mutedText)),
             ]),
           ),
           secondChild: const SizedBox(width: double.infinity),
@@ -306,7 +306,7 @@ class _BloquePrediccion extends StatelessWidget {
           style: Theme.of(context)
               .textTheme
               .bodySmall
-              ?.copyWith(color: const Color(0xFF9E9CAD))),
+              ?.copyWith(color: AppTheme.mutedText)),
       const SizedBox(height: 18),
       Wrap(
         alignment: WrapAlignment.center,
@@ -358,7 +358,7 @@ class _BloquePreguntas extends StatelessWidget {
           style: Theme.of(context)
               .textTheme
               .labelLarge
-              ?.copyWith(color: const Color(0xFF9E9CAD))),
+              ?.copyWith(color: AppTheme.mutedText)),
       const SizedBox(height: 14),
       Row(children: [
         Expanded(
@@ -426,7 +426,7 @@ class _BloqueResultado extends StatelessWidget {
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium
-                ?.copyWith(color: const Color(0xFF6B6880))),
+                ?.copyWith(color: AppTheme.mutedText)),
         if (prediccion != null) ...[
           const Divider(height: 28),
           Text(_mensajePrediccion(prediccion!, aciertos),
@@ -440,7 +440,7 @@ class _BloqueResultado extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: const Color(0xFF9E9CAD))),
+                  ?.copyWith(color: AppTheme.mutedText)),
         ],
         if (ppm != null) ...[
           const Divider(height: 28),
@@ -451,7 +451,7 @@ class _BloqueResultado extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .bodySmall
-                    ?.copyWith(color: const Color(0xFF9E9CAD))),
+                    ?.copyWith(color: AppTheme.mutedText)),
         ],
       ]),
     );
@@ -497,7 +497,7 @@ class _OpcionLarga extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: 60),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           decoration: BoxDecoration(
-            color: color?.withValues(alpha: 0.1) ?? Colors.white,
+            color: color?.withValues(alpha: 0.1) ?? AppTheme.cardColor,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: borde.withValues(alpha: estado == _Estado.neutral ? 0.5 : 1),

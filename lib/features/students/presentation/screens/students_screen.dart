@@ -255,7 +255,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                             Text(
                               '${_vm.totalCount} en total · ${_vm.activeCount} activos',
                               style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(color: const Color(0xFF6B6880)),
+                                  ?.copyWith(color: AppTheme.mutedText),
                             ),
                           ],
                         ),

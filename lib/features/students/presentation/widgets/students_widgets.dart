@@ -36,7 +36,7 @@ class StudentListTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5)),
       ),
@@ -61,7 +61,7 @@ class StudentListTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Row(children: [
                   if (student.birthYear != null) ...[
-                    Icon(Icons.cake_outlined, size: 13, color: const Color(0xFF9E9CAD)),
+                    Icon(Icons.cake_outlined, size: 13, color: AppTheme.mutedText),
                     const SizedBox(width: 3),
                     Text('${student.age} años', style: Theme.of(context).textTheme.bodyMedium),
                     const SizedBox(width: 10),
@@ -75,7 +75,7 @@ class StudentListTile extends StatelessWidget {
                 ]),
               ])),
               PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert_rounded, color: Colors.grey.shade400, size: 20),
+                icon: Icon(Icons.more_vert_rounded, color: AppTheme.mutedText, size: 20),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 onSelected: (v) {
                   if (v == 'edit') onEdit();
@@ -122,7 +122,7 @@ class StudentsSearchBar extends StatelessWidget {
       onChanged: onChanged,
       decoration: InputDecoration(
         hintText: 'Buscar alumno...',
-        prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFFADA9B9), size: 20),
+        prefixIcon: Icon(Icons.search_rounded, color: AppTheme.mutedText, size: 20),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         fillColor: AppTheme.cardColor, filled: true,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.outline)),
@@ -144,7 +144,7 @@ class StudentsEmptyState extends StatelessWidget {
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Icon(Icons.groups_outlined, size: 56, color: AppTheme.outline),
         const SizedBox(height: 12),
-        Text('Aún no hay alumnos', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+        Text('Aún no hay alumnos', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppTheme.mutedText)),
         const SizedBox(height: 16),
         OutlinedButton.icon(onPressed: onAdd, icon: const Icon(Icons.add_rounded, size: 18), label: const Text('Agregar alumno')),
       ]),
@@ -206,7 +206,7 @@ class _Chip extends StatelessWidget {
         margin: const EdgeInsets.only(right: 8),
         padding: EdgeInsets.only(left: 14, right: onDelete != null ? 4 : 14, top: 6, bottom: 6),
         decoration: BoxDecoration(
-          color: selected ? AppTheme.primary : Colors.white,
+          color: selected ? AppTheme.primary : AppTheme.cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: selected ? AppTheme.primary : AppTheme.outline),
         ),
@@ -216,7 +216,7 @@ class _Chip extends StatelessWidget {
             Text(
               label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: selected ? Colors.white : const Color(0xFF6B6880),
+                color: selected ? Colors.white : AppTheme.mutedText,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
@@ -227,7 +227,7 @@ class _Chip extends StatelessWidget {
                 child: Icon(
                   Icons.close_rounded,
                   size: 14,
-                  color: selected ? Colors.white.withValues(alpha: 0.8) : const Color(0xFF9E9CAD),
+                  color: selected ? Colors.white.withValues(alpha: 0.8) : AppTheme.mutedText,
                 ),
               ),
             ],

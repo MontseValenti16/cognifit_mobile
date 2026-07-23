@@ -118,7 +118,7 @@ class _ReadingPlayerState extends State<ReadingPlayer> {
       Container(
         padding: const EdgeInsets.all(22),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
         ),
@@ -145,7 +145,7 @@ class _ReadingPlayerState extends State<ReadingPlayer> {
               style: Theme.of(context)
                   .textTheme
                   .labelMedium
-                  ?.copyWith(color: const Color(0xFF9E9CAD))),
+                  ?.copyWith(color: AppTheme.mutedText)),
         ]),
       ),
 
@@ -211,7 +211,7 @@ class _ResultadoLectura extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
-                  ?.copyWith(color: const Color(0xFF6B6880))),
+                  ?.copyWith(color: AppTheme.mutedText)),
         ],
       ]),
     );

@@ -97,7 +97,7 @@ class _NamingPlayerState extends State<NamingPlayer> {
       Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
         ),
@@ -150,7 +150,7 @@ class _NamingPlayerState extends State<NamingPlayer> {
                 style: Theme.of(context)
                     .textTheme
                     .bodySmall
-                    ?.copyWith(color: const Color(0xFF9E9CAD))),
+                    ?.copyWith(color: AppTheme.mutedText)),
           ]),
         ),
         const SizedBox(height: 12),

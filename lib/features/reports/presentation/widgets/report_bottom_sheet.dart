@@ -84,7 +84,7 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
             Center(child: CircularProgressIndicator(color: AppTheme.primary)),
             const SizedBox(height: 12),
             Text(_statusLabel(), textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
             const SizedBox(height: 24),
           ],
 
@@ -157,7 +157,7 @@ class _TypeOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: selected ? AppTheme.primary.withValues(alpha: 0.06) : Colors.white,
+          color: selected ? AppTheme.primary.withValues(alpha: 0.06) : AppTheme.cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: selected ? AppTheme.primary : AppTheme.outline.withValues(alpha: 0.4), width: selected ? 1.5 : 1),
         ),
@@ -166,7 +166,7 @@ class _TypeOption extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(label, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: selected ? FontWeight.w700 : FontWeight.w500)),
-            Text(subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+            Text(subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
           ])),
         ]),
       ),

@@ -46,7 +46,7 @@ class _Fila extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
       ),
@@ -56,7 +56,7 @@ class _Fila extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(e.studentName, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-            Text('${e.grade}º grado', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+            Text('${e.grade}º grado', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
           ]),
         ),
         Container(

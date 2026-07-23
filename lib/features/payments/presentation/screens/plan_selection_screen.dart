@@ -37,7 +37,7 @@ class _PlanSelectionScreenState extends State<PlanSelectionScreen> {
   void _choosePaymentMethod(PlanEntity plan) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.cardColor,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => SafeArea(
         child: Padding(

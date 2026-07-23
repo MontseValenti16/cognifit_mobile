@@ -22,7 +22,7 @@ class AuthHeader extends StatelessWidget {
       const SizedBox(height: 6),
       Text(
         subtitle,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF6B6880)),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText),
         textAlign: TextAlign.center,
       ),
     ]);
@@ -75,7 +75,7 @@ class CogniFitTextField extends StatelessWidget {
         decoration: InputDecoration(
           hintText: hint,
           prefixIcon: prefixIcon != null
-              ? Icon(prefixIcon, color: const Color(0xFFADA9B9), size: 20)
+              ? Icon(prefixIcon, color: AppTheme.mutedText, size: 20)
               : null,
           suffix: suffixWidget,
         ),
@@ -112,7 +112,7 @@ class AuthTabToggle extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(vertical: 10),
               decoration: BoxDecoration(
-                color: isLogin ? Colors.white : Colors.transparent,
+                color: isLogin ? AppTheme.cardColor : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: isLogin
                     ? [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)]
@@ -122,7 +122,7 @@ class AuthTabToggle extends StatelessWidget {
                 child: Text(
                   'Login',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: isLogin ? AppTheme.primary : const Color(0xFF6B6880),
+                    color: isLogin ? AppTheme.primary : AppTheme.mutedText,
                     fontWeight: isLogin ? FontWeight.w600 : FontWeight.w500,
                   ),
                 ),
@@ -138,7 +138,7 @@ class AuthTabToggle extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(vertical: 10),
               decoration: BoxDecoration(
-                color: !isLogin ? Colors.white : Colors.transparent,
+                color: !isLogin ? AppTheme.cardColor : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: !isLogin
                     ? [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)]
@@ -148,7 +148,7 @@ class AuthTabToggle extends StatelessWidget {
                 child: Text(
                   'Register',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: !isLogin ? AppTheme.primary : const Color(0xFF6B6880),
+                    color: !isLogin ? AppTheme.primary : AppTheme.mutedText,
                     fontWeight: !isLogin ? FontWeight.w600 : FontWeight.w500,
                   ),
                 ),

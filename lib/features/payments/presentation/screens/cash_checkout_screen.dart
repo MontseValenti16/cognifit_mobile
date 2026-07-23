@@ -102,7 +102,7 @@ class _CashCheckoutScreenState extends State<CashCheckoutScreen> {
           style: Theme.of(context).textTheme.bodyMedium),
       const SizedBox(height: 8),
       Text('La licencia se activa automáticamente en cuanto se registre el pago (puede tardar unos minutos).',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
       const SizedBox(height: 32),
       ElevatedButton(
         onPressed: busy ? null : _generate,

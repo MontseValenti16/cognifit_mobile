@@ -21,7 +21,7 @@ class TeacherQuestionCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: answered ? AppTheme.primary.withValues(alpha: 0.4) : AppTheme.outline.withValues(alpha: 0.5), width: answered ? 1.5 : 1),
       ),
@@ -43,7 +43,7 @@ class TeacherQuestionCard extends StatelessWidget {
         if (item.sourceNote != null) ...[
           const SizedBox(height: 6),
           Padding(padding: const EdgeInsets.only(left: 36), child: Text('Fuente: ${item.sourceNote}',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD)))),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText))),
         ],
         const SizedBox(height: 14),
         Row(children: item.scale.entries.map((e) {
@@ -56,7 +56,7 @@ class TeacherQuestionCard extends StatelessWidget {
                 duration: const Duration(milliseconds: 150),
                 padding: const EdgeInsets.symmetric(vertical: 11),
                 decoration: BoxDecoration(
-                  color: selected ? _colorFor(e.value) : Colors.white,
+                  color: selected ? _colorFor(e.value) : AppTheme.cardColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: selected ? _colorFor(e.value) : AppTheme.outline, width: selected ? 2 : 1),
                 ),
@@ -138,7 +138,7 @@ class TeacherResultCard extends StatelessWidget {
           const Divider(height: 1),
           const SizedBox(height: 12),
           Row(children: [
-            const Icon(Icons.compare_arrows_rounded, size: 18, color: Color(0xFF6B6880)),
+            Icon(Icons.compare_arrows_rounded, size: 18, color: AppTheme.mutedText),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -151,7 +151,7 @@ class TeacherResultCard extends StatelessWidget {
           Text(
             'Distancia entre lo que el alumno puede y lo que rinde en lectura. '
             'Cuanto más alto, más marcada es la brecha propia de una dificultad específica.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF6B6880), height: 1.4),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText, height: 1.4),
           ),
         ],
       ]),
@@ -186,7 +186,7 @@ class SensorialAlertBanner extends StatelessWidget {
             'diagnóstico: una dificultad sensorial explica por sí sola la '
             'dificultad lectora.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: const Color(0xFF6B6880), height: 1.4),
+                color: AppTheme.mutedText, height: 1.4),
           ),
         ),
       ]),

@@ -46,7 +46,7 @@ class TestTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: EdgeInsets.symmetric(horizontal: context.hPad, vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5)),
         ),
@@ -62,7 +62,7 @@ class TestTile extends StatelessWidget {
             const SizedBox(height: 4),
             DifficultyBadge(difficulty: test.difficulty),
           ])),
-          Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400, size: 20),
+          Icon(Icons.chevron_right_rounded, color: AppTheme.mutedText, size: 20),
         ]),
       ),
     );
@@ -80,7 +80,7 @@ class TestSectionHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10, top: 4),
       child: Row(children: [
-        Expanded(child: Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 1.1, fontWeight: FontWeight.w700, color: const Color(0xFF9E9CAD)))),
+        Expanded(child: Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 1.1, fontWeight: FontWeight.w700, color: AppTheme.mutedText))),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(color: AppTheme.primaryContainer, borderRadius: BorderRadius.circular(20)),
@@ -102,7 +102,7 @@ class TestSearchBar extends StatelessWidget {
       onChanged: onChanged,
       decoration: InputDecoration(
         hintText: 'Buscar por habilidad...',
-        prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFFADA9B9), size: 20),
+        prefixIcon: Icon(Icons.search_rounded, color: AppTheme.mutedText, size: 20),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         fillColor: AppTheme.cardColor,
         filled: true,

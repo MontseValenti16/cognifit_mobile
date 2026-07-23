@@ -22,7 +22,7 @@ class ExerciseProgressBar extends StatelessWidget {
         ]),
         const SizedBox(height: 6),
         Align(alignment: Alignment.centerLeft, child: Padding(padding: const EdgeInsets.only(left: 40),
-          child: Text(moduleTitle, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD), letterSpacing: 0.5)))),
+          child: Text(moduleTitle, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText, letterSpacing: 0.5)))),
       ]),
     );
   }
@@ -171,7 +171,7 @@ class ExerciseCompletedCard extends StatelessWidget {
         Text('¡Sesión completada!', style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: 8),
         Text('El diagnóstico se generó y se guardó en el perfil del alumno.',
-          textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: const Color(0xFF6B6880))),
+          textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.mutedText)),
         const SizedBox(height: 24),
         if (plnSubtype != null) Container(
           width: double.infinity,
@@ -180,11 +180,11 @@ class ExerciseCompletedCard extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Subtipo', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+                Text('Subtipo', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText)),
                 Text(plnSubtype!, style: Theme.of(context).textTheme.titleLarge?.copyWith(color: _riskColor, fontWeight: FontWeight.w700)),
               ]),
               Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                Text('Severidad', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+                Text('Severidad', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText)),
                 Text(plnSeverity ?? '-', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: _riskColor, fontWeight: FontWeight.w700)),
               ]),
             ]),
@@ -283,7 +283,7 @@ class _OptionButton extends StatelessWidget {
           height: 96,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: isSelected ? AppTheme.primary.withValues(alpha: 0.12) : Colors.white,
+            color: isSelected ? AppTheme.primary.withValues(alpha: 0.12) : AppTheme.cardColor,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isSelected ? AppTheme.primary : AppTheme.outline.withValues(alpha: 0.5),

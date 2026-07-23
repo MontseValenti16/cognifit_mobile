@@ -82,11 +82,11 @@ class _EmptyAlerts extends StatelessWidget {
     child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       Icon(Icons.check_circle_outline_rounded, size: 56, color: AppTheme.activeGreen.withValues(alpha: 0.6)),
       const SizedBox(height: 12),
-      Text('Sin alertas nuevas', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+      Text('Sin alertas nuevas', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppTheme.mutedText)),
       const SizedBox(height: 6),
       Text('Los alumnos están progresando sin estancamientos.',
         textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFFADA9B9))),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
     ]),
   ));
 }
@@ -121,7 +121,7 @@ class _AlertTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: unread ? AppTheme.primary.withValues(alpha: 0.04) : Colors.white,
+          color: unread ? AppTheme.primary.withValues(alpha: 0.04) : AppTheme.cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: unread ? AppTheme.primary.withValues(alpha: 0.2) : AppTheme.outline.withValues(alpha: 0.5),
@@ -163,12 +163,12 @@ class _AlertTile extends StatelessWidget {
                 fontWeight: unread ? FontWeight.w600 : FontWeight.w400)),
             const SizedBox(height: 4),
             Text(alert.suggestedAction,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
             const SizedBox(height: 6),
             Text(_formatDate(alert.createdAt),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: const Color(0xFFADA9B9))),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.mutedText)),
           ])),
-          const Icon(Icons.chevron_right_rounded, color: Color(0xFFADA9B9), size: 20),
+          Icon(Icons.chevron_right_rounded, color: AppTheme.mutedText, size: 20),
         ]),
       ),
     );

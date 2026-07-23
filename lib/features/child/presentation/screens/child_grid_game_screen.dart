@@ -109,7 +109,7 @@ class _ChildGridGameScreenState extends State<ChildGridGameScreen> {
                     style: Theme.of(context)
                         .textTheme
                         .bodyLarge
-                        ?.copyWith(color: const Color(0xFF6B6880), fontSize: 14)),
+                        ?.copyWith(color: AppTheme.mutedText, fontSize: 14)),
                 const SizedBox(height: 10),
 
                 // Cuántas lleva marcadas. Sin decir si están bien: eso es la
@@ -130,7 +130,7 @@ class _ChildGridGameScreenState extends State<ChildGridGameScreen> {
                         height: 54,
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppTheme.cardColor,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppTheme.primary, width: 2),
                         ),
@@ -142,7 +142,7 @@ class _ChildGridGameScreenState extends State<ChildGridGameScreen> {
                     Expanded(
                       child: Text('Marca las que se ven igual que esta.',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFF6B6880))),
+                              color: AppTheme.mutedText)),
                     ),
                   ]),
                   const SizedBox(height: 14),
@@ -259,7 +259,7 @@ class _Cuadricula extends StatelessWidget {
         final esObjetivo = juego.objetivos.contains(i);
 
         Color borde = AppTheme.outline.withValues(alpha: 0.5);
-        Color fondo = Colors.white;
+        Color fondo = AppTheme.cardColor;
         double grosor = 1.6;
 
         if (!revisado && marcada) {

@@ -264,7 +264,7 @@ class _DiagnosisCard extends StatelessWidget {
                   'servicio de análisis no respondió. Tómalo como orientación y '
                   'repite el diagnóstico cuando el servicio esté disponible.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: const Color(0xFF6B6880), height: 1.4)),
+                      color: AppTheme.mutedText, height: 1.4)),
               ),
             ]),
           ),
@@ -272,12 +272,12 @@ class _DiagnosisCard extends StatelessWidget {
         const SizedBox(height: 16),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Subtipo', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+            Text('Subtipo', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText)),
             const SizedBox(height: 4),
             Text(risk.plnSubtype, style: Theme.of(context).textTheme.displayMedium?.copyWith(color: _color, fontWeight: FontWeight.w700)),
           ])),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Severidad', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+            Text('Severidad', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText)),
             const SizedBox(height: 4),
             Text(risk.plnSeverity, style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: _color, fontWeight: FontWeight.w700)),
           ]),
@@ -298,7 +298,7 @@ class _DiagnosisCard extends StatelessWidget {
         ],
         if (risk.recommendationReason.isNotEmpty) ...[
           const SizedBox(height: 14),
-          Text(risk.recommendationReason, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF6B6880))),
+          Text(risk.recommendationReason, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
         ],
       ]),
     );
@@ -324,7 +324,7 @@ class _MetricsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
+      decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text('Progreso de ejercicios', style: Theme.of(context).textTheme.titleMedium),
@@ -352,7 +352,7 @@ class _MiniStat extends StatelessWidget {
   Widget build(BuildContext context) => Expanded(child: Column(children: [
     Text(value, style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.w700)),
     const SizedBox(height: 2),
-    Text(label, textAlign: TextAlign.center, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+    Text(label, textAlign: TextAlign.center, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText)),
   ]));
 }
 
@@ -370,7 +370,7 @@ class _PendingModulesSection extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.cardColor,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5)),
           ),
@@ -384,7 +384,7 @@ class _PendingModulesSection extends StatelessWidget {
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(module.moduleName, style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 2),
-              Text(module.moduleCode, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+              Text(module.moduleCode, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText)),
             ])),
             vm.openingAssignmentId == module.assignmentId
               ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primary))
@@ -439,14 +439,14 @@ class TedePercentilCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('TEDE — norma por grado',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: const Color(0xFF9E9CAD), letterSpacing: 1.0, fontWeight: FontWeight.w700)),
+                color: AppTheme.mutedText, letterSpacing: 1.0, fontWeight: FontWeight.w700)),
         const SizedBox(height: 12),
         if (nivelLector != null) _fila(context, 'Nivel lector', nivelLector!),
         if (erroresEspecificos != null) _fila(context, 'Errores específicos', erroresEspecificos!),
@@ -456,7 +456,7 @@ class TedePercentilCard extends StatelessWidget {
             child: Text(
               'El percentil es orientativo: se calculó sobre una parte de la prueba.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: const Color(0xFF9E9CAD), fontStyle: FontStyle.italic)),
+                  color: AppTheme.mutedText, fontStyle: FontStyle.italic)),
           ),
       ]),
     );

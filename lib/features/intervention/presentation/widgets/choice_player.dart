@@ -137,13 +137,13 @@ class _ChoicePlayerState extends State<ChoicePlayer> {
           style: Theme.of(context)
               .textTheme
               .labelLarge
-              ?.copyWith(color: const Color(0xFF9E9CAD))),
+              ?.copyWith(color: AppTheme.mutedText)),
       const SizedBox(height: 16),
 
       Container(
         padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
         ),
@@ -213,7 +213,7 @@ class _OpcionBoton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: color?.withValues(alpha: 0.12) ?? Colors.white,
+            color: color?.withValues(alpha: 0.12) ?? AppTheme.cardColor,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: borde.withValues(alpha: estado == _EstadoOpcion.neutral ? 0.5 : 1),

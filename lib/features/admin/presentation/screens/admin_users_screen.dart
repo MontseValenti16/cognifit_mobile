@@ -123,7 +123,7 @@ class _UserTile extends StatelessWidget {
       opacity: user.isActive ? 1.0 : 0.5,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
         ),
@@ -142,7 +142,7 @@ class _UserTile extends StatelessWidget {
             ],
           ]),
           trailing: IconButton(
-            icon: const Icon(Icons.more_vert_rounded, color: Colors.grey),
+            icon: Icon(Icons.more_vert_rounded, color: AppTheme.mutedText),
             onPressed: () => _showOptions(context),
           ),
         ),
@@ -216,7 +216,7 @@ class _UserOptionsSheet extends StatelessWidget {
       decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(20)),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         const SizedBox(height: 8),
-        Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+        Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.outline, borderRadius: BorderRadius.circular(2))),
         const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -318,7 +318,7 @@ class _ChangeRoleSheetState extends State<_ChangeRoleSheet> {
       decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(20)),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         const SizedBox(height: 8),
-        Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+        Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.outline, borderRadius: BorderRadius.circular(2))),
         const SizedBox(height: 16),
         const Text('Cambiar rol', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
         const SizedBox(height: 8),
@@ -326,7 +326,7 @@ class _ChangeRoleSheetState extends State<_ChangeRoleSheet> {
           title: Text(_labels[role] ?? role),
           trailing: _selected == role
               ? Icon(Icons.check_circle_rounded, color: AppTheme.primary)
-              : const Icon(Icons.circle_outlined, color: Colors.grey),
+              : Icon(Icons.circle_outlined, color: AppTheme.mutedText),
           onTap: () => setState(() => _selected = role),
         )),
         const Divider(),
@@ -392,7 +392,7 @@ class _LinkStudentSheetState extends State<_LinkStudentSheet> {
         decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(20)),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           const SizedBox(height: 8),
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.outline, borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 16),
           const Text('Vincular alumno', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
           Padding(
@@ -416,9 +416,9 @@ class _LinkStudentSheetState extends State<_LinkStudentSheet> {
             ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 280),
               child: _filtered.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24),
-                      child: Text('Sin resultados', style: TextStyle(color: Colors.grey)),
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Text('Sin resultados', style: TextStyle(color: AppTheme.mutedText)),
                     )
                   : ListView.builder(
                       shrinkWrap: true,
@@ -432,7 +432,7 @@ class _LinkStudentSheetState extends State<_LinkStudentSheet> {
                           title: Text(name),
                           trailing: _selectedId == id
                               ? Icon(Icons.check_circle_rounded, color: AppTheme.primary)
-                              : const Icon(Icons.circle_outlined, color: Colors.grey),
+                              : Icon(Icons.circle_outlined, color: AppTheme.mutedText),
                           onTap: () => setState(() => _selectedId = id),
                         );
                       },
@@ -499,7 +499,7 @@ class _CreateUserSheetState extends State<_CreateUserSheet> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)))),
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.outline, borderRadius: BorderRadius.circular(2)))),
             const SizedBox(height: 16),
             const Text('Nuevo usuario', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
             const SizedBox(height: 20),
@@ -518,7 +518,7 @@ class _CreateUserSheetState extends State<_CreateUserSheet> {
               icon: Icons.lock_outline_rounded,
               obscureText: _obscure,
               suffix: IconButton(
-                icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 20, color: Colors.grey),
+                icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 20, color: AppTheme.mutedText),
                 onPressed: () => setState(() => _obscure = !_obscure),
               ),
             ),
@@ -627,7 +627,7 @@ class _EmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.group_off_rounded, size: 64, color: Colors.grey),
+        Icon(Icons.group_off_rounded, size: 64, color: AppTheme.mutedText),
         const SizedBox(height: 16),
         Text(
           includeInactive ? 'No hay usuarios registrados' : 'No hay usuarios activos',

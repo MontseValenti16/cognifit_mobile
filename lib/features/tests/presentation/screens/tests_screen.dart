@@ -78,7 +78,7 @@ class _TestsScreenState extends State<TestsScreen> {
             const SizedBox(width: 4),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(_titleFor(_step), style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w700)),
-              Text(_subtitleFor(_step), style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF6B6880))),
+              Text(_subtitleFor(_step), style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
             ])),
             const ThemeToggleButton(),
           ]),
@@ -140,7 +140,7 @@ class _StudentPickerStep extends StatelessWidget {
                   CircleAvatar(backgroundColor: AppTheme.primaryContainer, child: Text(s.fullName.substring(0,1), style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700))),
                   const SizedBox(width: 14),
                   Expanded(child: Text(s.fullName, style: Theme.of(context).textTheme.titleMedium)),
-                  const Icon(Icons.chevron_right_rounded, color: Color(0xFFADA9B9)),
+                  Icon(Icons.chevron_right_rounded, color: AppTheme.mutedText),
                 ]),
               ),
             );
@@ -223,7 +223,7 @@ class _ResultStep extends StatelessWidget {
         const SizedBox(height: 20),
         if (vm.isSubmitting) Center(child: Padding(padding: const EdgeInsets.all(24), child: CircularProgressIndicator(color: AppTheme.primary)))
         else if (vm.assignmentResult != null) ...[
-          Text('BATERÍA ASIGNADA', style: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 1.1, fontWeight: FontWeight.w700, color: const Color(0xFF9E9CAD))),
+          Text('BATERÍA ASIGNADA', style: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 1.1, fontWeight: FontWeight.w700, color: AppTheme.mutedText)),
           const SizedBox(height: 10),
           ...vm.assignmentResult!.assignments.map((a) => Container(
             margin: const EdgeInsets.only(bottom: 8),

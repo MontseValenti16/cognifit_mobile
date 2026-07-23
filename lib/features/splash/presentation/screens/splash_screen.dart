@@ -98,7 +98,7 @@ class _SplashScreenState extends State<SplashScreen> {
                         Text(
                           'Tecnología y seguimiento para dislexia',
                           style: theme.textTheme.bodyLarge?.copyWith(
-                            color: const Color(0xFF6B6880),
+                            color: AppTheme.mutedText,
                           ),
                           textAlign: TextAlign.center,
                         ),

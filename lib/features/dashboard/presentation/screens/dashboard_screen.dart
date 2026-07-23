@@ -182,7 +182,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _sectionLabel(BuildContext ctx, String text) =>
-    Text(text, style: Theme.of(ctx).textTheme.labelMedium?.copyWith(letterSpacing: 1.2, fontWeight: FontWeight.w700, color: const Color(0xFF9E9CAD)));
+    Text(text, style: Theme.of(ctx).textTheme.labelMedium?.copyWith(letterSpacing: 1.2, fontWeight: FontWeight.w700, color: AppTheme.mutedText));
 }
 
 class _BottomNav extends StatelessWidget {
@@ -193,7 +193,7 @@ class _BottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: AppTheme.outline.withValues(alpha: 0.4))),
+      decoration: BoxDecoration(color: AppTheme.cardColor, border: Border(top: BorderSide(color: AppTheme.outline.withValues(alpha: 0.4))),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, -4))]),
       child: BottomNavigationBar(
         currentIndex: selected, onTap: onTap,
@@ -235,7 +235,7 @@ class _SpecialistBanner extends StatelessWidget {
             style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 2),
           Text('Confirma o corrige los resultados del modelo ML',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
         ])),
         Icon(Icons.chevron_right_rounded, color: AppTheme.primary),
       ]),
@@ -271,7 +271,7 @@ class _AdminBanner extends StatelessWidget {
             style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 2),
           Text('Crear, editar y desactivar cuentas por rol',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
         ])),
         const Icon(Icons.chevron_right_rounded, color: Color(0xFF7C3AED)),
       ]),
@@ -305,7 +305,7 @@ class _BillingBanner extends StatelessWidget {
             style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 2),
           Text('Mejora el plan de tu escuela con tarjeta o efectivo',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
         ])),
         Icon(Icons.chevron_right_rounded, color: AppTheme.tertiary),
       ]),
@@ -339,7 +339,7 @@ class _CalendarioBanner extends StatelessWidget {
             style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 2),
           Text('El calendario de tamizaje de tus alumnos',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
         ])),
         Icon(Icons.chevron_right_rounded, color: AppTheme.primary),
       ]),
@@ -372,7 +372,7 @@ class _AssignmentTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4)),
         ),
@@ -385,7 +385,7 @@ class _AssignmentTile extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(studentName, style: Theme.of(context).textTheme.titleSmall),
-            Text(moduleName, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+            Text(moduleName, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
           ])),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

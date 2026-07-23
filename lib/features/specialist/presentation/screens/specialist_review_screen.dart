@@ -135,7 +135,7 @@ class _DiagnosisCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.outline.withValues(alpha: 0.35)),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8)],
@@ -155,7 +155,7 @@ class _DiagnosisCard extends StatelessWidget {
               Text(d.studentName, style: Theme.of(context).textTheme.titleSmall),
               Text(
                 'Grado ${d.grade ?? "?"} · ${_formatDate(d.diagnosedAt)}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD)),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText),
               ),
             ])),
             Container(
@@ -179,7 +179,7 @@ class _DiagnosisCard extends StatelessWidget {
 
           // Auto-diagnosis chips
           Text('Diagnóstico automático', style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            letterSpacing: 0.8, color: const Color(0xFF9E9CAD), fontWeight: FontWeight.w600,
+            letterSpacing: 0.8, color: AppTheme.mutedText, fontWeight: FontWeight.w600,
           )),
           const SizedBox(height: 8),
           Wrap(spacing: 6, runSpacing: 6, children: [
@@ -194,7 +194,7 @@ class _DiagnosisCard extends StatelessWidget {
           if (d.mainErrorCodes.isNotEmpty) ...[
             const SizedBox(height: 10),
             Text('Errores: ${d.mainErrorCodes.join(", ")}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF6B6880))),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
           ],
 
           if (d.plnSource == 'rule') ...[
@@ -334,8 +334,8 @@ class _CorrectionSheetState extends State<_CorrectionSheet> {
       maxChildSize: 0.92,
       minChildSize: 0.5,
       builder: (_, scrollCtrl) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(children: [
@@ -356,7 +356,7 @@ class _CorrectionSheetState extends State<_CorrectionSheet> {
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 4),
                 Text(widget.diagnosis.studentName,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD))),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
                 const SizedBox(height: 20),
 
                 _DropdownField(
@@ -487,7 +487,7 @@ class _EmptyView extends StatelessWidget {
           totalLabeled > 0
               ? 'Etiquetaste $totalLabeled diagnóstico${totalLabeled > 1 ? "s" : ""} en esta sesión.'
               : 'No hay diagnósticos pendientes de revisión.',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E9CAD)),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText),
           textAlign: TextAlign.center,
         ),
       ]),

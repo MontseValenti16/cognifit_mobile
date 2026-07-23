@@ -213,7 +213,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 6),
           Text(exercise.instruccion,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: const Color(0xFF6B6880))),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.mutedText)),
           const SizedBox(height: 20),
           player,
           const SizedBox(height: 24),
@@ -235,7 +235,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
                 ),
             ]),
             const SizedBox(height: 8),
-            Text(exercise.instruccion, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: const Color(0xFF6B6880))),
+            Text(exercise.instruccion, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.mutedText)),
             if (exercise.items.isNotEmpty) ...[
               const SizedBox(height: 20),
               const Divider(),
@@ -315,7 +315,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
         const SizedBox(height: 20),
         Text(title, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700), textAlign: TextAlign.center),
         const SizedBox(height: 8),
-        Text(body, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: const Color(0xFF6B6880)), textAlign: TextAlign.center),
+        Text(body, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.mutedText), textAlign: TextAlign.center),
         if (action != null) ...[const SizedBox(height: 24), action],
       ]),
     ));

@@ -121,8 +121,8 @@ class _StudentFormModalState extends State<StudentFormModal> {
   Widget build(BuildContext context) {
     final isEdit = widget.existing != null;
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: EdgeInsets.fromLTRB(
@@ -154,7 +154,7 @@ class _StudentFormModalState extends State<StudentFormModal> {
                   isExpanded: true,
                   decoration: InputDecoration(
                     errorText: _groupError,
-                    prefixIcon: const Icon(Icons.group_outlined, size: 20, color: Color(0xFFADA9B9)),
+                    prefixIcon: Icon(Icons.group_outlined, size: 20, color: AppTheme.mutedText),
                   ),
                   items: widget.groups
                       .map((g) => DropdownMenuItem(value: g.id, child: Text(g.displayName)))
@@ -193,7 +193,7 @@ class _StudentFormModalState extends State<StudentFormModal> {
               decoration: InputDecoration(
                 hintText: 'Ej. María Pérez López',
                 errorText: _nameError,
-                prefixIcon: const Icon(Icons.person_outline_rounded, size: 20, color: Color(0xFFADA9B9)),
+                prefixIcon: Icon(Icons.person_outline_rounded, size: 20, color: AppTheme.mutedText),
               ),
             ),
             const SizedBox(height: 18),
@@ -205,8 +205,8 @@ class _StudentFormModalState extends State<StudentFormModal> {
               initialValue: _birthYear,
               isExpanded: true,
               hint: const Text('Selecciona el año'),
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.cake_outlined, size: 20, color: Color(0xFFADA9B9)),
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.cake_outlined, size: 20, color: AppTheme.mutedText),
               ),
               items: _years.map((y) => DropdownMenuItem(value: y, child: Text('$y'))).toList(),
               onChanged: (v) => setState(() => _birthYear = v),
@@ -349,7 +349,7 @@ class _GenderChip extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? AppTheme.primaryContainer : Colors.white,
+            color: selected ? AppTheme.primaryContainer : AppTheme.cardColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: selected ? AppTheme.primary : AppTheme.outline, width: selected ? 2 : 1),
           ),

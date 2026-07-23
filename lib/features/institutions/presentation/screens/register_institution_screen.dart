@@ -156,7 +156,7 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
         obscureText: _obscure,
         suffixWidget: GestureDetector(
           onTap: () => setState(() => _obscure = !_obscure),
-          child: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: const Color(0xFFADA9B9), size: 20),
+          child: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: AppTheme.mutedText, size: 20),
         ),
         // Ocho, no doce: aqui el servidor pide
         // InstitutionRegister.admin_password = Field(..., min_length=8).
@@ -206,7 +206,7 @@ class _SuccessView extends StatelessWidget {
       const SizedBox(height: 12),
       Text(
         'Tu escuela fue registrada y está pendiente de aprobación. Te avisaremos por correo cuando puedas iniciar sesión.',
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF6B6880)),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText),
         textAlign: TextAlign.center,
       ),
       const SizedBox(height: 32),

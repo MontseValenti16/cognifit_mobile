@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../../../core/errors/api_exception.dart';
 import '../../data/datasources/conekta_tokenization_datasource.dart';
 import '../../domain/entities/payment_entity.dart';
 import '../../domain/entities/plan_entity.dart';
@@ -46,6 +47,9 @@ class PaymentViewModel extends ChangeNotifier {
     try {
       plans = await _getPlans();
       plansStatus = PlansStatus.loaded;
+    } on ApiException catch (e) {
+      plansStatus = PlansStatus.error;
+      plansError = e.userMessage;
     } catch (_) {
       plansStatus = PlansStatus.error;
       plansError = 'No se pudieron cargar los planes disponibles.';
@@ -71,6 +75,10 @@ class PaymentViewModel extends ChangeNotifier {
       checkoutStatus = CheckoutStatus.error;
       checkoutError = e.userMessage;
       return false;
+    } on ApiException catch (e) {
+      checkoutStatus = CheckoutStatus.error;
+      checkoutError = e.userMessage;
+      return false;
     } catch (_) {
       checkoutStatus = CheckoutStatus.error;
       checkoutError = 'No se pudo procesar el pago. Intenta de nuevo.';
@@ -90,6 +98,10 @@ class PaymentViewModel extends ChangeNotifier {
       // por webhook cuando el ADMIN paga físicamente en OXXO.
       checkoutStatus = CheckoutStatus.success;
       return true;
+    } on ApiException catch (e) {
+      checkoutStatus = CheckoutStatus.error;
+      checkoutError = e.userMessage;
+      return false;
     } catch (_) {
       checkoutStatus = CheckoutStatus.error;
       checkoutError = 'No se pudo generar la referencia de pago. Intenta de nuevo.';

@@ -155,7 +155,7 @@ class _CardCheckoutScreenState extends State<CardCheckoutScreen> {
         const SizedBox(height: 8),
         Text(
           'Tus datos de tarjeta se envían directo a la pasarela de pago (Conekta) y nunca pasan por los servidores de CogniFit.',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD)),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText),
         ),
         const SizedBox(height: 32),
         ElevatedButton(
@@ -187,7 +187,7 @@ class _SuccessView extends StatelessWidget {
       const SizedBox(height: 12),
       Text(
         'Tu escuela ya tiene el plan ${plan.name} activo.',
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF6B6880)),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText),
         textAlign: TextAlign.center,
       ),
       const SizedBox(height: 32),

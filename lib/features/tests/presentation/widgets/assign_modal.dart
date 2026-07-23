@@ -23,8 +23,8 @@ class AssignTestModal extends StatelessWidget {
     final students = vm.students;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: EdgeInsets.fromLTRB(context.hPad, 12, context.hPad, 32),
@@ -47,11 +47,11 @@ class AssignTestModal extends StatelessWidget {
 
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Expanded(child: Text(test.title, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700))),
-          IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context), color: const Color(0xFF9E9CAD)),
+          IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context), color: AppTheme.mutedText),
         ]),
 
         Text('Selecciona el alumno al que se le aplicará esta evaluación:',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF6B6880))),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
         const SizedBox(height: 16),
 
         // Student list
@@ -116,7 +116,7 @@ class _StudentOption extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryContainer : Colors.white,
+          color: isSelected ? AppTheme.primaryContainer : AppTheme.cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: isSelected ? AppTheme.primary : AppTheme.outline.withValues(alpha: 0.5), width: isSelected ? 2 : 1),
         ),
@@ -125,7 +125,7 @@ class _StudentOption extends StatelessWidget {
           Container(
             width: 40, height: 40,
             decoration: BoxDecoration(
-              color: isSelected ? AppTheme.primary : const Color(0xFFE0D9ED),
+              color: isSelected ? AppTheme.primary : AppTheme.outline,
               shape: BoxShape.circle,
             ),
             child: Center(child: Text(student.initials, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: isSelected ? Colors.white : AppTheme.primary, fontWeight: FontWeight.w700))),

@@ -64,8 +64,10 @@ class TestsViewModel extends ChangeNotifier {
   AssignmentResultEntity? get assignmentResult => _assignmentResult;
   String? get selectedStudentId => _selectedStudentId;
   TestEntity? get selectedTest => _selectedTest;
-
-  bool get questionnaireComplete => answers.length == 8 && _teacherItems.length == 8;
+  
+// En lugar de comparar contra 8 fijo, compara contra lo que llegó
+bool get questionnaireComplete =>
+    _teacherItems.isNotEmpty && answers.length == _teacherItems.length;
 
   void selectStudent(String studentId) {
     _selectedStudentId = studentId;

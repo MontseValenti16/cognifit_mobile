@@ -65,13 +65,13 @@ class _LearningCurveScreenState extends State<LearningCurveScreen> {
                       Text('Evolución de precisión', style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 4),
                       Text('Por número de sesión · % de aciertos',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF9E9CAD))),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
                       const SizedBox(height: 16),
                       if (_vm.curve != null)
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppTheme.cardColor,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5)),
                           ),
@@ -106,7 +106,7 @@ class _MetricsSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5)),
       ),
@@ -136,7 +136,7 @@ class _Stat extends StatelessWidget {
   Widget build(BuildContext context) => Expanded(child: Column(children: [
     Text(value, style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.w700)),
     const SizedBox(height: 2),
-    Text(label, textAlign: TextAlign.center, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: const Color(0xFF9E9CAD))),
+    Text(label, textAlign: TextAlign.center, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.mutedText)),
   ]));
 }
 
