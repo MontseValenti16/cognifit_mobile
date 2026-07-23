@@ -47,8 +47,6 @@ class ScreeningRemoteDataSourceImpl implements ScreeningRemoteDataSource {
 
   @override
   Future<TeacherResultModel> submitTeacherResults(String studentId, List<TeacherAnswer> answers) async {
-    // ⚠️ API requires EXACTLY 8 answers
-    assert(answers.length == 8, 'El cuestionario docente requiere exactamente 8 respuestas');
     final json = await client.post('/screening/teacher-results', data: {
       'student_id': studentId,
       'answers': answers.map((a) => {'item_code': a.itemCode, 'value': a.value}).toList(),

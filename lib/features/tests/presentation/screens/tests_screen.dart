@@ -95,7 +95,7 @@ class _TestsScreenState extends State<TestsScreen> {
   };
   String _subtitleFor(int step) => switch (step) {
     0 => 'Selecciona un alumno para iniciar el tamizaje',
-    1 => 'Responde las 8 preguntas según observación reciente',
+    1 => 'Responde las preguntas según observación reciente',
     _ => 'Puntaje y batería sugerida',
   };
 
