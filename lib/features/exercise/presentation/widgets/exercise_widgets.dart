@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/text_format.dart';
 
 class ExerciseProgressBar extends StatelessWidget {
   final double progress;
@@ -160,12 +161,6 @@ class ExerciseCompletedCard extends StatelessWidget {
     _ => AppTheme.activeGreen,
   };
 
-  /// El backend manda slugs tipo "sin_riesgo" — se muestran como "Sin Riesgo".
-  static String _label(String value) => value
-      .split('_')
-      .where((w) => w.isNotEmpty)
-      .map((w) => w[0].toUpperCase() + w.substring(1))
-      .join(' ');
 
   @override
   Widget build(BuildContext context) {
@@ -188,11 +183,11 @@ class ExerciseCompletedCard extends StatelessWidget {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('Subtipo', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText)),
-                Text(_label(plnSubtype!), style: Theme.of(context).textTheme.titleLarge?.copyWith(color: _riskColor, fontWeight: FontWeight.w700)),
+                Text(slugToLabel(plnSubtype!), style: Theme.of(context).textTheme.titleLarge?.copyWith(color: _riskColor, fontWeight: FontWeight.w700)),
               ]),
               Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                 Text('Severidad', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText)),
-                Text(plnSeverity != null ? _label(plnSeverity!) : '-', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: _riskColor, fontWeight: FontWeight.w700)),
+                Text(plnSeverity != null ? slugToLabel(plnSeverity!) : '-', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: _riskColor, fontWeight: FontWeight.w700)),
               ]),
             ]),
             if (riskProbability != null) ...[

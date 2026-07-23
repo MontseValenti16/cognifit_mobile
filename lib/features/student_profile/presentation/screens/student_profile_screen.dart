@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/utils/text_format.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../../child/presentation/screens/child_home_screen.dart';
 import '../../../intervention/presentation/screens/comprehension_track_screen.dart';
@@ -274,12 +275,12 @@ class _DiagnosisCard extends StatelessWidget {
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Subtipo', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText)),
             const SizedBox(height: 4),
-            Text(risk.plnSubtype, style: Theme.of(context).textTheme.displayMedium?.copyWith(color: _color, fontWeight: FontWeight.w700)),
+            Text(slugToLabel(risk.plnSubtype), style: Theme.of(context).textTheme.displayMedium?.copyWith(color: _color, fontWeight: FontWeight.w700)),
           ])),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Severidad', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText)),
             const SizedBox(height: 4),
-            Text(risk.plnSeverity, style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: _color, fontWeight: FontWeight.w700)),
+            Text(slugToLabel(risk.plnSeverity), style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: _color, fontWeight: FontWeight.w700)),
           ]),
         ]),
         const SizedBox(height: 16),
