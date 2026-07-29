@@ -1,9 +1,7 @@
-/// Normalized exception thrown by the network layer.
-/// UI layers catch this and show [userMessage] directly — never raw Dio errors.
 class ApiException implements Exception {
   final int? statusCode;
   final String userMessage;
-  final String? fieldError; // e.g. "email" for 409/422 — UI highlights this field
+  final String? fieldError;
   final dynamic raw;
 
   const ApiException({
@@ -23,8 +21,6 @@ class ApiException implements Exception {
   @override
   String toString() => userMessage;
 
-  /// Maps backend status codes to friendly Spanish messages,
-  /// per the validation table in API_UI_GUIA.
   factory ApiException.fromStatus(int? code, {String? backendMessage, String? field}) {
     final msg = switch (code) {
       401 => 'Tu sesión expiró. Inicia sesión de nuevo.',

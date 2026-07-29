@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/screening_entity.dart';
 
-/// One question card from the 8-item teacher questionnaire (PRODISLEX based).
 class TeacherQuestionCard extends StatelessWidget {
   final TeacherItemEntity item;
   final int index;
@@ -79,7 +78,6 @@ class TeacherQuestionCard extends StatelessWidget {
   }
 }
 
-/// Progress header for the questionnaire (X of 8 answered)
 class QuestionnaireProgress extends StatelessWidget {
   final int answered;
   final int total;
@@ -101,7 +99,6 @@ class QuestionnaireProgress extends StatelessWidget {
   }
 }
 
-/// Result card shown after teacher-results comes back: score + risk flags
 class TeacherResultCard extends StatelessWidget {
   final TeacherResultEntity result;
   const TeacherResultCard({super.key, required this.result});
@@ -159,10 +156,6 @@ class TeacherResultCard extends StatelessWidget {
   }
 }
 
-/// Se muestra cuando el docente marcó una alteración visual o auditiva sin
-/// corregir. La dislexia se define como dificultad lectora "en ausencia de
-/// alteraciones sensoriales que la justifiquen": si las hay, el resultado no
-/// es un diagnóstico cerrado.
 class SensorialAlertBanner extends StatelessWidget {
   const SensorialAlertBanner({super.key});
 

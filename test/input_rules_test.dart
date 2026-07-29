@@ -1,7 +1,3 @@
-/// La validación del cliente es un espejo de la del servidor, nunca su
-/// reemplazo. Estas pruebas fijan sobre todo que **no sea más estricta**: un
-/// validador que rechaza lo que el servidor aceptaría bloquea a usuarios
-/// legítimos, que es peor que no validar.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cognifit_mobile/core/validation/input_rules.dart';
 
@@ -25,7 +21,6 @@ void main() {
     });
 
     test('no es más estricto que el servidor', () {
-      // email-validator acepta estas formas; una regex corta suele romperlas.
       expect(Validators.correo('nombre_apellido@escuela-primaria.gob.mx'), isNull);
       expect(Validators.correo('x@y.zz'), isNull);
     });
@@ -33,8 +28,6 @@ void main() {
 
   group('contraseña', () {
     test('al iniciar sesión solo se exige que no esté vacía', () {
-      // LoginRequest.password no declara mínimo: una cuenta creada con la
-      // regla de 8 del registro de institución debe poder entrar.
       expect(Validators.passwordAcceso('12345678'), isNull);
       expect(Validators.passwordAcceso('corta'), isNull);
       expect(Validators.passwordAcceso(''), isNotNull);

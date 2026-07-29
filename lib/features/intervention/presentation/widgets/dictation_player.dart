@@ -3,12 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/theme/app_theme.dart';
 
-/// Reproductor de los ejercicios de dictado (`modalidad: teclado_tts`).
-///
-/// El ítem trae solo `{target}`: la app dicta la palabra o la frase y el
-/// alumno la escribe. La comparación ignora mayúsculas y espacios de sobra
-/// pero **no** ignora acentos ni ortografía: el dictado existe justamente
-/// para evaluar eso.
 class DictationPlayer extends StatefulWidget {
   final List<String> targets;
   final void Function(double accuracy, int aciertos, int total) onFinish;
@@ -30,7 +24,6 @@ class _DictationPlayerState extends State<DictationPlayer> {
   @override
   void initState() {
     super.initState();
-    // Se dicta apenas aparece: el alumno no tiene que buscar el botón.
     WidgetsBinding.instance.addPostFrameCallback((_) => _dictar());
   }
 

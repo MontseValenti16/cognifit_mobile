@@ -1,7 +1,3 @@
-/// El catálogo de comprensión llega del API y se parsea acá. Un grado sin
-/// contenido responde 200 con lista vacía: si el parseo lo tratara como error,
-/// la pantalla mostraría "falló la conexión" cuando en realidad solo falta
-/// material para ese grado.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cognifit_mobile/features/intervention/data/models/intervention_model.dart';
 
@@ -49,7 +45,6 @@ void main() {
 
     expect(t.hayContenido, isFalse);
     expect(t.exercises, isEmpty);
-    // La pantalla usa esto para decir para qué grados sí hay material.
     expect(t.gradosConContenido, ['4', '5', '6']);
   });
 

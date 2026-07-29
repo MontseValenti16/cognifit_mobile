@@ -6,9 +6,6 @@ import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../domain/entities/screening_entity.dart';
 import '../viewmodels/calendario_viewmodel.dart';
 
-/// Qué aplicación le toca a cada alumno. El backend ya prioriza la línea base
-/// (BATERIA_INICIAL) primero: sin una evaluación de partida no hay con qué
-/// comparar el avance.
 class CalendarioScreen extends StatelessWidget {
   final List<CalendarioEntryEntity> entradas;
   const CalendarioScreen({super.key, required this.entradas});
@@ -70,10 +67,6 @@ class _Fila extends StatelessWidget {
   }
 }
 
-/// Envoltura para la ruta: el provider es AsyncNotifier autoDispose, así que
-/// `build()` dispara la carga solo con que la pantalla lo observe — no hace
-/// falta un `cargar()` manual en initState. La pantalla pura (CalendarioScreen)
-/// queda testeable sin cablear el viewmodel.
 class CalendarioPage extends ConsumerWidget {
   const CalendarioPage({super.key});
 

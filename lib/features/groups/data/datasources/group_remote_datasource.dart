@@ -8,7 +8,6 @@ abstract class GroupRemoteDataSource {
   Future<void> deleteGroup(String id);
 }
 
-/// Maps to the /groups resource of the API.
 class GroupRemoteDataSourceImpl implements GroupRemoteDataSource {
   final ApiClient client;
   const GroupRemoteDataSourceImpl(this.client);

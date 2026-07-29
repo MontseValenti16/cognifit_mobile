@@ -1,7 +1,3 @@
-/// Los reproductores se alimentan del banco de intervención, que NO es
-/// homogéneo: 13 esquemas de ítem distintos y 13 ejercicios que no traen
-/// ítems sino texto corrido. Estas pruebas usan las formas reales del banco
-/// para que un esquema nuevo no rompa la pantalla en silencio.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cognifit_mobile/features/intervention/presentation/widgets/choice_player.dart';
 
@@ -60,9 +56,7 @@ void main() {
     });
 
     test('devuelve null para lo que no es de opciones (voz, trazo)', () {
-      // Ejercicio de voz: solo trae el target a leer.
       expect(ChoiceQuestion.fromItem({'target': 'mibo'}), isNull);
-      // Trazo sobre canvas.
       expect(
         ChoiceQuestion.fromItem({'letra': 'b', 'descripcion_trazo': 'palito y panza'}),
         isNull,

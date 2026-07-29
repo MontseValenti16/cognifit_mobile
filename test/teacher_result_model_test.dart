@@ -22,7 +22,6 @@ void main() {
       'id': 'x', 'student_id': 's', 'score': 10.0, 'battery_mode': 'QUICK',
       'risk_flags': [], 'enabled_module_codes': [],
     });
-    // None y no 0: "no se preguntó" es distinto de "no hay discrepancia".
     expect(r.indiceDiscrepancia, isNull);
     expect(r.requiereDescartarSensorial, false);
     expect(r.alertasClinicas, isEmpty);

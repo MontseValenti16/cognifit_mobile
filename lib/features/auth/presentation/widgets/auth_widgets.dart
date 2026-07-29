@@ -39,9 +39,6 @@ class CogniFitTextField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final TextEditingController? controller;
 
-  /// Validador del cliente. Espeja las reglas que el servidor ya impone con
-  /// Pydantic — ver `core/validation/input_rules.dart`. No las reemplaza: el
-  /// servidor sigue validando todo, porque quien ataca controla el cliente.
   final String? Function(String?)? validator;
 
   const CogniFitTextField({
@@ -68,9 +65,6 @@ class CogniFitTextField extends StatelessWidget {
         keyboardType: keyboardType,
         onChanged: onChanged,
         validator: validator,
-        // Se revalida mientras el usuario corrige: si el mensaje solo
-        // apareciera al enviar, el alumno o el docente vuelven a tocar el
-        // boton para saber si ya quedo bien.
         autovalidateMode: AutovalidateMode.onUserInteraction,
         decoration: InputDecoration(
           hintText: hint,

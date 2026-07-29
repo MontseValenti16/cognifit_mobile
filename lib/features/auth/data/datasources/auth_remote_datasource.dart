@@ -1,7 +1,6 @@
 import '../../../../core/network/api_client.dart';
 import '../models/user_model.dart';
 
-/// Maps directly to AUTH section of API_UI_GUIA.md / API_UI_EJEMPLOS.md
 abstract class AuthRemoteDataSource {
   Future<SessionModel> login(String email, String password, {String? deviceInfo});
   Future<UserModel> getMe();

@@ -5,24 +5,12 @@ import '../../../../core/validation/input_rules.dart';
 import '../../../groups/domain/entities/group_entity.dart';
 import '../../domain/entities/student_entity.dart';
 
-/// Bottom sheet form used for both "Nuevo alumno" and "Editar alumno".
-///
-/// Las reglas de longitud y rango salen de [InputRules], igual que el resto de
-/// los formularios: antes vivían aquí como literales (180, la lista de años,
-/// el 16 de la etiqueta de grupo), fuera del alcance del guardián
-/// anti-divergencia del backend. Si el servidor cambiaba un `max_length`, esta
-/// pantalla seguía con el número viejo y nada lo detectaba.
-///
-/// On create, the teacher picks a group from a dropdown (no UUID typing). If
-/// they have no groups yet, an inline "create group" form lets them make one
-/// on the spot — the backend auto-provisions the school, so no UUIDs needed.
 class StudentFormModal extends StatefulWidget {
   final StudentEntity? existing;
   final List<GroupEntity> groups;
   final bool isSaving;
   final void Function(String groupId, String fullName, int? birthYear, String? gender) onSubmit;
 
-  /// Creates a group and returns it (or null on failure) so it can be selected.
   final Future<GroupEntity?> Function(CreateGroupParams params) onCreateGroup;
 
   const StudentFormModal({
@@ -46,16 +34,13 @@ class _StudentFormModalState extends State<StudentFormModal> {
   String? _gender;
   String? _groupError;
 
-  // Inline "create group" state.
-  bool _creatingGroup = false;          // form visible
-  bool _savingGroup = false;            // request in flight
+  bool _creatingGroup = false;
+  bool _savingGroup = false;
   int _newGrade = 1;
   final _labelCtrl = TextEditingController();
   final _yearCtrl = TextEditingController(text: '2025-2026');
   String? _labelError;
 
-  /// Se genera del rango declarado en `birth_year = Field(ge=2008, le=2022)`,
-  /// en vez de repetir la lista a mano.
   static final _years = List.generate(
     InputRules.anioNacimientoMax - InputRules.anioNacimientoMin + 1,
     (i) => InputRules.anioNacimientoMin + i,
@@ -68,7 +53,6 @@ class _StudentFormModalState extends State<StudentFormModal> {
     _birthYear = widget.existing?.birthYear;
     _gender    = widget.existing?.gender;
     _selectedGroupId = widget.existing?.groupId ?? widget.groups.firstOrNull?.id;
-    // Brand-new teacher with no groups: open the create-group form by default.
     _creatingGroup = widget.existing == null && widget.groups.isEmpty;
   }
 
@@ -107,8 +91,6 @@ class _StudentFormModalState extends State<StudentFormModal> {
 
   void _submit() {
     final name = _nameCtrl.text.trim();
-    // El nombre lo valida el propio Form con Validators.nombreAlumno; aquí
-    // solo queda el grupo, que no es un campo de texto.
     bool hasError = !(_formKey.currentState?.validate() ?? false);
 
     final isEdit = widget.existing != null;
@@ -152,7 +134,6 @@ class _StudentFormModalState extends State<StudentFormModal> {
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 20),
 
-            // ── Group (create mode only) ─────────────────────────────────────
             if (!isEdit) ...[
               Text('Grupo', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
@@ -193,7 +174,6 @@ class _StudentFormModalState extends State<StudentFormModal> {
               const SizedBox(height: 18),
             ],
 
-            // ── Full name ────────────────────────────────────────────────────
             Text('Nombre completo', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             TextFormField(
@@ -208,7 +188,6 @@ class _StudentFormModalState extends State<StudentFormModal> {
             ),
             const SizedBox(height: 18),
 
-            // ── Birth year ───────────────────────────────────────────────────
             Text('Año de nacimiento', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             DropdownButtonFormField<int>(
@@ -223,7 +202,6 @@ class _StudentFormModalState extends State<StudentFormModal> {
             ),
             const SizedBox(height: 18),
 
-            // ── Gender ───────────────────────────────────────────────────────
             Text('Género', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             Row(children: [
@@ -235,7 +213,6 @@ class _StudentFormModalState extends State<StudentFormModal> {
             ]),
             const SizedBox(height: 28),
 
-            // ── Submit ───────────────────────────────────────────────────────
             ElevatedButton(
               onPressed: widget.isSaving ? null : _submit,
               child: widget.isSaving
@@ -250,7 +227,6 @@ class _StudentFormModalState extends State<StudentFormModal> {
   }
 }
 
-/// Inline mini-form to create a group without leaving the student sheet.
 class _GroupCreateForm extends StatelessWidget {
   final int grade;
   final TextEditingController labelCtrl;

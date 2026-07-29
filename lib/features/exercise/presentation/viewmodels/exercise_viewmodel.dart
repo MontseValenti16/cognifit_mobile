@@ -10,13 +10,6 @@ import '../../../tests/domain/usecases/diagnose_usecase.dart';
 
 enum ExercisePhase { active, submitting, completed }
 
-/// `submitting`/`completed` viven como fase dentro de `data`, no como un
-/// AsyncValue.loading()/data() distinto: la pantalla necesita seguir
-/// mostrando el spinner CON el texto "Generando diagnóstico..." (una UI
-/// propia), y AsyncValue.loading() por sí solo no distingue eso de la carga
-/// inicial de la sesión. AsyncValue.loading() queda reservado para esa carga
-/// inicial; AsyncError cubre tanto el fallo de carga como el de envío —igual
-/// que antes, ambos caían en la misma pantalla de error genérica.
 class ExerciseData {
   final List<SessionItemEntity> items;
   final int currentIndex;
@@ -64,15 +57,11 @@ String exerciseErrorMessage(Object error, {required bool duringSubmit}) {
   return duringSubmit ? 'No se pudo generar el diagnóstico.' : 'No se pudieron cargar los ítems de la sesión.';
 }
 
-/// Drives a single screening session: GET items -> collect answers ->
-/// POST responses -> POST diagnose. Maps to API_UI_GUIA section 4 steps 3-5.
 class ExerciseNotifier extends Notifier<AsyncValue<ExerciseData>> with WidgetsBindingObserver {
   late GetSessionItemsUseCase _getItems;
   late SubmitResponsesUseCase _submitResponses;
   late DiagnoseUseCase _diagnose;
 
-  /// Cuánto sonó el TTS en el ítem actual y cómo reiniciarlo. Reemplazables
-  /// en pruebas para no depender de los canales de plataforma de flutter_tts.
   int Function() _ttsPlaybackMs = () => TtsService.instance.playbackMs;
   void Function() _resetTtsPlayback = () => TtsService.instance.resetPlaybackTimer();
 
@@ -85,13 +74,8 @@ class ExerciseNotifier extends Notifier<AsyncValue<ExerciseData>> with WidgetsBi
   String? _sessionId;
   final List<ItemResponseSubmission> _collected = [];
 
-  /// Stopwatch en vez de DateTime.now(): es monotónico, así que no lo afecta
-  /// un ajuste de hora del sistema, y se puede pausar cuando la app pasa a
-  /// segundo plano.
   final Stopwatch _itemTimer = Stopwatch();
 
-  /// Acumulado del tiempo que el ítem actual pasó con la app en segundo plano.
-  /// Se registra para poder auditarlo, aunque ya está excluido de _itemTimer.
   final Stopwatch _backgroundTimer = Stopwatch();
 
   @override
@@ -105,10 +89,6 @@ class ExerciseNotifier extends Notifier<AsyncValue<ExerciseData>> with WidgetsBi
     return const AsyncValue.data(ExerciseData());
   }
 
-  /// El tiempo de respuesta alimenta la feature con más peso del diagnóstico,
-  /// así que no debe correr mientras la app está en segundo plano: antes, un
-  /// niño que salía de la app volvía con un tiempo enorme que además disparaba
-  /// el timeout de 15s y se registraba como omisión.
   @override
   void didChangeAppLifecycleState(AppLifecycleState appState) {
     final data = state.valueOrNull;
@@ -123,8 +103,6 @@ class ExerciseNotifier extends Notifier<AsyncValue<ExerciseData>> with WidgetsBi
     }
   }
 
-  /// Respuestas acumuladas todavía sin enviar. Expuesto solo para pruebas del
-  /// cálculo de tiempos (ver test/exercise_timing_test.dart).
   @visibleForTesting
   List<ItemResponseSubmission> get debugCollected => List.unmodifiable(_collected);
 
@@ -141,8 +119,6 @@ class ExerciseNotifier extends Notifier<AsyncValue<ExerciseData>> with WidgetsBi
     }
   }
 
-  /// Arranca el cronómetro del ítem desde cero y reinicia el contador de
-  /// reproducción del TTS, para que cada ítem mida solo su propio audio.
   void _startItemTimer() {
     _resetTtsPlayback();
     _backgroundTimer
@@ -153,17 +129,11 @@ class ExerciseNotifier extends Notifier<AsyncValue<ExerciseData>> with WidgetsBi
       ..start();
   }
 
-  /// Records the answer locally; advances automatically.
-  /// [captureModality] e.g. "tactil", "stt", "teclado" — per item.input_modes
   void answer(String rawResponse, {String captureModality = 'tactil', double? sttConfidence}) {
     final data = state.valueOrNull;
     final current = data?.current;
     if (current == null) return;
     final totalMs = _itemTimer.elapsedMilliseconds;
-    // Descontar lo que estuvo sonando la bocina: el apoyo auditivo está para
-    // usarse, y antes su duración se sumaba al tiempo de respuesta, que es la
-    // señal de mayor peso del diagnóstico. Un niño fluido que escuchaba el
-    // audio dos veces terminaba pareciendo lento (subtipo "fluidez").
     final ttsMs = _ttsPlaybackMs();
     final netMs = (totalMs - ttsMs).clamp(0, totalMs);
     final estimulo = current.stimulusText.trim();
@@ -173,10 +143,6 @@ class ExerciseNotifier extends Notifier<AsyncValue<ExerciseData>> with WidgetsBi
       responseTimeMs: netMs,
       captureModality: captureModality,
       sttConfidence: sttConfidence,
-      // Se guarda el desglose para poder auditar de donde salio el tiempo y
-      // para alimentar mejores metricas en un reentrenamiento futuro. La
-      // longitud del estimulo importa: hoy leer "b" y responder "¿Cuantas
-      // silabas tiene mariposa?" se promedian en el mismo numero.
       timingDetail: ResponseTimingDetail(
         totalMs: totalMs + _backgroundTimer.elapsedMilliseconds,
         ttsMs: ttsMs,

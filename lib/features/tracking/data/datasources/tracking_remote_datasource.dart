@@ -9,7 +9,6 @@ abstract class TrackingRemoteDataSource {
   Future<AlertModel> markAlertRead(String alertId);
 }
 
-/// Maps to TRACKING section of API_UI_GUIA.md
 class TrackingRemoteDataSourceImpl implements TrackingRemoteDataSource {
   final ApiClient client;
   const TrackingRemoteDataSourceImpl(this.client);

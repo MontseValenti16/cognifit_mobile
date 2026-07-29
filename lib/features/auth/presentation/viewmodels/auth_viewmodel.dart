@@ -11,10 +11,6 @@ import '../../di/auth_providers.dart';
 import '../../../../core/di/core_providers.dart';
 import '../../../students/di/students_providers.dart';
 
-/// Estado inmutable de auth. `submission` es un [AsyncValue] que representa
-/// únicamente la operación de login/registro/restauración en curso — no la
-/// sesión en sí. `currentUser` vive aparte porque debe sobrevivir a un
-/// `reset()` del formulario (el usuario sigue autenticado tras navegar).
 class AuthState {
   final AsyncValue<void> submission;
   final UserEntity? currentUser;
@@ -109,11 +105,6 @@ class AuthNotifier extends Notifier<AuthState> {
     }
     state = state.copyWith(submission: const AsyncValue.loading());
 
-    // El resultado se guarda en una variable ANTES de asignar el estado.
-    // Escribirlo como `state = state.copyWith(submission: await ...)` parece
-    // equivalente pero no lo es: Dart evalúa el receptor antes que los
-    // argumentos, así que `state` se leería antes del await y la copia
-    // resultante pisaría el `currentUser` que el propio bloque asigna adentro.
     final resultado = await AsyncValue.guard(() async {
       await _login(state.email, state.password, deviceInfo: 'Flutter App');
       final user = await _getMe();
@@ -132,7 +123,6 @@ class AuthNotifier extends Notifier<AuthState> {
     }
     state = state.copyWith(submission: const AsyncValue.loading());
 
-    // Mismo motivo que en login(): el await va fuera de la asignación.
     final resultado = await AsyncValue.guard(() async {
       await _register(state.name, state.email, state.password);
       final user = await _getMe();
@@ -161,9 +151,6 @@ class AuthNotifier extends Notifier<AuthState> {
     state = const AuthState();
   }
 
-  /// Limpia el formulario y el resultado de la última operación tras
-  /// consumirla (p. ej. después de navegar en un login exitoso), sin tocar
-  /// `currentUser` — la sesión sigue activa.
   void reset() {
     state = state.copyWith(submission: const AsyncValue.data(null), name: '', email: '', password: '');
   }

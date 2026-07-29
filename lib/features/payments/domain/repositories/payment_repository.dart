@@ -9,10 +9,6 @@ abstract class PaymentRepository {
   Future<List<PaymentEntity>> listPayments();
 }
 
-/// Frontera aparte de PaymentRepository a propósito: tokenizar habla con la
-/// API de Conekta (api.conekta.io), no con nuestro backend. Mezclarlo en el
-/// mismo repositorio sugeriría que ambos comparten servidor y credenciales,
-/// y no es así — ver ConektaTokenizationDataSource.
 abstract class CardTokenizerRepository {
   Future<String> tokenize(CardInput card);
 }

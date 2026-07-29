@@ -43,11 +43,6 @@ class AppRouter {
   static String childHomeOf(String studentId) => '/child/$studentId';
 }
 
-/// El GoRouter vive detrás de un provider (en vez de `static final` suelto)
-/// para que pueda construirse dentro del árbol de Riverpod — hoy no necesita
-/// leer ningún otro provider, pero así queda listo para agregar redirects
-/// que sí lo hagan (ej. mandar a /login si expira la sesión) sin mover nada
-/// de sitio otra vez.
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRouter.splash,
@@ -103,7 +98,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
-      // Real screening session — backend sessionId, not a static testId
       GoRoute(
         path: '/exercise-session/:sessionId',
         builder: (c, s) {
@@ -115,19 +109,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Revisión clínica para SPECIALIST
       GoRoute(
         path: AppRouter.specialistReview,
         builder: (c, s) => const SpecialistReviewScreen(),
       ),
 
-      // Panel de administración — solo ADMIN
       GoRoute(
         path: AppRouter.adminUsers,
         builder: (c, s) => const AdminUsersScreen(),
       ),
 
-      // Vista de padre: perfil de su hijo en modo lectura
       GoRoute(
         path: AppRouter.parentHome,
         builder: (c, s) {
@@ -139,7 +130,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Modo niño — pantalla gamificada entregada al alumno por el docente
       GoRoute(
         path: '/child/:studentId',
         builder: (c, s) {

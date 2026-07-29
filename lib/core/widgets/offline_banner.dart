@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-/// Thin animated banner shown at the top of screens when there is no network.
-/// Subscribes to connectivity changes itself — just drop it into any Column.
 class OfflineBanner extends StatefulWidget {
   const OfflineBanner({super.key});
 

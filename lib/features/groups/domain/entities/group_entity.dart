@@ -15,7 +15,6 @@ class GroupEntity {
     this.studentCount = 0,
   });
 
-  /// Etiqueta legible para el selector, p.ej. "3° A · 2025-2026".
   String get displayName => '$grade° $groupLabel · $schoolYear';
 }
 

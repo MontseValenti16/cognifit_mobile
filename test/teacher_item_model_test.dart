@@ -12,8 +12,6 @@ void main() {
     expect(hist.categoria, 'HISTORIA_CLINICA');
     expect(hist.ciclos, [1, 2, 3]);
 
-    // Un ítem viejo sin los campos toma los defaults, para no romper si el
-    // backend aún no los envía en algún entorno.
     final viejo = TeacherItemModel.fromJson({
       'item_code': 'q01', 'prompt': 'x', 'weight': 14, 'tags': [],
       'scale': [{'label': 'Nunca', 'value': 0}],

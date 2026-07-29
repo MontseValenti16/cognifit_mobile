@@ -15,10 +15,6 @@ const _unset = Object();
 
 String _messageFor(Object error, String fallback) => error is ApiException ? error.userMessage : fallback;
 
-/// `load` cubre catálogo/cuestionario (spinner de pantalla completa);
-/// `submit` cubre envío de cuestionario + asignación de batería (spinner
-/// local en el botón / paso de resultado). Se mantienen separados porque
-/// la UI reacciona distinto a cada uno.
 class TestsState {
   final AsyncValue<void> load;
   final AsyncValue<void> submit;
@@ -49,7 +45,6 @@ class TestsState {
     return _messageFor(err, 'Ocurrió un error.');
   }
 
-  // En lugar de comparar contra 8 fijo, compara contra lo que llegó
   bool get questionnaireComplete => teacherItems.isNotEmpty && answers.length == teacherItems.length;
 
   Map<String, List<TeacherItemEntity>> get itemsPorCategoria => agruparPorCategoria(teacherItems);
@@ -79,8 +74,6 @@ class TestsState {
   }
 }
 
-/// Orchestrates the real flow documented in API_UI_GUIA section 4:
-/// teacher-items -> teacher-results -> catalog -> assignments -> open first session
 class TestsNotifier extends Notifier<TestsState> {
   late GetTeacherItemsUseCase _getTeacherItems;
   late SubmitTeacherResultsUseCase _submitTeacherResults;
@@ -106,9 +99,6 @@ class TestsNotifier extends Notifier<TestsState> {
     state = state.copyWith(selectedStudentId: studentId, answers: const {}, teacherResult: null, assignmentResult: null);
   }
 
-  /// Elige el alumno y carga el cuestionario de su ciclo. El grado sale del
-  /// grupo del alumno (ver `gradeDesdeGrupo`); si el grupo no está en el mapa,
-  /// `grade` va null y el backend devuelve el cuestionario del primer ciclo.
   Future<void> selectStudentAndLoad(StudentEntity student) async {
     final grade = gradeDesdeGrupo(student.groupId, _gradePorGrupo);
     state = state.copyWith(
@@ -132,8 +122,6 @@ class TestsNotifier extends Notifier<TestsState> {
       final raw = await _getCatalog();
       final seen = <String>{};
       final catalog = raw.where((m) => seen.add(m.moduleCode)).toList();
-      // El grado del alumno se resuelve desde su grupo: el backend no lo manda
-      // con la lista de alumnos. Se carga el mapa una vez, acá.
       final grupos = await _getGroups();
       _gradePorGrupo = {for (final g in grupos) g.id: g.grade};
       return catalog;
@@ -201,9 +189,6 @@ class TestsNotifier extends Notifier<TestsState> {
 
 final testsViewModelProvider = NotifierProvider<TestsNotifier, TestsState>(TestsNotifier.new);
 
-/// Agrupa los ítems del cuestionario por bloque del protocolo, con la historia
-/// clínica primero: son las preguntas que pueden explicar la dificultad por
-/// otra causa, y el docente debería contestarlas antes de valorar síntomas.
 Map<String, List<TeacherItemEntity>> agruparPorCategoria(List<TeacherItemEntity> items) {
   const orden = ['HISTORIA_CLINICA', 'RIESGO', 'DISCREPANCIA'];
   final mapa = <String, List<TeacherItemEntity>>{};
@@ -214,7 +199,4 @@ Map<String, List<TeacherItemEntity>> agruparPorCategoria(List<TeacherItemEntity>
   return mapa;
 }
 
-/// El grado de un alumno sale de su grupo, no del alumno: el backend no lo
-/// envía en la lista de alumnos y `StudentEntity` solo tiene `groupId`.
-/// Devuelve null si el grupo no está en el mapa, para caer al primer ciclo.
 int? gradeDesdeGrupo(String groupId, Map<String, int> gradePorGrupo) => gradePorGrupo[groupId];

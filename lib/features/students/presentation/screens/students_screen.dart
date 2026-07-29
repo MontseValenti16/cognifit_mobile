@@ -18,16 +18,12 @@ class StudentsScreen extends ConsumerStatefulWidget {
 }
 
 class _StudentsScreenState extends ConsumerState<StudentsScreen> {
-  // `ref.read`, no `watch`: se usan en callbacks fuera de build (donde watch
-  // no es válido). build() se suscribe aparte con ref.watch(...) al inicio.
   StudentsState get _state => ref.read(studentsViewModelProvider);
   StudentsNotifier get _notifier => ref.read(studentsViewModelProvider.notifier);
 
   @override
   void initState() {
     super.initState();
-    // Ver nota en dashboard_screen: modificar un provider desde initState
-    // ocurre durante el build y Riverpod lo rechaza.
     Future(() {
       if (!mounted) return;
       _notifier.loadStudents().then((_) {

@@ -30,10 +30,6 @@ class _InterventionScreenState extends ConsumerState<InterventionScreen> {
   @override
   void initState() {
     super.initState();
-    // `read`, no `watch`: es un disparo único al abrir la pantalla. La
-    // reactividad de verdad viene del ref.watch en build().
-    // Ver nota en dashboard_screen: modificar un provider desde initState
-    // ocurre durante el build y Riverpod lo rechaza.
     Future(() {
       if (mounted) ref.read(interventionViewModelProvider.notifier).load(widget.studentId);
     });
@@ -45,17 +41,11 @@ class _InterventionScreenState extends ConsumerState<InterventionScreen> {
     super.dispose();
   }
 
-  /// Elige el reproductor según lo que trae el ejercicio. Devuelve null para
-  /// los que todavía no tienen uno (voz y trazo), que siguen con calificación
-  /// manual en vez de fingir una medición que no se hizo.
   Widget? _reproductor(dynamic exercise) {
     final texto = exercise.texto as String?;
     final hayTexto = texto != null && texto.trim().isNotEmpty;
     final items = (exercise.items as List).cast<Map<String, dynamic>>();
 
-    // Comprensión: es el único caso que trae texto Y preguntas a la vez, así
-    // que se resuelve ANTES que la lectura — si no, caería en ReadingPlayer y
-    // las preguntas no se mostrarían nunca.
     if (hayTexto && items.isNotEmpty) {
       final preguntas =
           items.map(ChoiceQuestion.fromItem).whereType<ChoiceQuestion>().toList();
@@ -71,9 +61,6 @@ class _InterventionScreenState extends ConsumerState<InterventionScreen> {
       }
     }
 
-    // Denominación rápida: rejilla + cronómetro. La medida es el tiempo total
-    // de nombrar las 40 casillas, así que no hace falta reconocimiento de voz
-    // —que era lo que tenía estos tres ejercicios sin jugarse.
     final grid = (exercise.grid as List).cast<String>();
     if (grid.isNotEmpty) {
       final subtipo = exercise.subtipo as String;
@@ -104,7 +91,6 @@ class _InterventionScreenState extends ConsumerState<InterventionScreen> {
       );
     }
 
-    // Dictado: el ítem solo trae {target}; la app lo dicta y el alumno escribe.
     if (exercise.modalidad == 'teclado_tts') {
       final targets = items
           .map((i) => (i['target'] ?? '').toString())
@@ -132,8 +118,6 @@ class _InterventionScreenState extends ConsumerState<InterventionScreen> {
     return null;
   }
 
-  /// "#E53935" → Color. Si el banco trae un valor raro se cae a gris en vez
-  /// de reventar la pantalla por un color mal escrito.
   static Color _colorDeHex(String hex) {
     final limpio = hex.replaceFirst('#', '');
     final v = int.tryParse(limpio, radix: 16);
@@ -208,7 +192,6 @@ class _InterventionScreenState extends ConsumerState<InterventionScreen> {
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: context.hPad, vertical: 20),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        // Route info chip
         if (data.path != null)
           Align(alignment: Alignment.centerLeft, child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -218,10 +201,6 @@ class _InterventionScreenState extends ConsumerState<InterventionScreen> {
           )),
         const SizedBox(height: 20),
 
-        // Si el ejercicio trae contenido jugable, el alumno lo hace acá y la
-        // precisión se mide sola. Antes TODO ejercicio se calificaba a mano
-        // ("¿respondió correctamente?"), aunque el contenido ya llegaba en la
-        // respuesta del API sin que nada lo mostrara.
         if (_reproductor(exercise) case final player?) ...[
           Text(exercise.titulo,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
@@ -233,7 +212,6 @@ class _InterventionScreenState extends ConsumerState<InterventionScreen> {
           const SizedBox(height: 24),
         ] else ...[
 
-        // Exercise card
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(color: AppTheme.cardColor, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppTheme.outline.withValues(alpha: 0.4))),
@@ -268,8 +246,6 @@ class _InterventionScreenState extends ConsumerState<InterventionScreen> {
         ),
         const SizedBox(height: 28),
 
-        // Calificación manual: solo para los ejercicios que todavía no tienen
-        // reproductor (voz, trazo). Ahí el adulto guía y marca el resultado.
         Text('¿El alumno respondió correctamente?',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           textAlign: TextAlign.center),

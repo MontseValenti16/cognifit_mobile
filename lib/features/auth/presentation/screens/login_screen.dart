@@ -20,10 +20,6 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  /// Valida antes de salir a la red. Si algo no cumple, no se gasta la
-  /// peticion: el servidor devolveria un 422 con el mismo veredicto, pero
-  /// despues de un viaje de ida y vuelta que en una escuela con senal
-  /// intermitente puede costar varios segundos o fallar del todo.
   void _enviar() {
     if (_formKey.currentState?.validate() ?? false) ref.read(authViewModelProvider.notifier).login();
   }
@@ -34,8 +30,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final linkedName = vm.linkedStudentName ?? 'Alumno';
 
     if (role == UserRole.student) {
-      // Los alumnos no inician sesión en la app — el docente activa "Modo niño"
-      // en su propio dispositivo durante la evaluación.
       ref.read(authViewModelProvider.notifier).logout();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: const Text('Los alumnos no necesitan iniciar sesión. Pide a tu docente que abra la evaluación.'),
@@ -63,9 +57,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final vm = ref.watch(authViewModelProvider);
 
-    // Reemplaza el addListener/removeListener manual: ref.listen reacciona
-    // a los cambios de estado (navegar al tener éxito, mostrar el error) sin
-    // que la pantalla tenga que suscribirse/desuscribirse a mano.
     ref.listen<AuthState>(authViewModelProvider, (previous, next) {
       final justSucceeded = (previous?.isLoading ?? false) && !next.isLoading && next.currentUser != null;
       if (justSucceeded) {
@@ -105,7 +96,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const SizedBox(height: 32),
               Image.asset(
     'assets/images/foto.png',
-    height: 100, // Ajusta la altura según lo que necesites
+    height: 100,
     fit: BoxFit.contain,
   ),
 
@@ -126,9 +117,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: Icon(vm.obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: AppTheme.mutedText, size: 20),
                 ),
                 onChanged: ref.read(authViewModelProvider.notifier).setPassword,
-                // Solo "no vacia": LoginRequest.password no declara minimo,
-                // y exigir 12 aqui dejaria fuera a las cuentas creadas con
-                // la regla de 8 del registro de institucion.
                 validator: Validators.passwordAcceso,
               ),
               const SizedBox(height: 32),

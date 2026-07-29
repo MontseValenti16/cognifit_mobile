@@ -10,11 +10,6 @@ import '../../domain/usecases/link_parent_usecase.dart';
 
 const _unset = Object();
 
-/// `busy` cubre load()/createUser() (comparten el mismo indicador en el
-/// original); `studentsBusy` cubre loadStudentsForPicker(). Las demás
-/// mutaciones (updateUserRole/deactivateUser/reactivateUser/linkParent) no
-/// tocan ningún indicador de carga — igual que antes, solo actualizan
-/// error/successMessage y la lista.
 class AdminState {
   final AsyncValue<void> busy;
   final AsyncValue<void> studentsBusy;

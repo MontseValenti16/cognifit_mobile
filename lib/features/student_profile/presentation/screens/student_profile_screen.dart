@@ -28,8 +28,6 @@ class _StudentProfileScreenState extends ConsumerState<StudentProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Ver nota en dashboard_screen: modificar un provider desde initState
-    // ocurre durante el build y Riverpod lo rechaza.
     Future(() {
       if (mounted) _notifier.load(widget.studentId);
     });
@@ -184,7 +182,7 @@ class _ProfileBody extends StatelessWidget {
 }
 
 class _StudentHeaderCard extends StatelessWidget {
-  final dynamic student; // StudentEntity (from students feature)
+  final dynamic student;
   const _StudentHeaderCard({required this.student});
 
   @override
@@ -251,9 +249,6 @@ class _DiagnosisCard extends StatelessWidget {
               child: Text('Sin el modelo', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.pendingOrange, fontWeight: FontWeight.w700))),
           ],
         ]),
-        // El aviso decía "Modo local", que no le dice nada a un docente. El
-        // riesgo de este caso es que el resultado se ve igual de normal que
-        // uno bueno, así que conviene explicar qué significa y qué hacer.
         if (risk.plnSource == 'local_fallback') ...[
           const SizedBox(height: 12),
           Container(
@@ -430,10 +425,6 @@ class _ActionBtn extends StatelessWidget {
   ));
 }
 
-/// Percentiles normativos del TEDE, al lado de la severidad del modelo. El
-/// modelo se entrenó con datos sintéticos y no tiene etiquetas de especialista;
-/// el percentil da respaldo normativo. Si coinciden, refuerzan; si difieren,
-/// el desacuerdo es señal de que el modelo conviene revisar.
 class TedePercentilCard extends StatelessWidget {
   final TedePercentil? nivelLector;
   final TedePercentil? erroresEspecificos;

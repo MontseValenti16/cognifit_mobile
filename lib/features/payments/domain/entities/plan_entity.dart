@@ -5,7 +5,7 @@ class PlanEntity {
   final String licenseTier;
   final int priceCents;
   final String currency;
-  final String billingPeriod; // 'monthly' | 'yearly'
+  final String billingPeriod;
   final Map<String, dynamic> features;
 
   const PlanEntity({

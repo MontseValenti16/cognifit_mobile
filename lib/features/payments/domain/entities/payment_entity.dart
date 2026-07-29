@@ -42,9 +42,6 @@ class PaymentEntity {
   });
 }
 
-/// Parámetros de una tarjeta capturados en el formulario. Vive solo en
-/// memoria el tiempo suficiente para tokenizar contra Conekta — nunca se
-/// serializa ni se guarda en storage.
 class CardInput {
   final String number;
   final int expMonth;

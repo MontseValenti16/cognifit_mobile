@@ -1,24 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cognifit_mobile/core/validation/input_rules.dart';
 
-/// Pruebas de la validación de tarjeta bancaria.
-///
-/// El número de tarjeta nunca llega a nuestro backend (viaja del dispositivo
-/// directo a Conekta), así que esta es la única capa de validación que existe
-/// antes de la pasarela: si no se prueba aquí, no se prueba en ningún lado.
 void main() {
   group('Algoritmo de Luhn', () {
     test('acepta los números de prueba oficiales de las marcas', () {
-      // Números de prueba publicados por las pasarelas; son válidos según Luhn
-      // pero no corresponden a ninguna cuenta real.
       const validos = [
-        '4242424242424242', // Visa
-        '4000056655665556', // Visa débito
-        '5555555555554444', // Mastercard
-        '2223003122003222', // Mastercard serie 2
-        '378282246310005', // American Express (15 dígitos)
-        '6011111111111117', // Discover
-        '4917300800000000', // Visa 16
+        '4242424242424242',
+        '4000056655665556',
+        '5555555555554444',
+        '2223003122003222',
+        '378282246310005',
+        '6011111111111117',
+        '4917300800000000',
       ];
       for (final numero in validos) {
         expect(Validators.pasaLuhn(numero), isTrue, reason: '$numero debería pasar Luhn');
@@ -27,14 +20,11 @@ void main() {
     });
 
     test('rechaza un dígito mal tecleado', () {
-      // 4242...4242 con el último dígito cambiado.
       expect(Validators.pasaLuhn('4242424242424243'), isFalse);
       expect(Validators.tarjeta('4242424242424243'), 'El número de tarjeta no es válido');
     });
 
     test('rechaza dos dígitos transpuestos', () {
-      // Transponer 42 -> 24 es el error de captura que Luhn está diseñado
-      // para atrapar.
       expect(Validators.pasaLuhn('4224424242424242'), isFalse);
     });
 
@@ -55,8 +45,8 @@ void main() {
     });
 
     test('rechaza longitudes fuera de la norma ISO/IEC 7812', () {
-      expect(Validators.tarjeta('424242424242'), contains('dígitos')); // 12
-      expect(Validators.tarjeta('42424242424242424242'), contains('dígitos')); // 20
+      expect(Validators.tarjeta('424242424242'), contains('dígitos'));
+      expect(Validators.tarjeta('42424242424242424242'), contains('dígitos'));
     });
   });
 
@@ -77,8 +67,6 @@ void main() {
     });
 
     test('rechaza un mes inexistente', () {
-      // El validador anterior, que solo comprobaba el formato con
-      // RegExp(r'^\d{2}/\d{2}$'), aceptaba este valor.
       expect(Validators.vencimientoTarjeta('99/99', ahora: ahora), 'El mes debe estar entre 01 y 12');
       expect(Validators.vencimientoTarjeta('00/28', ahora: ahora), 'El mes debe estar entre 01 y 12');
     });
@@ -98,7 +86,6 @@ void main() {
 
     test('rechaza longitudes fuera de rango', () {
       expect(Validators.cvc('12'), contains('dígitos'));
-      // El validador anterior (length >= 3) aceptaba esto.
       expect(Validators.cvc('12345'), contains('dígitos'));
     });
 

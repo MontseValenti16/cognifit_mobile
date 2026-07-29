@@ -1,4 +1,3 @@
-/// TRACKING — progreso y alertas (API_UI_GUIA section 6)
 
 class DiagnosticSessionEntity {
   final int sessionNumber;
@@ -55,7 +54,7 @@ class StudentMetricsEntity {
   final double recentAvgAccuracy;
   final double firstAccuracy;
   final double lastAccuracy;
-  final String trend; // improving / regressing / flat / n/a
+  final String trend;
 
   const StudentMetricsEntity({
     required this.diagnosticSessions, required this.exerciseSessions,
@@ -81,10 +80,10 @@ class GroupMetricsEntity {
 class AlertEntity {
   final String id;
   final String studentId;
-  final String alertType; // STAGNATION / LEVEL_UP
+  final String alertType;
   final String message;
   final String suggestedAction;
-  final String urgency; // HIGH / MEDIUM / LOW
+  final String urgency;
   final bool isRead;
   final String createdAt;
   final String? readAt;

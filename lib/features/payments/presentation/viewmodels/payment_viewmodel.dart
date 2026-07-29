@@ -10,11 +10,6 @@ import '../../domain/usecases/get_payment_usecase.dart';
 import '../../domain/usecases/get_plans_usecase.dart';
 import '../../domain/usecases/tokenize_card_usecase.dart';
 
-/// `plansAsync` y `checkoutAsync` son independientes: la lista de planes se
-/// carga una vez al entrar, el checkout es su propio flujo (tokenizar +
-/// procesar, sin distinguir esas dos sub-etapas en la UI — ambas comparten
-/// el mismo spinner "busy"). `checkoutAsync.data` ES el último pago
-/// (null=idle, pago con status pendiente o pagado=éxito).
 class PaymentState {
   final AsyncValue<List<PlanEntity>> plansAsync;
   final AsyncValue<PaymentEntity?> checkoutAsync;
@@ -53,10 +48,6 @@ class PaymentState {
   }
 }
 
-/// Fallos que no vienen de una excepción tipada (tarjeta declinada tras un
-/// checkout que sí respondió, o cualquier error genérico) — cada sitio que
-/// la lanza fija el mensaje correcto para ESE flujo (tarjeta vs. efectivo
-/// traen textos de respaldo distintos).
 class _CheckoutFailure {
   final String message;
   const _CheckoutFailure(this.message);
@@ -115,8 +106,6 @@ class PaymentNotifier extends Notifier<PaymentState> {
   Future<bool> payWithCash({required String planId}) async {
     state = state.copyWith(checkoutAsync: const AsyncValue.loading());
     try {
-      // Efectivo siempre queda 'pending' al responder: la confirmación llega
-      // por webhook cuando el ADMIN paga físicamente en OXXO.
       final payment = await _checkoutWithCash(planId: planId);
       state = state.copyWith(checkoutAsync: AsyncValue.data(payment));
       return true;
@@ -136,8 +125,6 @@ class PaymentNotifier extends Notifier<PaymentState> {
       final payment = await _getPayment(paymentId);
       state = state.copyWith(checkoutAsync: AsyncValue.data(payment));
     } catch (_) {
-      // Silencioso: el polling reintenta solo, un error de red pasajero no
-      // debe tirar un snackbar en cada intento.
     }
   }
 

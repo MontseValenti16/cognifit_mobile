@@ -1,8 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../network/api_config.dart';
 
-/// Wraps SharedPreferences for auth/session persistence.
-/// Manual DI — instantiate once via ServiceLocator and reuse everywhere.
 class TokenStorage {
   SharedPreferences? _prefs;
 

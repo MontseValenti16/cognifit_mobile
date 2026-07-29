@@ -1,7 +1,3 @@
-/// La vía de comprensión es el único caso del banco que trae texto Y preguntas
-/// a la vez. El despacho de reproductores revisaba `texto` primero, así que un
-/// ejercicio de comprensión caía en ReadingPlayer y sus preguntas no se
-/// mostraban nunca. Estas pruebas fijan ese comportamiento.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cognifit_mobile/features/intervention/presentation/widgets/choice_player.dart';
@@ -30,7 +26,6 @@ Future<void> _montar(WidgetTester tester, ComprehensionPlayer player) async {
 
 void main() {
   testWidgets('el texto sigue visible mientras se responde', (tester) async {
-    // Ocultarlo mediría memoria, no comprensión.
     await _montar(tester, ComprehensionPlayer(
       texto: _texto,
       preguntas: _preguntas,
@@ -66,9 +61,9 @@ void main() {
     await tester.tap(find.text('Ya leí, quiero responder'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('No'));            // correcta
+    await tester.tap(find.text('No'));
     await tester.pump(const Duration(milliseconds: 1000));
-    await tester.tap(find.text('Mucha'));         // incorrecta
+    await tester.tap(find.text('Mucha'));
     await tester.pump(const Duration(milliseconds: 1000));
 
     expect(aciertos, 1);
@@ -89,7 +84,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('¿cuántas crees que vas a acertar?'), findsOneWidget);
-    await tester.tap(find.text('2'));  // predice 2
+    await tester.tap(find.text('2'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('No'));
@@ -97,7 +92,6 @@ void main() {
     await tester.tap(find.text('Mucha'));
     await tester.pump(const Duration(milliseconds: 1000));
 
-    // Acertó 1 habiendo predicho 2.
     expect(find.textContaining('Esperabas más'), findsOneWidget);
     expect(find.text('Habías dicho 2'), findsOneWidget);
   });

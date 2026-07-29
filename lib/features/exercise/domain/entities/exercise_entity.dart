@@ -4,7 +4,7 @@ class ExerciseOption {
   final String id;
   final String letter;
   final bool isCorrect;
-  final bool isMirrored; // true = letter shown flipped
+  final bool isMirrored;
   const ExerciseOption({required this.id, required this.letter, required this.isCorrect, this.isMirrored = false});
 }
 
@@ -12,9 +12,9 @@ class ExerciseEntity {
   final String id;
   final String testId;
   final ExerciseType type;
-  final String sectionLabel;   // e.g. "A2 · DISCRIMINACIÓN VISUAL"
-  final String question;       // e.g. "¿Cuál es diferente?"
-  final String instruction;    // e.g. "Mira la dirección de la letra..."
+  final String sectionLabel;
+  final String question;
+  final String instruction;
   final List<ExerciseOption> options;
   final int totalInTest;
   final int currentIndex;

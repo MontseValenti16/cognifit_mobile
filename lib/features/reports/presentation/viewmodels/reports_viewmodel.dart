@@ -14,10 +14,6 @@ enum ReportStage { requesting, generating, downloading }
 
 const _unset = Object();
 
-/// `result` es data(null) en idle, data(path) cuando el PDF ya se guardó, y
-/// AsyncLoading/AsyncError durante la generación. `stage` distingue en cuál
-/// de las tres llamadas al backend va mientras `result` está en loading —
-/// AsyncValue por sí solo no alcanza para el label de progreso de la UI.
 class ReportsState {
   final AsyncValue<String?> result;
   final ReportStage? stage;

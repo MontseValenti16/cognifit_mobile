@@ -56,15 +56,10 @@ class ExerciseDetailModel extends ExerciseDetailEntity {
       nivel: (j['nivel'] as num?)?.toInt() ?? 1,
       items: rawItems.cast<Map<String, dynamic>>(),
       modalidad: (j['modalidad'] ?? '') as String,
-      // El banco guarda el texto de dos maneras: `texto` (uno corrido) y
-      // `textos` (una lista de frases, en la lectura guiada). Leer solo la
-      // primera dejaba TTS_lectura_guiada_N1 sin nada que mostrar, aunque el
-      // servicio sí enviaba sus cinco frases.
       texto: j['texto'] as String? ??
           (j['textos'] is List
               ? (j['textos'] as List).map((e) => e.toString()).join('\n')
               : null),
-      // El banco usa dos nombres para lo mismo según el ejercicio.
       metaPalabrasPorMinuto: (j['meta_palabras_por_minuto'] ?? j['velocidad_palabras_por_minuto']) is num
           ? ((j['meta_palabras_por_minuto'] ?? j['velocidad_palabras_por_minuto']) as num).toInt()
           : null,

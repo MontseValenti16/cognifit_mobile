@@ -9,14 +9,6 @@ import '../../domain/repositories/intervention_repository.dart';
 import '../widgets/choice_player.dart';
 import '../widgets/comprehension_player.dart';
 
-/// Catálogo de comprensión del grado del alumno.
-///
-/// Es la puerta de la **vía universal**: a diferencia de [InterventionScreen],
-/// no parte de un diagnóstico. El tamizaje mide a nivel palabra y no detecta
-/// dificultades de comprensión, así que estos ejercicios se ofrecen a cualquier
-/// alumno del grado, tenga o no perfil de riesgo.
-///
-/// El grado no se envía: lo resuelve el servidor a partir del alumno.
 class ComprehensionTrackScreen extends StatefulWidget {
   final InterventionRepository repository;
   final String studentId;
@@ -75,9 +67,6 @@ class _ComprehensionTrackScreenState extends State<ComprehensionTrackScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snap.hasError) {
-            // Se distingue el motivo en vez de culpar siempre a la conexión.
-            // Decir "revisa tu internet" cuando el servicio está caído manda
-            // al docente a buscar el problema donde no está.
             final e = snap.error;
             final esServicioCaido =
                 e is ApiException && (e.statusCode == 503 || e.statusCode == 502);
@@ -107,8 +96,6 @@ class _ComprehensionTrackScreenState extends State<ComprehensionTrackScreen> {
           }
 
           final track = snap.data!;
-          // Un grado sin material no es un error: se dice tal cual, y se
-          // aclara para qué grados sí hay, para que no parezca una falla.
           if (!track.hayContenido) {
             final otros = track.gradosConContenido.join('º, ');
             return _Aviso(
@@ -138,8 +125,6 @@ class _ComprehensionTrackScreenState extends State<ComprehensionTrackScreen> {
   }
 
   Future<void> _abrir(ComprehensionExerciseEntity resumen) async {
-    // El catálogo trae solo el encabezado; el texto y las preguntas se piden
-    // al abrir para no descargar 21 textos completos de una vez.
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -219,9 +204,6 @@ class _EjercicioScreen extends StatelessWidget {
             autoevaluacion: detalle.autoevaluacion,
             metaPalabrasPorMinuto: detalle.metaPalabrasPorMinuto,
             onFinish: (accuracy, aciertos, total, ppm) {
-              // La vía universal no alimenta la ruta adaptativa: no depende
-              // del diagnóstico, así que no hay ruta que ajustar. El resultado
-              // se le muestra al alumno y ahí termina.
             },
           ),
         ]),

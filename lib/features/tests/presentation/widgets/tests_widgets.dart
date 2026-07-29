@@ -3,7 +3,6 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../domain/entities/test_entity.dart';
 
-// ── Difficulty badge ──────────────────────────────────────────────────────────
 class DifficultyBadge extends StatelessWidget {
   final TestDifficulty difficulty;
   const DifficultyBadge({super.key, required this.difficulty});
@@ -24,7 +23,6 @@ class DifficultyBadge extends StatelessWidget {
   }
 }
 
-// ── Test category icon ────────────────────────────────────────────────────────
 IconData _categoryIcon(TestCategory cat) => switch (cat) {
   TestCategory.screening   => Icons.checklist_rounded,
   TestCategory.phonological => Icons.record_voice_over_rounded,
@@ -32,7 +30,6 @@ IconData _categoryIcon(TestCategory cat) => switch (cat) {
   TestCategory.cognitive   => Icons.psychology_rounded,
 };
 
-// ── Single test tile ──────────────────────────────────────────────────────────
 class TestTile extends StatelessWidget {
   final TestEntity test;
   final VoidCallback onTap;
@@ -69,7 +66,6 @@ class TestTile extends StatelessWidget {
   }
 }
 
-// ── Section header ────────────────────────────────────────────────────────────
 class TestSectionHeader extends StatelessWidget {
   final String label;
   final int count;
@@ -91,7 +87,6 @@ class TestSectionHeader extends StatelessWidget {
   }
 }
 
-// ── Search bar ────────────────────────────────────────────────────────────────
 class TestSearchBar extends StatelessWidget {
   final ValueChanged<String> onChanged;
   const TestSearchBar({super.key, required this.onChanged});

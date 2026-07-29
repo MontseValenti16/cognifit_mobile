@@ -3,18 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/theme/app_theme.dart';
 
-/// Reproductor de los ejercicios del banco que se resuelven eligiendo una
-/// opción. Cubre varios esquemas de ítem distintos porque el banco no es
-/// homogéneo — cada ejercicio guarda sus datos como le conviene:
-///
-///  - `{estimulo, opciones, correcta}`   discriminación visual b/d, p/q
-///  - `{palabra_base, opciones, correcta}` rimas
-///  - `{palabra, distractor_1, distractor_2}` memoria de palabras
-///  - `{par, son_iguales}`               ¿son iguales estas dos palabras?
-///  - `{palabra, silabas}`               contar sílabas (elige el número)
-///
-/// [ChoiceQuestion.fromItem] normaliza todos esos casos a una sola forma, así
-/// que agregar un esquema nuevo no obliga a tocar la interfaz.
 class ChoiceQuestion {
   final String enunciado;
   final List<String> opciones;
@@ -26,13 +14,9 @@ class ChoiceQuestion {
     required this.correcta,
   });
 
-  /// Devuelve null si el ítem no corresponde a un ejercicio de opciones
-  /// (p. ej. los de voz o los de trazo), para que la pantalla no intente
-  /// renderizar algo que no puede.
   static ChoiceQuestion? fromItem(Map<String, dynamic> item) {
     String s(Object? v) => (v ?? '').toString();
 
-    // Opciones explícitas: el caso más directo.
     final opciones = (item['opciones'] as List?)?.map(s).toList();
     if (opciones != null && opciones.isNotEmpty && item['correcta'] != null) {
       return ChoiceQuestion(
@@ -42,7 +26,6 @@ class ChoiceQuestion {
       );
     }
 
-    // Palabra + dos distractores: la correcta es la palabra.
     if (item['palabra'] != null && item['distractor_1'] != null) {
       final palabra = s(item['palabra']);
       return ChoiceQuestion(
@@ -53,7 +36,6 @@ class ChoiceQuestion {
       );
     }
 
-    // Par de palabras: ¿son iguales o distintas?
     if (item['par'] != null && item['son_iguales'] != null) {
       final par = (item['par'] as List?)?.map(s).toList() ?? const [];
       final iguales = item['son_iguales'] == true;
@@ -64,7 +46,6 @@ class ChoiceQuestion {
       );
     }
 
-    // Conteo de sílabas: las opciones son números alrededor del correcto.
     if (item['palabra'] != null && item['silabas'] is num) {
       final n = (item['silabas'] as num).toInt();
       final opciones = {1, 2, 3, 4, n}.toList()..sort();
@@ -83,7 +64,6 @@ class ChoicePlayer extends StatefulWidget {
   final List<ChoiceQuestion> preguntas;
   final bool usaTts;
 
-  /// Precisión 0..1 sobre el total de preguntas.
   final void Function(double accuracy, int aciertos, int total) onFinish;
 
   const ChoicePlayer({
@@ -105,7 +85,7 @@ class _ChoicePlayerState extends State<ChoicePlayer> {
   ChoiceQuestion get _q => widget.preguntas[_indice];
 
   void _elegir(String opcion) {
-    if (_elegida != null) return; // ya respondió: evita doble conteo
+    if (_elegida != null) return;
     final acerto = opcion == _q.correcta;
     if (acerto) _aciertos++;
     setState(() => _elegida = opcion);

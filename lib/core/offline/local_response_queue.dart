@@ -13,8 +13,6 @@ class PendingSubmission {
   const PendingSubmission({required this.id, required this.sessionId, required this.responses});
 }
 
-/// SQLite queue for session responses collected while offline (HU-FL-13).
-/// Entries are drained by [SyncService] once connectivity is restored.
 class LocalResponseQueue {
   LocalResponseQueue._();
   static final LocalResponseQueue instance = LocalResponseQueue._();
@@ -65,8 +63,6 @@ class LocalResponseQueue {
     final db = await _open();
     await db.delete('pending_responses', where: 'id = ?', whereArgs: [id]);
   }
-
-  // ── JSON helpers ─────────────────────────────────────────────────────────────
 
   static Map<String, dynamic> _submissionToJson(ItemResponseSubmission s) => {
     'item_id': s.itemId,

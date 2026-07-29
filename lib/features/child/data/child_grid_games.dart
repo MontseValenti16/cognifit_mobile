@@ -1,15 +1,3 @@
-/// Juegos de cuadrícula para el modo niño.
-///
-/// A diferencia de los ejercicios de una fila —cuatro opciones, se toca una y
-/// se acaba— acá el alumno recorre una cuadrícula de 20 casillas y marca
-/// **todas** las que cumplen la consigna.
-///
-/// El cambio no es solo de tamaño. Elegir entre cuatro opciones puestas una al
-/// lado de la otra permite compararlas; encontrar las mismas letras repartidas
-/// entre distractores obliga a reconocer cada una por sí sola, mientras se
-/// sostiene la búsqueda. Esa carga de rastreo es justamente donde aparecen las
-/// confusiones b/d/p/q que el tamizaje busca, y es la mecánica de sopa de
-/// letras que recomienda el catálogo de actividades del proyecto.
 library;
 
 import 'dart:math';
@@ -17,20 +5,14 @@ import 'dart:math';
 import 'child_exercises.dart';
 import 'cuadernillo_grid_games.dart';
 
-/// Categorías con las que el catálogo agrupa los juegos. Es un valor estable,
-/// distinto del `sectionLabel` de display (que puede repetirse o cambiar).
 enum GridCategory { buscaLetra, silabas, flechas, orientacion, cualEsDiferente }
 
-/// Silueta simple y asimétrica: al espejarla o girarla se nota, que es lo que
-/// hace falta para discriminar orientación (la raíz de la confusión b/d).
 enum FiguraForma { botita, pez, banderin }
 
-/// Una figura y su orientación. Se compara por valor para poder decidir qué
-/// casillas "se ven igual que el modelo" sin listar índices a mano.
 class FigureSpec {
   final FiguraForma forma;
-  final int cuartosDeGiro; // 0..3, giros de 90°
-  final bool espejada; // reflejo horizontal
+  final int cuartosDeGiro;
+  final bool espejada;
   const FigureSpec(this.forma, {this.cuartosDeGiro = 0, this.espejada = false});
 
   @override
@@ -44,11 +26,9 @@ class FigureSpec {
   int get hashCode => Object.hash(forma, cuartosDeGiro, espejada);
 }
 
-/// Una casilla de la cuadrícula: o una letra/sílaba/glifo, o una figura.
 sealed class GridCell {
   const GridCell();
 
-  /// Etiqueta para lectores de pantalla.
   String get semanticLabel;
 }
 
@@ -91,20 +71,14 @@ class GridGame {
   final String question;
   final String instruction;
 
-  /// Las 20 casillas, en el orden en que se muestran.
   final List<GridCell> celdas;
 
-  /// Cuáles hay que tocar. El resto son distractores.
   final Set<int> objetivos;
 
-  /// Qué se explica al terminar, sea que acertó o no.
   final String explanation;
 
-  /// Categoría estable para agrupar en el catálogo.
   final GridCategory categoria;
 
-  /// Figura de referencia para los juegos de orientación ("igual que esta").
-  /// Nula en los juegos de texto.
   final FigureSpec? modelo;
 
   final int columnas;
@@ -127,35 +101,11 @@ class GridGame {
   int get totalObjetivos => objetivos.length;
 }
 
-/// Convierte los ejercicios de "¿cuál es diferente?" a cuadrícula.
-///
-/// Antes eran una fila de cuatro: tres iguales y una distinta. Con cuatro
-/// opciones lado a lado el alumno las compara entre sí, y acertar por azar
-/// tiene una probabilidad de uno en cuatro. En una cuadrícula de veinte tiene
-/// que reconocer cada casilla por separado mientras sostiene la búsqueda, y el
-/// azar baja a uno en veinte.
-///
-/// Conviene notar que no es una búsqueda fácil aunque haya una sola distinta:
-/// las parejas del banco —b/d, p/q, n/u— son imágenes espejo, así que la
-/// distinta **no salta a la vista** y obliga a revisar casilla por casilla.
-/// Con un color entre otro color sí saltaría; con estas letras, no.
-///
-/// La conversión se hace acá y no duplicando el banco: los ejercicios siguen
-/// definidos en un solo lugar.
 List<GridGame> gridGamesDesdeEjercicios(List<ChildExercise> ejercicios) {
-  // Semilla fija: la posición de la distinta no cambia entre sesiones, así el
-  // desempeño de un alumno se puede comparar consigo mismo.
-  //
-  // Se excluye la primera fila. La lectura arranca arriba a la izquierda, así
-  // que una distinta en esas cinco casillas se encuentra sin buscar y el
-  // ejercicio deja de medir rastreo — con la semilla anterior, el primer juego
-  // la ponía justo en la casilla 0.
   final posiciones = List<int>.generate(15, (i) => i + 5)..shuffle(Random(7));
   var n = 0;
 
   return ejercicios.map((e) {
-    // Se recorren en orden barajado y se reparten: dos ejercicios seguidos no
-    // repiten posición, que si no el alumno aprende dónde mirar.
     final pos = posiciones[n++ % posiciones.length];
     final celdas = List<GridCell>.filled(20, TextCell(e.mainOption));
     celdas[pos] = TextCell(e.oddOption);
@@ -173,17 +123,12 @@ List<GridGame> gridGamesDesdeEjercicios(List<ChildExercise> ejercicios) {
   }).toList();
 }
 
-/// Todos los juegos de cuadrícula: los de "toca todas" más los de "toca la
-/// diferente" convertidos del banco original.
 List<GridGame> get kTodosLosGridGames => [
       ...kGridGames,
       ...gridGamesDesdeEjercicios(kChildExercises),
       ...kCuadernilloGridGames,
     ];
 
-/// Construye una cuadrícula marcando como objetivo cada casilla que sea igual
-/// a [objetivo]. Evita listar los índices a mano, que es donde se cuelan los
-/// errores al agregar juegos nuevos.
 GridGame porTextoObjetivo({
   required String id,
   required String sectionLabel,
@@ -212,11 +157,6 @@ GridGame porTextoObjetivo({
   );
 }
 
-/// Ocho cuadrículas de 5x4, ordenadas de menor a mayor dificultad.
-///
-/// Las parejas confundibles van juntas a propósito: b/d y p/q se distinguen
-/// solo por la orientación, que es la confusión más común en dislexia. Las
-/// últimas mezclan las cuatro, que es el caso difícil.
 final List<GridGame> kGridGames = [
   porTextoObjetivo(
     id: 'GRID_b_entre_d',

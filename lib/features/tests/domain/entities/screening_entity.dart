@@ -1,22 +1,14 @@
-/// Domain models for the SCREENING flow (API_UI_GUIA section 4).
-/// Flow: teacher-items → teacher-results → catalog → assignments →
-///       sessions → sessions/items → sessions/responses → sessions/diagnose
 
-// ── Teacher questionnaire (8 fixed questions) ──────────────────────────────────
 class TeacherItemEntity {
   final String itemCode;
   final String prompt;
   final double weight;
   final List<String> tags;
   final String? sourceNote;
-  /// scale e.g. {"Nunca":0, "A veces":0.5, "Frecuente":1}
   final Map<String, double> scale;
 
-  /// Bloque del protocolo: 'RIESGO' (suma al puntaje), 'HISTORIA_CLINICA'
-  /// (descarta causa alternativa, peso 0) o 'DISCREPANCIA' (índice aparte).
   final String categoria;
 
-  /// Ciclos de primaria en los que aplica: 1 (1º-2º), 2 (3º-4º), 3 (5º-6º).
   final List<int> ciclos;
 
   const TeacherItemEntity({
@@ -33,20 +25,19 @@ class TeacherItemEntity {
 
 class TeacherAnswer {
   final String itemCode;
-  final double value; // 0 / 0.5 / 1
+  final double value;
   const TeacherAnswer({required this.itemCode, required this.value});
 }
 
 class RiskFlag {
   final String flag;
-  final String level; // low/medium/high (representative)
+  final String level;
   const RiskFlag({required this.flag, required this.level});
 }
 
 class ClinicalAlert {
   final String itemCode;
   final List<String> tags;
-  /// 'confirmado' (el docente marcó Sí) o 'por_confirmar' (marcó "No lo sé").
   final String certeza;
   const ClinicalAlert({required this.itemCode, required this.tags, required this.certeza});
 }
@@ -54,20 +45,15 @@ class ClinicalAlert {
 class TeacherResultEntity {
   final String id;
   final String studentId;
-  final double score; // 0–100
+  final double score;
   final String batteryMode;
   final List<RiskFlag> riskFlags;
   final List<String> enabledModuleCodes;
 
-  /// Historia clínica marcada: descarta causas alternativas. No suma al score.
   final List<ClinicalAlert> alertasClinicas;
 
-  /// Hay alteración visual o auditiva sin corregir. El diagnóstico no puede
-  /// leerse como cerrado hasta descartarla.
   final bool requiereDescartarSensorial;
 
-  /// Índice 0–100 de la discrepancia entre capacidad y rendimiento. `null`
-  /// cuando el cuestionario del ciclo no incluyó ítems de discrepancia.
   final double? indiceDiscrepancia;
 
   const TeacherResultEntity({
@@ -83,7 +69,6 @@ class TeacherResultEntity {
   });
 }
 
-// ── Catalog of modules (the "battery") ─────────────────────────────────────────
 class ScreeningModuleEntity {
   final int moduleNumber;
   final String moduleCode;
@@ -100,12 +85,11 @@ class ScreeningModuleEntity {
   });
 }
 
-// ── Assignment ──────────────────────────────────────────────────────────────────
 class AssignmentEntity {
   final String id;
   final String studentId;
   final String testId;
-  final String status; // PENDING / IN_PROGRESS / COMPLETED (representative)
+  final String status;
   final String assignedAt;
   final String moduleCode;
 
@@ -125,7 +109,6 @@ class AssignmentResultEntity {
   const AssignmentResultEntity({required this.enabledModuleCodes, required this.assignments});
 }
 
-// ── Pending module (assignment awaiting a session) ─────────────────────────────
 class PendingModuleEntity {
   final String assignmentId;
   final String moduleCode;
@@ -140,12 +123,11 @@ class PendingModuleEntity {
   });
 }
 
-// ── Session ─────────────────────────────────────────────────────────────────────
 class ScreeningSessionEntity {
   final String id;
   final String assignmentId;
   final String moduleId;
-  final String sessionStatus; // IN_PROGRESS / COMPLETED
+  final String sessionStatus;
   final String startedAt;
   final String? deviceId;
   final String? appVersion;
@@ -161,7 +143,6 @@ class ScreeningSessionEntity {
   });
 }
 
-// ── Session items (what the student actually answers) ──────────────────────────
 class SessionItemEntity {
   final String itemId;
   final int itemOrder;
@@ -201,21 +182,15 @@ class SessionItemsResultEntity {
   const SessionItemsResultEntity({required this.sessionId, required this.totalItems, required this.items});
 }
 
-// ── Responses submission ─────────────────────────────────────────────────────────
 class ItemResponseSubmission {
   final String itemId;
   final String rawResponse;
 
-  /// Tiempo NETO de resolución: total medido menos el audio de apoyo y el
-  /// tiempo en segundo plano. Es lo que consume el diagnóstico.
   final int responseTimeMs;
-  final String captureModality; // stt / teclado / tactil
+  final String captureModality;
   final double? sttConfidence;
   final String? responseAudioUrl;
 
-  /// Desglose de dónde salió [responseTimeMs]. Se persiste aparte para poder
-  /// auditar un tiempo lento (¿el niño o el audio?) y para alimentar mejores
-  /// métricas en un reentrenamiento futuro. No lo consume el modelo actual.
   final ResponseTimingDetail? timingDetail;
 
   const ItemResponseSubmission({
@@ -277,13 +252,10 @@ class ResponseResultEntity {
   });
 }
 
-// ── Diagnosis ─────────────────────────────────────────────────────────────────────
 class TedePercentil {
   final int? percentilPorGrado;
   final int? percentilPorEdad;
   final int puntajeEscalaTede;
-  /// El puntaje se llevó a la escala de 100 del baremo desde una
-  /// administración más corta: el percentil es orientativo, no exacto.
   final bool escalado;
   const TedePercentil({
     this.percentilPorGrado,
@@ -307,12 +279,12 @@ class DiagnosisEntity {
   final String id;
   final String studentId;
   final String assignmentId;
-  final String subtype;        // clinical enum (internal)
-  final String plnSubtype;     // spanish label to display
-  final String severity;       // clinical enum (internal)
-  final String plnSeverity;    // spanish label to display
+  final String subtype;
+  final String plnSubtype;
+  final String severity;
+  final String plnSeverity;
   final double riskProbability;
-  final String riskLevel;      // LOW / MEDIUM / HIGH
+  final String riskLevel;
   final List<String> mainErrorCodes;
   final List<String> recommendedRoute;
   final String recommendationReason;
@@ -320,11 +292,8 @@ class DiagnosisEntity {
   final String? modelVersion;
   final String? plnSource;
 
-  /// Percentil normativo del TEDE, subtest Nivel Lector. `null` si la sesión
-  /// no tuvo ítems de lectura o el diagnóstico salió del respaldo local.
   final TedePercentil? tedeNivelLector;
 
-  /// Percentil normativo del TEDE, subtest Errores Específicos.
   final TedePercentil? tedeErroresEspecificos;
 
   const DiagnosisEntity({
@@ -348,14 +317,13 @@ class DiagnosisEntity {
   });
 }
 
-// ── Teacher-level assignment (para el dashboard del docente) ──────────────────
 class TeacherAssignmentEntity {
   final String id;
   final String studentId;
   final String studentName;
   final String moduleCode;
   final String moduleName;
-  final String status; // PENDING / IN_PROGRESS / COMPLETED
+  final String status;
   final String assignedAt;
   final String? completedAt;
 
@@ -374,7 +342,6 @@ class TeacherAssignmentEntity {
   bool get isCompleted => status == 'COMPLETED';
 }
 
-// ── Specialist review (revisión clínica para reentrenamiento ML) ──────────────
 class PendingDiagnosisEntity {
   final String id;
   final String autoSubtype;
@@ -426,12 +393,10 @@ class PendingDiagnosisEntity {
   };
 }
 
-// ── Calendario de tamizaje (qué toca hacer con cada alumno) ───────────────────
 class CalendarioEntryEntity {
   final String studentId;
   final String studentName;
   final int grade;
-  /// 'BATERIA_INICIAL', 'BATERIA', 'MONITOREO' o 'AL_DIA'.
   final String queToca;
   final String? ultMonitoreo;
   final String? ultBateria;

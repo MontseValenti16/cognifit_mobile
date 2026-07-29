@@ -7,7 +7,7 @@ class CogniFitLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Image.asset(
-      'assets/images/imagenCognifit.jpeg', 
+      'assets/images/imagenCognifit.jpeg',
       width: size,
       height: size,
     );

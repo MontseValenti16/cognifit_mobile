@@ -6,31 +6,15 @@ import '../../../../core/services/tts_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import 'choice_player.dart';
 
-/// Reproductor de los ejercicios de comprensión (vía universal por grado).
-///
-/// Un ejercicio de comprensión es un texto seguido de preguntas, así que no
-/// encaja ni en [ReadingPlayer] (que solo mide fluidez) ni en [ChoicePlayer]
-/// (que no tiene dónde poner el texto).
-///
-/// Decisión clínica importante: **el texto sigue disponible mientras se
-/// responde**. Ocultarlo mediría memoria, no comprensión — y en un alumno con
-/// dificultades lectoras esas dos cosas se confunden con facilidad. Volver al
-/// texto a verificar es exactamente la estrategia que el ejercicio quiere
-/// enseñar, no una trampa.
 class ComprehensionPlayer extends StatefulWidget {
   final String texto;
   final List<ChoiceQuestion> preguntas;
   final bool usaTts;
 
-  /// Pide al alumno predecir su desempeño antes de responder y se lo compara
-  /// al final. Es el ejercicio de metacognición del banco.
   final bool autoevaluacion;
 
-  /// Si viene, se cronometra la lectura y se reportan palabras por minuto.
   final int? metaPalabrasPorMinuto;
 
-  /// [accuracy] es la precisión en las preguntas, 0..1. [ppm] es null cuando
-  /// el ejercicio no cronometra.
   final void Function(double accuracy, int aciertos, int total, int? ppm) onFinish;
 
   const ComprehensionPlayer({
@@ -61,8 +45,6 @@ class _ComprehensionPlayerState extends State<ComprehensionPlayer> {
   int _aciertos = 0;
   String? _elegida;
 
-  /// El texto se puede plegar mientras se responde para dejar sitio a las
-  /// opciones, pero nunca desaparece.
   bool _textoExpandido = true;
 
   bool get _cronometra => widget.metaPalabrasPorMinuto != null;
@@ -113,9 +95,6 @@ class _ComprehensionPlayerState extends State<ComprehensionPlayer> {
       if (!mounted) return;
       if (_indice >= widget.preguntas.length - 1) {
         setState(() => _fase = _Fase.resultado);
-        // La precisión que viaja a la ruta adaptativa es la de comprensión,
-        // no las palabras por minuto: leer rápido sin entender no es un buen
-        // desempeño, y reportar ppm como precisión premiaría justamente eso.
         widget.onFinish(
           _aciertos / widget.preguntas.length,
           _aciertos,
@@ -139,7 +118,6 @@ class _ComprehensionPlayerState extends State<ComprehensionPlayer> {
         expandido: _textoExpandido,
         totalPalabras: _totalPalabras,
         usaTts: widget.usaTts,
-        // Durante la lectura no tiene sentido plegarlo.
         onToggle: _fase == _Fase.leyendo
             ? null
             : () => setState(() => _textoExpandido = !_textoExpandido),
@@ -176,8 +154,6 @@ class _ComprehensionPlayerState extends State<ComprehensionPlayer> {
     ]);
   }
 }
-
-// ─── Texto ───────────────────────────────────────────────────────────────────
 
 class _TextoPlegable extends StatelessWidget {
   final String texto;
@@ -257,8 +233,6 @@ class _TextoPlegable extends StatelessWidget {
     );
   }
 }
-
-// ─── Fases ───────────────────────────────────────────────────────────────────
 
 class _BloqueLectura extends StatelessWidget {
   final int? segundos;
@@ -457,8 +431,6 @@ class _BloqueResultado extends StatelessWidget {
     );
   }
 
-  /// El mensaje habla de la calibración, no del acierto: el punto del ejercicio
-  /// es notar si uno se conoce, y quedarse corto también es información útil.
   static String _mensajePrediccion(int predicho, int real) {
     final dif = real - predicho;
     if (dif == 0) return 'Calculaste exacto cómo te iba a ir.';
@@ -467,12 +439,8 @@ class _BloqueResultado extends StatelessWidget {
   }
 }
 
-// ─── Opción ──────────────────────────────────────────────────────────────────
-
 enum _Estado { neutral, correcta, incorrecta }
 
-/// Las opciones de comprensión son frases, no letras sueltas, así que se
-/// presentan en filas anchas y no en los cuadros de [ChoicePlayer].
 class _OpcionLarga extends StatelessWidget {
   final String texto;
   final _Estado estado;

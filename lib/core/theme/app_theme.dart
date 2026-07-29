@@ -58,16 +58,6 @@ const _darkPalette = _Palette(
   pendingOrange: Color(0xFFFFC77D),
 );
 
-/// Colores de la app. Hasta ahora eran `static const Color`, usados
-/// directamente como literales en cada pantalla (no vía `Theme.of(context)`).
-/// Para que el modo oscuro se refleje en TODA la app sin reescribir cada uno
-/// de esos cientos de call sites a `AppTheme.of(context).x`, siguen
-/// llamándose igual (`AppTheme.primary`, `AppTheme.riskRed`, ...) pero ahora
-/// son getters que resuelven según ThemeController.instance.isDark.
-///
-/// Costo de esta decisión: un getter no es una constante de compilación, así
-/// que cualquier `const Widget(color: AppTheme.primary)` que existiera dejó
-/// de compilar como `const` y hubo que quitarle esa palabra clave.
 class AppTheme {
   static _Palette get _p => ThemeController.instance.isDark ? _darkPalette : _lightPalette;
 
@@ -84,9 +74,6 @@ class AppTheme {
   static Color get activeGreen => _p.activeGreen;
   static Color get pendingOrange => _p.pendingOrange;
 
-  /// Superficie de tarjetas/inputs. Antes muchos widgets hardcodeaban
-  /// Colors.white directamente porque no había una constante para esto — un
-  /// blanco fijo sería ilegible en modo oscuro, así que se agrega ahora.
   static Color get cardColor => _p.cardColor;
   static Color get mutedText => _p.mutedText;
 

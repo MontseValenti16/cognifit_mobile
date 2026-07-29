@@ -22,8 +22,6 @@ class _InstitutionsApprovalScreenState extends ConsumerState<InstitutionsApprova
   @override
   void initState() {
     super.initState();
-    // Ver nota en dashboard_screen: modificar un provider desde initState
-    // ocurre durante el build y Riverpod lo rechaza.
     Future(() {
       if (mounted) _notifier.loadPending();
     });
@@ -39,8 +37,6 @@ class _InstitutionsApprovalScreenState extends ConsumerState<InstitutionsApprova
   Widget build(BuildContext context) {
     final state = ref.watch(institutionViewModelProvider);
 
-    // Reemplaza el _rebuild manual: reacciona al error sin que la pantalla
-    // tenga que suscribirse a mano.
     ref.listen<InstitutionState>(institutionViewModelProvider, (previous, next) {
       if (next.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(

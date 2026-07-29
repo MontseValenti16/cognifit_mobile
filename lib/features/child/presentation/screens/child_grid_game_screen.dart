@@ -6,17 +6,9 @@ import '../../data/child_grid_games.dart';
 import '../widgets/child_game_widgets.dart';
 import '../widgets/figura_painter.dart';
 
-/// Juego de búsqueda visual sobre una cuadrícula de 5x4.
-///
-/// El alumno marca **todas** las casillas que cumplen la consigna, en vez de
-/// elegir una entre cuatro. Se corrige al terminar y no casilla por casilla:
-/// avisar en cada toque convertiría el ejercicio en ensayo y error, y lo que
-/// se quiere observar es si reconoce la letra sin ayuda mientras sostiene la
-/// búsqueda.
 class ChildGridGameScreen extends StatefulWidget {
   final String studentName;
 
-  /// Permite inyectar otra lista en las pruebas.
   final List<GridGame> juegos;
 
   ChildGridGameScreen({
@@ -36,11 +28,8 @@ class _ChildGridGameScreenState extends State<ChildGridGameScreen> {
 
   GridGame get _juego => widget.juegos[_indice];
 
-  /// Marcadas que no correspondían.
   Set<int> get _errores => _tocadas.difference(_juego.objetivos);
 
-  /// Objetivos que se dejaron pasar. Se muestran al corregir porque omitir es
-  /// un error distinto de marcar de más, y conviene que el niño lo vea.
   Set<int> get _omitidas => _juego.objetivos.difference(_tocadas);
 
   bool get _perfecto => _errores.isEmpty && _omitidas.isEmpty;
@@ -112,8 +101,6 @@ class _ChildGridGameScreenState extends State<ChildGridGameScreen> {
                         ?.copyWith(color: AppTheme.mutedText, fontSize: 14)),
                 const SizedBox(height: 10),
 
-                // Cuántas lleva marcadas. Sin decir si están bien: eso es la
-                // corrección, y darlo antes volvería el juego ensayo y error.
                 if (!_revisado)
                   Text('Marcadas: ${_tocadas.length}',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -202,8 +189,6 @@ class _ChildGridGameScreenState extends State<ChildGridGameScreen> {
     );
   }
 
-  /// El mensaje distingue marcar de más de dejar pasar: son errores distintos
-  /// y se corrigen de manera distinta.
   String _mensaje() {
     if (_perfecto) return _juego.explanation;
     final partes = <String>[];
@@ -238,8 +223,6 @@ class _Cuadricula extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Solo las celdas de texto influyen en el tamaño de fuente; las figuras se
-    // pintan aparte. Si no hubiera texto, se usa un tamaño por defecto.
     final largos = juego.celdas.whereType<TextCell>().map((c) => c.texto.length);
     final maxLargo = largos.isEmpty ? 1 : largos.reduce((a, b) => a > b ? a : b);
     final fuente = maxLargo <= 1 ? 34.0 : (maxLargo <= 3 ? 22.0 : 16.0);
@@ -276,8 +259,6 @@ class _Cuadricula extends StatelessWidget {
             fondo = AppTheme.riskRed.withValues(alpha: 0.10);
             grosor = 2.6;
           } else if (omitidas.contains(i)) {
-            // Se señala en naranja lo que se dejó pasar: no es lo mismo
-            // equivocarse que no verlo.
             borde = AppTheme.pendingOrange;
             fondo = AppTheme.pendingOrange.withValues(alpha: 0.10);
             grosor = 2.6;

@@ -9,9 +9,6 @@ import '../../../students/presentation/viewmodels/students_viewmodel.dart';
 import '../viewmodels/tests_viewmodel.dart';
 import '../widgets/teacher_questionnaire_widgets.dart';
 
-/// Entry point for SCREENING flow:
-/// 1) Pick a student  2) Answer 8-question questionnaire  3) Submit -> score
-/// 4) Assign battery  5) Open first session -> navigate to ExerciseScreen
 class TestsScreen extends ConsumerStatefulWidget {
   const TestsScreen({super.key});
   @override
@@ -21,13 +18,11 @@ class TestsScreen extends ConsumerStatefulWidget {
 class _TestsScreenState extends ConsumerState<TestsScreen> {
   TestsState get _state => ref.read(testsViewModelProvider);
   TestsNotifier get _notifier => ref.read(testsViewModelProvider.notifier);
-  int _step = 0; // 0 = pick student, 1 = questionnaire, 2 = result
+  int _step = 0;
 
   @override
   void initState() {
     super.initState();
-    // Ver nota en dashboard_screen: modificar un provider desde initState
-    // ocurre durante el build y Riverpod lo rechaza.
     Future(() {
       if (!mounted) return;
       _notifier.reset();

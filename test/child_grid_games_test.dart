@@ -1,6 +1,3 @@
-/// El banco de cuadrículas se escribe a mano y es donde más fácil se cuela un
-/// error: una casilla de menos, un objetivo mal contado, una consigna que pide
-/// una letra que no está. Estas pruebas lo fijan.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cognifit_mobile/features/child/data/child_exercises.dart';
@@ -37,8 +34,6 @@ void main() {
     });
 
     test('los objetivos son todas las casillas iguales entre sí', () {
-      // Si una casilla igual a un objetivo quedara fuera, el niño la marcaría
-      // con razón y se le contaría como error.
       for (final j in kGridGames) {
         final valorObjetivo = j.celdas[j.objetivos.first];
         for (var i = 0; i < j.celdas.length; i++) {
@@ -62,7 +57,6 @@ void main() {
     });
 
     test('los 20 ejercicios originales quedaron convertidos a cuadrícula', () {
-      // Ninguno se puede quedar en la mecánica de fila: se retiró.
       final convertidos = gridGamesDesdeEjercicios(kChildExercises);
       expect(convertidos.length, kChildExercises.length);
       for (final j in convertidos) {
@@ -89,18 +83,15 @@ void main() {
     test('todos los juegos previos son de celdas de texto y tienen categoría', () {
       for (final j in kTodosLosGridGames) {
         if (j.categoria == GridCategory.orientacion) {
-          // Los juegos de orientación tienen FigureCell
           for (final c in j.celdas) {
             expect(c, isA<FigureCell>(), reason: '${j.id} debe tener solo FigureCell');
           }
         } else {
-          // Los juegos anteriores (letra y cuál es diferente) tienen TextCell
           for (final c in j.celdas) {
             expect(c, isA<TextCell>(), reason: '${j.id} tiene una celda no-texto');
           }
         }
       }
-      // Las categorías: letra (banco a mano), "cuál es diferente" y orientación (nuevo).
       final cats = kTodosLosGridGames.map((j) => j.categoria).toSet();
       expect(cats, contains(GridCategory.buscaLetra));
       expect(cats, contains(GridCategory.cualEsDiferente));
@@ -142,7 +133,6 @@ void main() {
       ));
       await tester.tap(find.text('b').first);
       await tester.pump();
-      // Adelantar si acertó volvería el juego ensayo y error.
       expect(find.text('Marcadas: 1'), findsOneWidget);
     });
 
@@ -150,7 +140,6 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: ChildGridGameScreen(studentName: 'Ana', juegos: unJuego),
       ));
-      // Marca una 'd' (error) y deja las dos 'b' sin marcar (omisiones).
       await tester.tap(find.text('d').first);
       await tester.pump();
       await tester.tap(find.text('Revisar'));
@@ -179,8 +168,6 @@ void main() {
   });
 }
 
-/// La posición de la casilla distinta importa: si cae en la primera fila el
-/// alumno la encuentra sin buscar, porque ahí empieza a leer.
 void _pruebasDePosicion() {
   group('posición de la casilla distinta', () {
     test('nunca cae en la primera fila', () {

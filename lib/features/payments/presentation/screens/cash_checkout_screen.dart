@@ -24,8 +24,6 @@ class _CashCheckoutScreenState extends ConsumerState<CashCheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    // Ver nota en dashboard_screen: modificar un provider desde initState
-    // ocurre durante el build y Riverpod lo rechaza.
     Future(() {
       if (mounted) _notifier.resetCheckout();
     });
@@ -37,9 +35,6 @@ class _CashCheckoutScreenState extends ConsumerState<CashCheckoutScreen> {
     super.dispose();
   }
 
-  /// La confirmación de un pago en efectivo llega por webhook cuando el
-  /// ADMIN paga en tienda, no en la respuesta de este checkout — por eso se
-  /// consulta el estado cada 15s mientras esta pantalla siga abierta.
   void _startPolling() {
     final paymentId = ref.read(paymentViewModelProvider).lastPayment?.id;
     if (paymentId == null) return;
@@ -58,8 +53,6 @@ class _CashCheckoutScreenState extends ConsumerState<CashCheckoutScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(paymentViewModelProvider);
 
-    // Reemplaza el _onChanged manual: arranca el polling apenas se genera la
-    // referencia y muestra el error, sin que la pantalla se suscriba a mano.
     ref.listen<PaymentState>(paymentViewModelProvider, (previous, next) {
       if (next.checkoutSuccess && _pollTimer == null) {
         _startPolling();

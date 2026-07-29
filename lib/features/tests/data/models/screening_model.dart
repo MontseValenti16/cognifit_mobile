@@ -19,7 +19,6 @@ class TeacherItemModel extends TeacherItemEntity {
         ?? const [1, 2, 3],
   );
 
-  // API returns scale as [{label, value}] list OR as {label: value} map.
   static Map<String, double> _parseScale(dynamic raw) {
     if (raw is List) {
       return {
@@ -48,7 +47,6 @@ class TeacherResultModel extends TeacherResultEntity {
     studentId: j['student_id'].toString(),
     score: (j['score'] as num).toDouble(),
     batteryMode: j['battery_mode'] as String? ?? 'FULL',
-    // risk_flags from API: {item_code, tags, value} — map to {flag, level}
     riskFlags: (j['risk_flags'] as List? ?? []).map((f) {
       final m = f as Map;
       final code = m['flag'] ?? m['item_code'] ?? '';
@@ -79,7 +77,6 @@ class ScreeningModuleModel extends ScreeningModuleEntity {
   factory ScreeningModuleModel.fromJson(Map<String, dynamic> j) => ScreeningModuleModel(
     moduleNumber: j['module_number'] as int? ?? 0,
     moduleCode: j['module_code'] as String,
-    // v_battery_catalog returns 'title'; some seeds use 'name' — try both
     name: (j['name'] ?? j['title'] ?? j['module_code']) as String,
     usaTts: j['usa_tts'] as bool? ?? j['use_tts'] as bool? ?? false,
     usaStt: j['usa_stt'] as bool? ?? j['use_stt'] as bool? ?? false,

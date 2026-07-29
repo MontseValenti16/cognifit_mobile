@@ -8,7 +8,6 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   @override
   Future<DashboardEntity> getDashboard() async {
     await Future.delayed(const Duration(milliseconds: 600));
-    // TODO: GET /dashboard
     return const DashboardEntity(
       totalStudents: 24,
       atRisk: 3,

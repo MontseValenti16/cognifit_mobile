@@ -12,14 +12,6 @@ import '../../../tracking/di/tracking_providers.dart';
 import '../../../tracking/domain/entities/tracking_entity.dart';
 import '../../../tracking/domain/usecases/get_student_metrics_usecase.dart';
 
-/// Composes backend resources into one screen:
-/// GET /students/{id} + GET /screening/students/{id}/latest-risk
-/// + GET /tracking/students/{id}/metrics
-/// + GET /screening/students/{id}/assignments
-///
-/// Solo la carga del alumno puede tumbar todo a AsyncError: sin alumno no
-/// hay nada que mostrar. Riesgo/métricas/módulos pendientes degradan solo
-/// (quedan null/vacíos) igual que ya hacían metrics/assignments antes.
 class StudentProfileData {
   final StudentEntity student;
   final DiagnosisEntity? latestRisk;
@@ -92,8 +84,6 @@ class StudentProfileNotifier extends Notifier<AsyncValue<StudentProfileData>> {
     });
   }
 
-  /// Opens (or resumes) a session for the given assignment and returns
-  /// the session id + module name so the caller can navigate to ExerciseScreen.
   Future<({String sessionId, String moduleTitle})?> openModule(PendingModuleEntity module) async {
     final current = state.valueOrNull;
     if (current == null) return null;

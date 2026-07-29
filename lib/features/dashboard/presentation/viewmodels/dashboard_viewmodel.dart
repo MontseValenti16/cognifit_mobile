@@ -25,10 +25,6 @@ class GroupRiskSummary {
   });
 }
 
-/// Todo el estado ES el resultado agregado de GET /students + GET
-/// /tracking/alerts + GET /groups + métricas por grupo + GET
-/// /screening/assignments — por eso el AsyncValue envuelve directamente
-/// este objeto en vez de un ViewModel con un flag de loading aparte.
 class DashboardData {
   final List<StudentEntity> students;
   final List<AlertEntity> alerts;
@@ -47,12 +43,6 @@ class DashboardData {
   List<StudentEntity> get recentStudents => students.take(5).toList();
   int get totalStudents => students.length;
 
-  /// Antes contaba alertas HIGH sin leer, no el riesgo real: un alumno con
-  /// diagnóstico de riesgo alto pero sin alerta generada (o con la alerta ya
-  /// leída) no se sumaba aquí, aunque las tarjetas de "Grupos" sí lo
-  /// mostraran correctamente — mismo dato, dos números distintos en la
-  /// misma pantalla. Ahora suma el mismo highRisk por grupo que ya se ve
-  /// abajo, así los dos coinciden siempre.
   int get atRiskCount => groupSummaries.fold(0, (sum, g) => sum + g.highRisk);
   int get mediumRiskCount => groupSummaries.fold(0, (sum, g) => sum + g.mediumRisk);
   int get lowRiskCount => groupSummaries.fold(0, (sum, g) => sum + g.lowRisk);
@@ -61,9 +51,6 @@ class DashboardData {
   List<AlertEntity> get unreadAlerts => alerts.where((a) => !a.isRead).toList();
   AlertEntity? get topAlert => unreadAlerts.isEmpty ? null : unreadAlerts.first;
 
-  /// Sigue basado en alertas: es para el badge de la lista de "Alumnos", que
-  /// no tiene acceso al riesgo por alumno (getGroupMetrics solo trae el
-  /// conteo agregado del grupo, no qué alumno específico es cada uno).
   bool isStudentAtRisk(String studentId) => _atRiskStudentIds.contains(studentId);
 
   DashboardData copyWith({
@@ -100,9 +87,6 @@ class DashboardNotifier extends Notifier<AsyncValue<DashboardData>> {
     return const AsyncValue.loading();
   }
 
-  /// Cada sub-carga falla en silencio y conserva el valor anterior: un
-  /// endpoint caído no debe tumbar todo el dashboard, solo esa sección se
-  /// queda con datos viejos hasta el próximo refresh.
   Future<void> loadDashboard() async {
     state = const AsyncValue.loading();
     final prev = state.valueOrNull ?? const DashboardData();

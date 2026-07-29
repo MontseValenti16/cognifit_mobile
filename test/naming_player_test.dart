@@ -1,14 +1,8 @@
-/// La denominación rápida (RAN) estuvo sin jugarse porque su contenido
-/// apuntaba a un banco inexistente y porque se asumía que necesitaba
-/// reconocimiento de voz. La medida real es el tiempo total de nombrar la
-/// rejilla, que la app sí puede cronometrar.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cognifit_mobile/features/intervention/presentation/widgets/naming_player.dart';
 import 'package:cognifit_mobile/features/intervention/data/models/intervention_model.dart';
 
-/// Reloj de prueba: informa un tiempo fijo, ya que `pump()` no mueve el reloj
-/// del sistema que usa un Stopwatch real.
 class _RelojFijo implements Stopwatch {
   @override
   final int elapsedMilliseconds;
@@ -55,14 +49,10 @@ void main() {
     await tester.pump();
 
     expect(segundos, 12, reason: '12.4 s se redondea a 12');
-    // Sin norma de referencia se reporta el punto medio: inventar un umbral
-    // decidiría si un alumno sube de nivel sin base para ello.
     expect(accuracy, 0.5);
   });
 
   test('el modelo lee `textos` en plural, no solo `texto`', () {
-    // TTS_lectura_guiada_N1 guarda sus frases en `textos`; leer solo `texto`
-    // dejaba el ejercicio vacío aunque el servicio sí las enviaba.
     final d = ExerciseDetailModel.fromJson({
       'exercise_id': 'TTS_lectura_guiada_N1',
       'tipo': 'lectura',

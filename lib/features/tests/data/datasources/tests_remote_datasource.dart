@@ -66,7 +66,6 @@ class TestsRemoteDataSourceImpl implements TestsRemoteDataSource {
   @override
   Future<List<TestEntity>> getTests({String? query}) async {
     await Future.delayed(const Duration(milliseconds: 400));
-    // TODO: GET /tests?q=query
     if (query == null || query.isEmpty) return _allTests;
     return _allTests
         .where((t) => t.title.toLowerCase().contains(query.toLowerCase()))
@@ -78,13 +77,11 @@ class TestsRemoteDataSourceImpl implements TestsRemoteDataSource {
     String testId,
   ) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    // TODO: GET /tests/:id/assignable-students
     return _students;
   }
 
   @override
   Future<void> assignTest(AssignTestParams params) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    // TODO: POST /tests/assign
   }
 }

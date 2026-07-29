@@ -13,7 +13,6 @@ abstract class StudentRemoteDataSource {
   Future<LinkedStudentResult?> getLinkedStudent();
 }
 
-/// Maps to ESTUDIANTES section of API_UI_GUIA.md
 class StudentRemoteDataSourceImpl implements StudentRemoteDataSource {
   final ApiClient client;
   const StudentRemoteDataSourceImpl(this.client);

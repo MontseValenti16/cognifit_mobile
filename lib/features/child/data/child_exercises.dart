@@ -33,7 +33,6 @@ class ChildExercise {
 }
 
 const List<ChildExercise> kChildExercises = [
-  // A1 — b / d  (confusión más frecuente en dislexia)
   ChildExercise(
     id: 'VD_01', sectionLabel: 'A1 · DISCRIMINACIÓN VISUAL',
     question: '¿Cuál es diferente?',
@@ -50,7 +49,6 @@ const List<ChildExercise> kChildExercises = [
     explanation: '"b" tiene la barriga al otro lado que "d".',
     type: ChildExerciseType.letter, difficulty: 1,
   ),
-  // A2 — p / q
   ChildExercise(
     id: 'VD_03', sectionLabel: 'A2 · DISCRIMINACIÓN VISUAL',
     question: '¿Cuál es diferente?',
@@ -67,7 +65,6 @@ const List<ChildExercise> kChildExercises = [
     explanation: '"p" tiene la cola al lado contrario de "q".',
     type: ChildExerciseType.letter, difficulty: 1,
   ),
-  // A3 — n / u
   ChildExercise(
     id: 'VD_05', sectionLabel: 'A3 · DISCRIMINACIÓN VISUAL',
     question: '¿Cuál es diferente?',
@@ -84,7 +81,6 @@ const List<ChildExercise> kChildExercises = [
     explanation: '"n" es "u" girada boca arriba.',
     type: ChildExerciseType.letter, difficulty: 1,
   ),
-  // A4 — b / p
   ChildExercise(
     id: 'VD_07', sectionLabel: 'A4 · DISCRIMINACIÓN VISUAL',
     question: '¿Cuál es diferente?',
@@ -101,7 +97,6 @@ const List<ChildExercise> kChildExercises = [
     explanation: '"b" tiene la barriga hacia arriba.',
     type: ChildExerciseType.letter, difficulty: 2,
   ),
-  // A5 — d / q
   ChildExercise(
     id: 'VD_09', sectionLabel: 'A5 · DISCRIMINACIÓN VISUAL',
     question: '¿Cuál es diferente?',
@@ -110,7 +105,6 @@ const List<ChildExercise> kChildExercises = [
     explanation: '"q" tiene la cola hacia abajo, "d" la tiene hacia arriba.',
     type: ChildExerciseType.letter, difficulty: 2,
   ),
-  // A6 — m / n
   ChildExercise(
     id: 'VD_10', sectionLabel: 'A6 · DISCRIMINACIÓN VISUAL',
     question: '¿Cuál es diferente?',
@@ -119,7 +113,6 @@ const List<ChildExercise> kChildExercises = [
     explanation: '"n" tiene solo dos patas, "m" tiene tres.',
     type: ChildExerciseType.letter, difficulty: 2,
   ),
-  // B — Sílabas
   ChildExercise(
     id: 'VD_11', sectionLabel: 'B1 · SÍLABAS',
     question: '¿Cuál sílaba es diferente?',
@@ -152,7 +145,6 @@ const List<ChildExercise> kChildExercises = [
     explanation: '"bo" empieza con "b", no con "p".',
     type: ChildExerciseType.syllable, difficulty: 2,
   ),
-  // C — Palabras invertidas (inversiones especulares)
   ChildExercise(
     id: 'VD_15', sectionLabel: 'C1 · PALABRAS',
     question: '¿Cuál palabra está al revés?',
@@ -185,7 +177,6 @@ const List<ChildExercise> kChildExercises = [
     explanation: '"se" es "es" escrito al revés.',
     type: ChildExerciseType.word, difficulty: 3,
   ),
-  // D — Direcciones (flechas — del cuadernillo pág. 8)
   ChildExercise(
     id: 'VD_19', sectionLabel: 'D1 · DIRECCIONES',
     question: '¿Cuál flecha apunta diferente?',
@@ -204,8 +195,6 @@ const List<ChildExercise> kChildExercises = [
   ),
 ];
 
-/// Devuelve [count] ejercicios aleatorios usando [seed] como semilla — determinista
-/// dentro de una sesión, diferente entre sesiones.
 List<ChildExercise> pickExercises({int count = 10, required int seed}) {
   final shuffled = List<ChildExercise>.from(kChildExercises)..shuffle(Random(seed));
   return shuffled.take(count).toList();

@@ -23,8 +23,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     _checkSession();
   }
 
-  /// `ref.read`, no `watch`: es una comprobación de una sola vez al abrir la
-  /// app, no algo a lo que esta pantalla deba reaccionar en cada rebuild.
   Future<void> _checkSession() async {
     final notifier = ref.read(authViewModelProvider.notifier);
     final restored = await notifier.tryRestoreSession();
@@ -84,7 +82,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // ── Parte superior: logo + título + ilustración ──
                     Column(
                       children: [
                         const SizedBox(height: 24),
@@ -109,7 +106,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                       ],
                     ),
 
-                    // ── Parte inferior: botón ──
                     Padding(
                       padding: const EdgeInsets.only(bottom: 32),
                       child: ElevatedButton(
@@ -143,7 +139,6 @@ class _BrainLogo extends StatelessWidget {
 class _SplashIllustration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Toma el 40% de la altura de la pantalla para que siempre quepa
     final height = MediaQuery.of(context).size.height * 0.40;
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),

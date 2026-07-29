@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 
-/// Barra de progreso estilo niño: colorida, con estrella y contador.
 class ChildProgressBar extends StatelessWidget {
   final int current;
   final int total;
@@ -46,9 +45,6 @@ class ChildProgressBar extends StatelessWidget {
   }
 }
 
-/// Cuatro tarjetas de opción grande para el niño — el niño toca la diferente.
-
-/// Banner de retroalimentación inmediata — en verde o rojo.
 class ChildFeedbackBanner extends StatelessWidget {
   final bool isCorrect;
   final String studentName;
@@ -94,7 +90,6 @@ class ChildFeedbackBanner extends StatelessWidget {
   }
 }
 
-/// Pantalla de final del juego — muestra estrellas según el puntaje.
 class ChildGameCompleted extends StatelessWidget {
   final String studentName;
   final int correct;
@@ -147,5 +142,3 @@ class ChildGameCompleted extends StatelessWidget {
     ));
   }
 }
-
-/// Badge de logro para el panel de inicio del niño.

@@ -9,13 +9,8 @@ abstract class InterventionRemoteDataSource {
     required List<Map<String, dynamic>> sessionHistory,
   });
 
-  /// Ejercicios de comprensión del grado del alumno. No lleva parámetro de
-  /// grado: lo resuelve el servidor a partir del alumno.
   Future<ComprehensionTrackModel> getComprehensionTrack(String studentId);
 
-  /// Detalle completo de un ejercicio (texto e ítems). En la vía diagnóstica
-  /// el detalle viene incrustado en `next-exercise`; la vía de comprensión lo
-  /// pide por separado, al abrir cada ejercicio.
   Future<ExerciseDetailModel> getExerciseDetail(String exerciseId);
 }
 

@@ -1,7 +1,3 @@
-/// El tiempo de respuesta es la señal con más peso del diagnóstico
-/// (avg_time_norm es la feature #1 de las 28 del modelo). Estas pruebas fijan
-/// que ese número mida lo que dice medir: el tiempo que el niño tardó en
-/// resolver, y no el audio de apoyo que escuchó mientras tanto.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -46,9 +42,6 @@ class _FakeRepo implements ScreeningRepository {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  /// Construye un ProviderContainer con el repo falso inyectado y el
-  /// notifier ya expuesto — el reemplazo Riverpod de instanciar el
-  /// ChangeNotifier directamente con un constructor a mano.
   ({ProviderContainer container, ExerciseNotifier notifier}) build(_FakeRepo repo, {required int ttsMs}) {
     final container = ProviderContainer(overrides: [
       screeningRepositoryProvider.overrideWithValue(repo),
@@ -64,8 +57,6 @@ void main() {
     final vm = build(repo, ttsMs: 4000).notifier;
     await vm.loadSession('s1');
 
-    // El niño escucha 4s de audio y responde; su tiempo real de resolución
-    // debe excluir esa reproducción.
     await Future<void>.delayed(const Duration(milliseconds: 60));
     vm.answer('casa');
 

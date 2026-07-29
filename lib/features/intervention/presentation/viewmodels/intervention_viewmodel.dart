@@ -8,9 +8,6 @@ import '../../domain/usecases/next_exercise_usecase.dart';
 
 enum InterventionPhase { active, complete, noPath }
 
-/// `noPath` (404: sin ruta asignada) y `complete` (ruta terminada) son
-/// estados de éxito, no de error — por eso viven como discriminador dentro
-/// del `data` del AsyncValue en vez de como AsyncError.
 class InterventionData {
   final InterventionPhase phase;
   final ActivePathEntity? path;
@@ -48,9 +45,6 @@ class InterventionNotifier extends AutoDisposeNotifier<AsyncValue<InterventionDa
     }
   }
 
-  /// Comparte el mismo spinner de pantalla completa que `load`: la UI nunca
-  /// distinguió entre "cargando por primera vez" y "cargando el siguiente
-  /// ejercicio", así que un solo AsyncValue.loading() cubre ambos.
   Future<void> recordAndAdvance(String studentId, double accuracy) async {
     final current = state.valueOrNull?.current;
     if (current == null || current.exerciseId == null) return;

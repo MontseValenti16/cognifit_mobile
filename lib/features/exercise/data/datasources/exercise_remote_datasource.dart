@@ -9,7 +9,6 @@ class ExerciseRemoteDataSourceImpl implements ExerciseRemoteDataSource {
   @override
   Future<List<ExerciseEntity>> getExercises(String testId) async {
     await Future.delayed(const Duration(milliseconds: 400));
-    // TODO: GET /exercises?testId=testId
     return const [
       ExerciseEntity(
         id: 'e1', testId: 't1', type: ExerciseType.visualDiscrimination,
@@ -56,6 +55,5 @@ class ExerciseRemoteDataSourceImpl implements ExerciseRemoteDataSource {
   @override
   Future<void> submitResult(ExerciseResultEntity result) async {
     await Future.delayed(const Duration(milliseconds: 200));
-    // TODO: POST /results
   }
 }

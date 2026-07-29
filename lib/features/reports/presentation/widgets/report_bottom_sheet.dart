@@ -20,10 +20,6 @@ class ReportBottomSheet extends ConsumerStatefulWidget {
 class _ReportBottomSheetState extends ConsumerState<ReportBottomSheet> {
   @override
   void dispose() {
-    // El provider no es autoDispose (es el mismo ReportsNotifier que ya
-    // usa el resto de la pantalla de perfil), así que sí conviene limpiar
-    // su estado al cerrar la hoja para que la próxima apertura no arrastre
-    // el reporte anterior.
     ref.read(reportsViewModelProvider.notifier).reset();
     super.dispose();
   }
@@ -53,7 +49,6 @@ class _ReportBottomSheetState extends ConsumerState<ReportBottomSheet> {
           ]),
           const SizedBox(height: 16),
 
-          // Type picker (only when idle or error)
           if (vm.isIdle || vm.isError) ...[
             _TypeOption(
               label: 'Resumen para padres',
@@ -73,7 +68,6 @@ class _ReportBottomSheetState extends ConsumerState<ReportBottomSheet> {
             const SizedBox(height: 20),
           ],
 
-          // Busy state
           if (vm.isBusy) ...[
             const SizedBox(height: 16),
             Center(child: CircularProgressIndicator(color: AppTheme.primary)),
@@ -83,7 +77,6 @@ class _ReportBottomSheetState extends ConsumerState<ReportBottomSheet> {
             const SizedBox(height: 24),
           ],
 
-          // Error
           if (vm.isError && vm.error != null) ...[
             Container(
               padding: const EdgeInsets.all(12),
@@ -93,7 +86,6 @@ class _ReportBottomSheetState extends ConsumerState<ReportBottomSheet> {
             const SizedBox(height: 16),
           ],
 
-          // Ready — share button
           if (vm.isReady) ...[
             Container(
               padding: const EdgeInsets.all(14),
@@ -117,7 +109,6 @@ class _ReportBottomSheetState extends ConsumerState<ReportBottomSheet> {
             ),
           ],
 
-          // Generate button
           if (vm.isIdle || vm.isError)
             ElevatedButton(
               onPressed: () => notifier.generate(widget.studentId),

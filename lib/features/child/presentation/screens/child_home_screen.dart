@@ -4,18 +4,10 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
 import 'child_games_catalog_screen.dart';
 
-/// Pantalla de inicio gamificada para el niño.
-/// El docente pulsa "Modo niño" en el perfil del alumno y esta pantalla aparece.
-/// Muestra el saludo y las tarjetas de actividad.
-///
-/// No lleva barra de XP, nivel ni medallas: existían escritas a mano —"Nivel
-/// 3", 72/100 XP, logros con `unlocked` fijo— y nunca cambiaban con lo que el
-/// alumno hacía. Una recompensa que miente es peor que ninguna, sobre todo con
-/// niños que están trabajando una dificultad.
 class ChildHomeScreen extends StatelessWidget {
   final String studentId;
   final String studentName;
-  final String? pendingSessionId;      // sesión de diagnóstico pendiente (puede ser null)
+  final String? pendingSessionId;
   final String? pendingModuleTitle;
 
   const ChildHomeScreen({
@@ -39,9 +31,7 @@ class ChildHomeScreen extends StatelessWidget {
             child: ThemeToggleButton(),
           )),
         ),
-        // ── Header con saludo ──
         SliverToBoxAdapter(child: _GreetingHeader(firstName: _firstName)),
-        // ── Tarjetas de actividad ──
         SliverToBoxAdapter(child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -78,8 +68,6 @@ class ChildHomeScreen extends StatelessWidget {
     );
   }
 }
-
-// ─── Subwidgets privados ─────────────────────────────────────────────────────
 
 class _GreetingHeader extends StatelessWidget {
   final String firstName;
@@ -119,7 +107,6 @@ class _GreetingHeader extends StatelessWidget {
     );
   }
 }
-
 
 class _ActivityCard extends StatelessWidget {
   final String emoji;
@@ -163,4 +150,3 @@ class _ActivityCard extends StatelessWidget {
     );
   }
 }
-

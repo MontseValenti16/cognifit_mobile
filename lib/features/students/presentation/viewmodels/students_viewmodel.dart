@@ -19,11 +19,6 @@ const _unset = Object();
 
 String _messageFor(Object error, String fallback) => error is ApiException ? error.userMessage : fallback;
 
-/// `load` refleja la carga inicial (spinner de pantalla completa); `mutation`
-/// refleja la operación de creación/edición/borrado en curso (spinner del
-/// formulario). Se mantienen separados porque la UI reacciona distinto a
-/// cada una — colapsarlas en un solo AsyncValue haría que una mutación
-/// disparara el estado de carga de toda la pantalla.
 class StudentsState {
   final AsyncValue<void> load;
   final AsyncValue<void> mutation;
@@ -115,7 +110,6 @@ class StudentsNotifier extends Notifier<StudentsState> {
   Future<void> loadStudents() async {
     state = state.copyWith(load: const AsyncValue.loading());
     final result = await AsyncValue.guard(() async {
-      // Load groups + students together; the create form needs the group list.
       final results = await Future.wait([_getGroups(), _getStudents()]);
       return (groups: results[0] as List<GroupEntity>, students: results[1] as List<StudentEntity>);
     });
@@ -126,8 +120,6 @@ class StudentsNotifier extends Notifier<StudentsState> {
     );
   }
 
-  /// Creates a group and prepends it to the local list so the create-student
-  /// form can immediately select it. Returns the new group or null on error.
   Future<GroupEntity?> createGroup(CreateGroupParams params) async {
     state = state.copyWith(mutation: const AsyncValue.loading());
     try {
@@ -195,9 +187,6 @@ class StudentsNotifier extends Notifier<StudentsState> {
     }
   }
 
-  /// Soft-delete: desactiva al alumno (is_active=FALSE) sin borrar su
-  /// historial clínico, según las HU (BD-02, BD-11). Se mantiene en la
-  /// lista local marcado como inactivo en vez de removerse.
   Future<bool> delete(String id) async {
     state = state.copyWith(mutation: const AsyncValue.loading());
     try {
@@ -213,7 +202,6 @@ class StudentsNotifier extends Notifier<StudentsState> {
     }
   }
 
-  /// Borrado físico irreversible — elimina al alumno y todos sus datos de la DB.
   Future<bool> permanentDelete(String id) async {
     state = state.copyWith(mutation: const AsyncValue.loading());
     try {

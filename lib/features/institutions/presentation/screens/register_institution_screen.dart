@@ -56,8 +56,6 @@ class _RegisterInstitutionScreenState extends ConsumerState<RegisterInstitutionS
   Widget build(BuildContext context) {
     ref.watch(institutionViewModelProvider);
 
-    // Reemplaza el _onChanged manual: reacciona al éxito/error del registro
-    // sin que la pantalla tenga que suscribirse/desuscribirse a mano.
     ref.listen<InstitutionState>(institutionViewModelProvider, (previous, next) {
       final justSucceeded = (previous?.isRegistering ?? false) && !next.isRegistering && next.registerError == null;
       if (justSucceeded) {
@@ -153,8 +151,6 @@ class _RegisterInstitutionScreenState extends ConsumerState<RegisterInstitutionS
           onTap: () => setState(() => _obscure = !_obscure),
           child: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: AppTheme.mutedText, size: 20),
         ),
-        // Ocho, no doce: aqui el servidor pide
-        // InstitutionRegister.admin_password = Field(..., min_length=8).
         validator: (v) => Validators.passwordNueva(
           v,
           minimo: InputRules.passwordMinInstitucion,

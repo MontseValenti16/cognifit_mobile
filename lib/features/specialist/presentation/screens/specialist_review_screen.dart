@@ -18,8 +18,6 @@ class _SpecialistReviewScreenState extends ConsumerState<SpecialistReviewScreen>
   @override
   void initState() {
     super.initState();
-    // Ver nota en dashboard_screen: modificar un provider desde initState
-    // ocurre durante el build y Riverpod lo rechaza.
     Future(() {
       if (mounted) _notifier.load();
     });
@@ -105,8 +103,6 @@ class _SpecialistReviewScreenState extends ConsumerState<SpecialistReviewScreen>
   }
 }
 
-// ── Card ──────────────────────────────────────────────────────────────────────
-
 class _DiagnosisCard extends StatelessWidget {
   final PendingDiagnosisEntity diagnosis;
   final VoidCallback onConfirm;
@@ -138,7 +134,6 @@ class _DiagnosisCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          // Header: student + date
           Row(children: [
             Container(
               width: 36, height: 36,
@@ -172,7 +167,6 @@ class _DiagnosisCard extends StatelessWidget {
           const Divider(height: 1),
           const SizedBox(height: 12),
 
-          // Auto-diagnosis chips
           Text('Diagnóstico automático', style: Theme.of(context).textTheme.labelSmall?.copyWith(
             letterSpacing: 0.8, color: AppTheme.mutedText, fontWeight: FontWeight.w600,
           )),
@@ -204,7 +198,6 @@ class _DiagnosisCard extends StatelessWidget {
 
           const SizedBox(height: 14),
 
-          // Action buttons
           Row(children: [
             Expanded(
               child: OutlinedButton.icon(
@@ -267,8 +260,6 @@ class _Chip extends StatelessWidget {
       )),
   );
 }
-
-// ── Correction bottom sheet ───────────────────────────────────────────────────
 
 class _CorrectionSheet extends StatefulWidget {
   final PendingDiagnosisEntity diagnosis;
@@ -334,7 +325,6 @@ class _CorrectionSheetState extends State<_CorrectionSheet> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(children: [
-          // Handle
           const SizedBox(height: 12),
           Container(width: 40, height: 4,
             decoration: BoxDecoration(color: const Color(0xFFD0CDD7), borderRadius: BorderRadius.circular(2))),
@@ -462,8 +452,6 @@ class _DropdownField extends StatelessWidget {
     ),
   );
 }
-
-// ── Empty / Error views ───────────────────────────────────────────────────────
 
 class _EmptyView extends StatelessWidget {
   final int totalLabeled;

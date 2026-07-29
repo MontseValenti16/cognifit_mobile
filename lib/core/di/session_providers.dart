@@ -12,16 +12,6 @@ import '../../features/tests/presentation/viewmodels/tests_viewmodel.dart';
 import '../../features/tracking/presentation/viewmodels/tracking_viewmodel.dart';
 import '../../features/tracking/presentation/viewmodels/learning_curve_viewmodel.dart';
 
-/// Se llama en cada logout: cada provider de sesión (`NotifierProvider`/
-/// `AsyncNotifierProvider`) cachea su Notifier (construido una sola vez,
-/// reusado mientras nadie lo invalide). Sin esto, el siguiente login vería
-/// el `currentUser`, los alumnos o los filtros del ADMIN anterior hasta que
-/// esa pantalla se reconstruyera por otro motivo. `ref.invalidate` fuerza a
-/// cada provider a reconstruirse desde cero (datasource → repo → casos de
-/// uso → notifier) en el próximo `ref.watch`/`ref.read`.
-///
-/// Se centraliza acá, en un solo lugar, en vez de repetir la lista en cada
-/// pantalla que hace logout.
 void invalidateSessionScopedProviders(WidgetRef ref) {
   ref.invalidate(studentsViewModelProvider);
   ref.invalidate(trackingViewModelProvider);

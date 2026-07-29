@@ -12,6 +12,6 @@ void main() {
       )),
     ));
     expect(find.textContaining('percentil 5'), findsOneWidget);
-    expect(find.textContaining('orientativo'), findsOneWidget); // por el escalado
+    expect(find.textContaining('orientativo'), findsOneWidget);
   });
 }

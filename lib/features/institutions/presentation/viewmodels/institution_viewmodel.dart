@@ -6,10 +6,6 @@ import '../../domain/usecases/get_pending_institutions_usecase.dart';
 import '../../domain/usecases/approve_institution_usecase.dart';
 import '../../domain/usecases/reject_institution_usecase.dart';
 
-/// `registerOp` es del flujo público de alta de escuela; `pendingOp` es del
-/// panel de aprobación (superadmin) — son pantallas distintas que nunca
-/// corren a la vez, pero se mantienen separadas porque cada una necesita su
-/// propio spinner/error sin pisar al otro.
 class InstitutionState {
   final AsyncValue<void> registerOp;
   final AsyncValue<void> pendingOp;
@@ -89,7 +85,6 @@ class InstitutionNotifier extends Notifier<InstitutionState> {
   Future<bool> rejectInstitution(String institutionId, {String? reason}) async {
     try {
       await _reject(institutionId, reason: reason);
-      // Sale de la lista de pendientes: el backend ya la excluye de /pending.
       await loadPending();
       return true;
     } catch (e, st) {

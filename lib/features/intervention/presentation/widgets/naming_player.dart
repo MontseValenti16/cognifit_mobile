@@ -4,37 +4,19 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 
-/// Cómo se dibuja cada casilla de la rejilla.
 enum NamingKind { letras, colores, objetos }
 
-/// Reproductor de los ejercicios de denominación rápida (RAN).
-///
-/// El alumno nombra en voz alta las 40 casillas lo más rápido que puede y la
-/// app mide el **tiempo total**. Esa es la medida clínica de la prueba: la
-/// denominación rápida evalúa cuán automatizado está el acceso al nombre, no
-/// si el alumno conoce las letras — a esta edad las conoce, lo que cuesta es
-/// recuperarlas rápido.
-///
-/// Por eso no hace falta reconocimiento de voz para la medida principal, que
-/// era lo que tenía a estos tres ejercicios sin jugarse: alcanza con la
-/// rejilla y el cronómetro.
 class NamingPlayer extends StatefulWidget {
   final List<String> grid;
   final int columnas;
   final NamingKind kind;
 
-  /// Solo para [NamingKind.colores]: nombre → color.
   final Map<String, Color> paleta;
 
-  /// Solo para [NamingKind.objetos]: nombre → emoji.
   final Map<String, String> iconos;
 
-  /// Devuelve la precisión reportada a la ruta y el tiempo real en segundos.
   final void Function(double accuracy, int segundos) onFinish;
 
-  /// Inyectable solo para pruebas: `pump()` mueve el reloj falso del test, no
-  /// el del sistema, así que con un Stopwatch real no se puede verificar que
-  /// la medición sea correcta.
   final Stopwatch Function()? crearReloj;
 
   const NamingPlayer({
@@ -81,11 +63,6 @@ class _NamingPlayerState extends State<NamingPlayer> {
     final seg = (_reloj.elapsedMilliseconds / 1000).round();
     setState(() => _segundosFinales = seg);
 
-    // No hay norma de referencia en el repo para tiempos de denominación
-    // rápida en español mexicano, y estos tiempos solo significan algo contra
-    // una norma. Se reporta el punto medio —igual que la lectura sin meta
-    // declarada— en vez de inventar un umbral que decidiría si un alumno
-    // sube de nivel. El tiempo real sí se entrega, para cuando haya norma.
     widget.onFinish(0.5, seg);
   }
 

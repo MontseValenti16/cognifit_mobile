@@ -12,7 +12,6 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<SessionEntity> login(String email, String password, {String? deviceInfo}) async {
     final session = await remote.login(email, password, deviceInfo: deviceInfo);
     await tokenStorage.saveTokens(session.accessToken, session.refreshToken);
-    // Fetch profile right after login so we know the role for navigation/permissions.
     final me = await remote.getMe();
     await tokenStorage.saveSession(
       accessToken: session.accessToken,
@@ -24,9 +23,6 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<UserEntity> register(String name, String email, String password) async {
-    // Note: This assumes there's a /auth/register endpoint.
-    // Update the datasource if the actual backend endpoint differs.
-    // For now, we'll delegate to a NotImplementedError or similar.
     throw UnimplementedError('Register endpoint not yet implemented in datasource');
   }
 
@@ -37,7 +33,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> logout() async {
     final refreshToken = await tokenStorage.refreshToken;
     if (refreshToken != null) {
-      try { await remote.logout(refreshToken); } catch (_) {} // best-effort
+      try { await remote.logout(refreshToken); } catch (_) {}
     }
     await tokenStorage.clear();
   }

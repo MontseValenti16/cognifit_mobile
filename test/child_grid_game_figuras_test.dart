@@ -15,11 +15,9 @@ void main() {
     ));
     await t.pumpAndSettle();
 
-    // Al menos las 20 casillas + el modelo.
     final figuras = find.byType(FiguraView);
     expect(figuras, findsWidgets);
 
-    // Ninguna FiguraView de la cuadrícula debe medir 0x0.
     var conTamano = 0;
     for (final e in figuras.evaluate()) {
       final size = e.size;

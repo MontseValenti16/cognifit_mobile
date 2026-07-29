@@ -1,6 +1,3 @@
-/// Los ítems de discriminación visual (M10_VD) traen las opciones dentro del
-/// propio estímulo ("b|b|d|b"). Sin parsearlas el niño veía el texto crudo,
-/// que es la razón por la que ese módulo estuvo fuera de la batería.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cognifit_mobile/features/exercise/presentation/widgets/exercise_widgets.dart';
 

@@ -6,11 +6,6 @@ import '../../domain/usecases/get_student_metrics_usecase.dart';
 
 typedef LearningCurveData = ({LearningCurveEntity curve, StudentMetricsEntity metrics});
 
-/// El estado ES el AsyncValue: no hay campos síncronos aparte de los datos
-/// cargados, así que envolver un objeto extra sería ceremonia sin beneficio.
-/// A diferencia de `calendarioViewModelProvider` (AsyncNotifier, carga
-/// automática en `build()`), acá el `studentId` llega en tiempo de uso vía
-/// `load(id)`, así que se modela como `Notifier<AsyncValue<T>>` con carga manual.
 class LearningCurveNotifier extends Notifier<AsyncValue<LearningCurveData>> {
   late GetLearningCurveUseCase _getLearningCurve;
   late GetStudentMetricsUseCase _getStudentMetrics;

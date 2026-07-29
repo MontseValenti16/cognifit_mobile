@@ -23,14 +23,12 @@ class _CardCheckoutScreenState extends ConsumerState<CardCheckoutScreen> {
 
   final _nameCtrl = TextEditingController();
   final _numberCtrl = TextEditingController();
-  final _expiryCtrl = TextEditingController(); // MM/AA
+  final _expiryCtrl = TextEditingController();
   final _cvcCtrl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // Ver nota en dashboard_screen: modificar un provider desde initState
-    // ocurre durante el build y Riverpod lo rechaza.
     Future(() {
       if (mounted) _notifier.resetCheckout();
     });
@@ -69,7 +67,6 @@ class _CardCheckoutScreenState extends ConsumerState<CardCheckoutScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(paymentViewModelProvider);
 
-    // Reemplaza el _onChanged manual.
     ref.listen<PaymentState>(paymentViewModelProvider, (previous, next) {
       if (next.checkoutError != null) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(

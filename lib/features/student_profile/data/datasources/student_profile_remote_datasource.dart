@@ -9,7 +9,6 @@ class StudentProfileRemoteDataSourceImpl
   @override
   Future<StudentProfileEntity> getProfile(String studentId) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    // TODO: GET /students/:id/profile
     return const StudentProfileEntity(
       id: 'luis-r',
       fullName: 'Luis Ramírez',

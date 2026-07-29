@@ -24,12 +24,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    // Riverpod prohíbe modificar un provider mientras se construye el árbol, e
-    // initState ocurre dentro de esa fase: loadDashboard() asigna
-    // `AsyncValue.loading()` de forma síncrona y lanzaba
-    // "Tried to modify a provider while the widget tree was building".
-    // Future(...) difiere la carga al siguiente turno del event loop, cuando el
-    // build ya terminó.
     Future(() {
       if (mounted) _notifier.loadDashboard();
     });
@@ -95,10 +89,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     _sectionLabel(context, 'GRUPOS'),
                     const SizedBox(height: 12),
                     SizedBox(
-                      // 148 se quedaba corto: con las 3 etiquetas de riesgo
-                      // completas ("0 Alto"/"0 Medio"/"0 Bajo") el Wrap de
-                      // GroupRiskSummaryCard casi siempre baja a 2 líneas,
-                      // y a 148 el contenido no entraba (overflow inferior).
                       height: 168,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,

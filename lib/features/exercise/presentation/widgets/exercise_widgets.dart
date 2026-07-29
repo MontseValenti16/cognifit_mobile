@@ -29,7 +29,6 @@ class ExerciseProgressBar extends StatelessWidget {
   }
 }
 
-/// Free-text response field — used when item_kind expects typed/spoken answer.
 class ResponseTextField extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSubmit;
@@ -74,7 +73,6 @@ class ResponseTextField extends StatelessWidget {
   }
 }
 
-/// Stimulus display card — shows the text the student must read/respond to.
 class StimulusCard extends StatelessWidget {
   final String stimulusText;
   final String itemKind;
@@ -119,9 +117,6 @@ class StimulusCard extends StatelessWidget {
   }
 }
 
-/// Retroalimentación inmediata tras responder (HU-FL-12): se muestra
-/// brevemente antes de avanzar al siguiente ítem cuando el ítem tiene
-/// una respuesta esperada conocida.
 class AnswerFeedbackBanner extends StatelessWidget {
   final bool isCorrect;
   const AnswerFeedbackBanner({super.key, required this.isCorrect});
@@ -160,7 +155,6 @@ class ExerciseCompletedCard extends StatelessWidget {
     'MEDIUM' => AppTheme.pendingOrange,
     _ => AppTheme.activeGreen,
   };
-
 
   @override
   Widget build(BuildContext context) {
@@ -207,13 +201,6 @@ class ExerciseCompletedCard extends StatelessWidget {
   }
 }
 
-/// Respuesta de opción múltiple para ítems de discriminación visual (M10_VD).
-///
-/// Esos ítems traen el estímulo como opciones separadas por pipe
-/// ("b|b|d|b") y la respuesta esperada es la opción distinta ("d"). Sin este
-/// widget el niño veía el texto crudo "b|b|d|b" y un campo de texto, así que
-/// el módulo era inusable: por eso estuvo fuera de la batería aunque su
-/// migración, su test y sus 21 ítems existían desde hace tiempo.
 class MultipleChoiceAnswer extends StatelessWidget {
   final List<String> options;
   final ValueChanged<String> onSelect;
@@ -228,7 +215,6 @@ class MultipleChoiceAnswer extends StatelessWidget {
     this.enabled = true,
   });
 
-  /// "b|b|d|b" -> ["b","b","d","b"]. Devuelve vacío si no es formato de opciones.
   static List<String> parseOptions(String stimulusText) {
     if (!stimulusText.contains('|')) return const [];
     return stimulusText
@@ -247,8 +233,6 @@ class MultipleChoiceAnswer extends StatelessWidget {
       children: [
         for (var i = 0; i < options.length; i++)
           _OptionButton(
-            // La posición se muestra al niño, no el índice: dos opciones pueden
-            // tener el mismo texto ("b|b|d|b") y deben ser tocables por separado.
             label: options[i],
             isSelected: selected == options[i],
             enabled: enabled,

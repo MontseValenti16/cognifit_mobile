@@ -24,30 +24,19 @@ class ExerciseDetailEntity {
   final int nivel;
   final List<Map<String, dynamic>> items;
 
-  /// Texto corrido de los ejercicios de lectura (guiada, repetida,
-  /// temporizada, karaoke). 13 de los 29 ejercicios del banco no traen
-  /// `items` sino este texto: sin él la pantalla no tenía nada que mostrar
-  /// y el ejercicio no se podía hacer dentro de la app.
   final String modalidad;
   final String? texto;
   final int? metaPalabrasPorMinuto;
   final int? repeticiones;
 
-  /// Pide al alumno predecir cuántas preguntas acertará antes de responder.
-  /// Es el ejercicio de metacognición de la vía de comprensión.
   final bool autoevaluacion;
 
-  /// Denominación rápida: las 40 casillas que el alumno nombra en voz alta.
-  /// El orden viene fijo del banco a propósito — barajarlo por sesión haría
-  /// que los tiempos no se puedan comparar entre alumnos ni entre sesiones.
   final List<String> grid;
   final int gridColumnas;
   final String subtipo;
 
-  /// Solo para la rejilla de colores: nombre → color en hexadecimal.
   final Map<String, String> paleta;
 
-  /// Solo para la rejilla de objetos: nombre → emoji.
   final Map<String, String> iconos;
 
   const ExerciseDetailEntity({
@@ -88,9 +77,6 @@ class NextExerciseEntity {
   bool get isComplete => action == 'complete' || exerciseId == null;
 }
 
-/// Un ejercicio de la vía de comprensión, tal como lo lista el catálogo del
-/// grado. Es solo el encabezado: el texto y las preguntas llegan aparte, con
-/// `getExerciseDetail`, para no traer 21 textos completos de una vez.
 class ComprehensionExerciseEntity {
   final String exerciseId;
   final String titulo;
@@ -109,11 +95,6 @@ class ComprehensionExerciseEntity {
   });
 }
 
-/// Catálogo de comprensión de un grado.
-///
-/// Un grado sin contenido llega con la lista vacía y no es un error: significa
-/// "todavía no hay material para este grado". [gradosConContenido] permite que
-/// la interfaz no ofrezca una vía vacía.
 class ComprehensionTrackEntity {
   final String grade;
   final List<ComprehensionExerciseEntity> exercises;

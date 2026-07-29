@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_controller.dart';
 
-/// Interruptor sol/luna para cambiar entre modo claro y oscuro: se piden
-/// ambos íconos visibles a la vez (no un solo ícono que alterna), con el
-/// modo activo resaltado. Se escucha a sí mismo (ListenableBuilder sobre
-/// ThemeController) para poder colocarse en cualquier AppBar/header sin que
-/// esa pantalla sepa nada de temas.
 class ThemeToggleButton extends StatelessWidget {
   const ThemeToggleButton({super.key});
 

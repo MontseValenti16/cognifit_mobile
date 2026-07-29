@@ -21,8 +21,6 @@ class _LearningCurveScreenState extends ConsumerState<LearningCurveScreen> {
   @override
   void initState() {
     super.initState();
-    // Ver nota en dashboard_screen: modificar un provider desde initState
-    // ocurre durante el build y Riverpod lo rechaza.
     Future(() {
       if (mounted) _notifier.load(widget.studentId);
     });

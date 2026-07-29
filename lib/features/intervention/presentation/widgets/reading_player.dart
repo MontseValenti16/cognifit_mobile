@@ -5,29 +5,15 @@ import 'package:flutter/material.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/theme/app_theme.dart';
 
-/// Reproductor de los ejercicios de lectura del banco de intervención.
-///
-/// 13 de los 29 ejercicios (lectura guiada, repetida, temporizada, karaoke y
-/// denominación rápida) no traen `items`: traen un texto corrido. Hasta ahora
-/// la pantalla solo mostraba título e instrucción, así que el ejercicio se
-/// hacía fuera de la app y un adulto marcaba a mano si había salido bien.
-///
-/// Acá el alumno lee y la app mide: cuenta las palabras del texto y el tiempo
-/// real de lectura para calcular palabras por minuto, que es la medida clínica
-/// estándar de fluidez y justamente el perfil que estos ejercicios atienden.
 class ReadingPlayer extends StatefulWidget {
   final String texto;
   final String instruccion;
   final bool usaTts;
 
-  /// Meta de palabras/minuto del banco. Si viene, se usa para calcular la
-  /// precisión reportada a la ruta adaptativa.
   final int? metaPalabrasPorMinuto;
 
-  /// Repeticiones que pide el ejercicio (lectura repetida).
   final int? repeticiones;
 
-  /// Devuelve la precisión 0..1 que se reporta a /next-exercise.
   final void Function(double accuracy, int palabrasPorMinuto) onFinish;
 
   const ReadingPlayer({
@@ -71,7 +57,6 @@ class _ReadingPlayerState extends State<ReadingPlayer> {
         ..reset()
         ..start();
     });
-    // Refresca el cronómetro en pantalla sin recalcular nada más.
     _tick = Timer.periodic(const Duration(milliseconds: 500), (_) {
       if (mounted && _reloj.isRunning) setState(() {});
     });
@@ -81,7 +66,6 @@ class _ReadingPlayerState extends State<ReadingPlayer> {
     _tick?.cancel();
     _reloj.stop();
     final segundos = _reloj.elapsedMilliseconds / 1000;
-    // Guarda contra divisiones absurdas si alguien toca "terminé" de inmediato.
     final ppm = segundos < 1 ? 0 : (_totalPalabras * 60 / segundos).round();
 
     setState(() => _ppmUltimaVuelta = ppm);
@@ -91,9 +75,6 @@ class _ReadingPlayerState extends State<ReadingPlayer> {
       return;
     }
 
-    // Precisión relativa a la meta del banco, tope 1.0. Sin meta declarada no
-    // hay contra qué comparar, así que se reporta el punto medio en vez de
-    // inventar un desempeño que no se midió.
     final meta = widget.metaPalabrasPorMinuto;
     final accuracy = meta == null || meta <= 0
         ? 0.5

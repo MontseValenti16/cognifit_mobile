@@ -1,3 +1,5 @@
+import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
@@ -10,7 +12,10 @@ void main() async {
   await ScreenSecurity.enable();
   await ConnectivityService.instance.initialize();
   await ThemeController.instance.load();
-  // ProviderScope es la raíz del árbol de Riverpod: sin esto ningún
-  // ref.watch/ref.read de la app tiene de dónde leer.
-  runApp(const ProviderScope(child: CogniFitApp()));
+  runApp(
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => const ProviderScope(child: CogniFitApp()),
+    ),
+  );
 }

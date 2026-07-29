@@ -21,8 +21,6 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
   @override
   void initState() {
     super.initState();
-    // Ver nota en dashboard_screen: modificar un provider desde initState
-    // ocurre durante el build y Riverpod lo rechaza.
     Future(() {
       if (mounted) _notifier.load();
     });
@@ -38,8 +36,6 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(adminViewModelProvider);
 
-    // Reemplaza el _rebuild manual: reacciona a mensajes de éxito/error sin
-    // que la pantalla tenga que suscribirse a mano.
     ref.listen<AdminState>(adminViewModelProvider, (previous, next) {
       final msg = next.successMessage ?? next.error;
       if (msg != null) {
@@ -93,8 +89,6 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
     );
   }
 }
-
-// ─── Lista de usuarios ────────────────────────────────────────────────────────
 
 class _UserList extends StatelessWidget {
   final List<AdminUserEntity> users;
@@ -203,8 +197,6 @@ class _InactiveChip extends StatelessWidget {
   }
 }
 
-// ─── Opciones de usuario ──────────────────────────────────────────────────────
-
 class _UserOptionsSheet extends StatelessWidget {
   final AdminUserEntity user;
   final AdminNotifier notifier;
@@ -287,8 +279,6 @@ class _UserOptionsSheet extends StatelessWidget {
   }
 }
 
-// ─── Cambio de rol ────────────────────────────────────────────────────────────
-
 class _ChangeRoleSheet extends StatefulWidget {
   final AdminUserEntity user;
   final AdminNotifier notifier;
@@ -350,8 +340,6 @@ class _ChangeRoleSheetState extends State<_ChangeRoleSheet> {
   }
 }
 
-// ─── Vincular alumno a padre/tutor ───────────────────────────────────────────
-
 class _LinkStudentSheet extends ConsumerStatefulWidget {
   final AdminUserEntity user;
   const _LinkStudentSheet({required this.user});
@@ -367,8 +355,6 @@ class _LinkStudentSheetState extends ConsumerState<_LinkStudentSheet> {
   @override
   void initState() {
     super.initState();
-    // Ver nota en dashboard_screen: modificar un provider desde initState
-    // ocurre durante el build y Riverpod lo rechaza.
     Future(() {
       if (mounted) ref.read(adminViewModelProvider.notifier).loadStudentsForPicker();
     });
@@ -463,8 +449,6 @@ class _LinkStudentSheetState extends ConsumerState<_LinkStudentSheet> {
     );
   }
 }
-
-// ─── Crear usuario ────────────────────────────────────────────────────────────
 
 class _CreateUserSheet extends StatefulWidget {
   final AdminNotifier notifier;
@@ -622,8 +606,6 @@ class _Field extends StatelessWidget {
     ]);
   }
 }
-
-// ─── Vista vacía ──────────────────────────────────────────────────────────────
 
 class _EmptyView extends StatelessWidget {
   final bool includeInactive;

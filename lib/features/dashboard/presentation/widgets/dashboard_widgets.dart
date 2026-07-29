@@ -75,7 +75,6 @@ class GroupRiskSummaryCard extends StatelessWidget {
         Text(summary.displayName, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
         Text('${summary.totalStudents} alumnos', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
         const SizedBox(height: 12),
-        // Proportional color bar
         ClipRRect(
           borderRadius: BorderRadius.circular(6),
           child: Row(children: [
@@ -87,10 +86,6 @@ class GroupRiskSummaryCard extends StatelessWidget {
           ].where((w) => true).toList()),
         ),
         const SizedBox(height: 10),
-        // Wrap en vez de Row: con las tres etiquetas completas ("0 Alto",
-        // "0 Medio", "0 Bajo") el contenido no cabe en los 200px fijos de la
-        // tarjeta y un Row desbordaba (banda de overflow amarilla/negra). Con
-        // Wrap el chip que no entra baja a una segunda línea en vez de salirse.
         Wrap(spacing: 6, runSpacing: 6, children: [
           _RiskChip(count: summary.highRisk, color: AppTheme.riskRed, label: 'Alto'),
           _RiskChip(count: summary.mediumRisk, color: AppTheme.pendingOrange, label: 'Medio'),

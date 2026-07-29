@@ -5,7 +5,6 @@ import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../data/child_grid_games.dart';
 import 'child_grid_game_screen.dart';
 
-/// Nombre visible de cada categoría en el catálogo.
 String nombreCategoria(GridCategory c) => switch (c) {
       GridCategory.buscaLetra => 'Busca la letra',
       GridCategory.silabas => 'Busca la sílaba',
@@ -14,7 +13,6 @@ String nombreCategoria(GridCategory c) => switch (c) {
       GridCategory.cualEsDiferente => '¿Cuál es diferente?',
     };
 
-/// Orden pedagógico: de lo más concreto (letras) a lo más abstracto.
 const _ordenCategorias = [
   GridCategory.buscaLetra,
   GridCategory.silabas,
@@ -23,12 +21,9 @@ const _ordenCategorias = [
   GridCategory.cualEsDiferente,
 ];
 
-/// Catálogo de dos niveles: categoría → juegos. El niño elige un juego o toda
-/// una categoría, en vez de recorrer una corrida lineal que se reinicia.
 class ChildGamesCatalogScreen extends StatelessWidget {
   final String studentName;
 
-  /// Permite inyectar otra lista en las pruebas.
   final List<GridGame> juegos;
 
   ChildGamesCatalogScreen({
@@ -51,7 +46,6 @@ class ChildGamesCatalogScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Agrupar respetando el orden pedagógico y sin categorías vacías.
     final porCategoria = <GridCategory, List<GridGame>>{};
     for (final cat in _ordenCategorias) {
       final delGrupo = juegos.where((j) => j.categoria == cat).toList();

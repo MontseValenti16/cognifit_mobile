@@ -33,7 +33,6 @@ class SpecialistNotifier extends Notifier<AsyncValue<SpecialistData>> {
     }
   }
 
-  /// Confirma el diagnóstico automático tal cual (sin corrección).
   Future<bool> confirm(PendingDiagnosisEntity d, {String? notes}) => _submitLabel(
         diagnosisId: d.id,
         subtype: d.autoSubtype,
@@ -42,7 +41,6 @@ class SpecialistNotifier extends Notifier<AsyncValue<SpecialistData>> {
         notes: notes,
       );
 
-  /// Corrige el diagnóstico con los valores que eligió el especialista.
   Future<bool> correct({
     required String diagnosisId,
     required String subtype,

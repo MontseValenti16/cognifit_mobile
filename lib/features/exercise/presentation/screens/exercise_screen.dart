@@ -13,8 +13,6 @@ import '../../../../core/utils/responsive.dart';
 import '../viewmodels/exercise_viewmodel.dart';
 import '../widgets/exercise_widgets.dart';
 
-/// Renders one screening session: GET items, collects responses,
-/// then submits + diagnoses when the last item is answered.
 class ExerciseScreen extends ConsumerStatefulWidget {
   final String sessionId;
   final String moduleTitle;
@@ -35,8 +33,6 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
   @override
   void initState() {
     super.initState();
-    // Ver nota en dashboard_screen: modificar un provider desde initState
-    // ocurre durante el build y Riverpod lo rechaza.
     Future(() {
       if (!mounted) return;
       _notifier.loadSession(widget.sessionId);
@@ -83,7 +79,7 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
   }
 
   void _submitCurrent(ExerciseData data) {
-    if (data.lastAnswerCorrect != null) return; // esperando avance tras feedback
+    if (data.lastAnswerCorrect != null) return;
     final text = _controller.text.trim();
     if (text.isEmpty) return;
     _notifier.answer(text, captureModality: _captureModality, sttConfidence: _sttConfidence);
@@ -94,8 +90,6 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
     _afterAnswer();
   }
 
-  /// Retroalimentación + avance. Compartido entre la respuesta escrita y la
-  /// de opción múltiple para que ambas se comporten igual.
   void _afterAnswer() {
     final lastAnswerCorrect = ref.read(exerciseViewModelProvider).valueOrNull?.lastAnswerCorrect;
     if (lastAnswerCorrect != null) {
@@ -112,9 +106,6 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
   @override
   Widget build(BuildContext context) {
     final async = ref.watch(exerciseViewModelProvider);
-    // Un solo wrapper cubre las cinco variantes de Scaffold que devuelve
-    // _buildScaffold (cargando, error, completado, enviando, sin ítems,
-    // contenido) sin repetir el Theme() en cada return.
     return Theme(
       data: childTheme(Theme.of(context)),
       child: _buildScaffold(context, async),
@@ -200,9 +191,6 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
           padding: EdgeInsets.symmetric(horizontal: context.hPad),
           child: Column(children: [
             const SizedBox(height: 24),
-            // Los ítems de discriminación visual traen las opciones en el
-            // propio estímulo ("b|b|d|b"): se muestran como botones y no
-            // como texto, que era lo que hacía inusable ese módulo.
             if (opciones.isNotEmpty)
               StimulusCard(
                 stimulusText: '¿Cuál es diferente?',

@@ -26,7 +26,6 @@ class AssignTestParams {
   const AssignTestParams({required this.testId, required this.studentId, required this.startNow});
 }
 
-/// Student shown in the assignment modal
 class AssignableStudentEntity {
   final String id;
   final String fullName;
