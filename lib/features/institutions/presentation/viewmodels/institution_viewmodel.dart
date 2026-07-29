@@ -1,79 +1,87 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../di/institutions_providers.dart';
 import '../../domain/entities/institution_entity.dart';
 import '../../domain/usecases/register_institution_usecase.dart';
 import '../../domain/usecases/get_pending_institutions_usecase.dart';
 import '../../domain/usecases/approve_institution_usecase.dart';
 import '../../domain/usecases/reject_institution_usecase.dart';
 
-enum RegisterInstitutionStatus { idle, loading, success, error }
+/// `registerOp` es del flujo público de alta de escuela; `pendingOp` es del
+/// panel de aprobación (superadmin) — son pantallas distintas que nunca
+/// corren a la vez, pero se mantienen separadas porque cada una necesita su
+/// propio spinner/error sin pisar al otro.
+class InstitutionState {
+  final AsyncValue<void> registerOp;
+  final AsyncValue<void> pendingOp;
+  final List<InstitutionEntity> pending;
 
-class InstitutionViewModel extends ChangeNotifier {
-  final RegisterInstitutionUseCase _register;
-  final GetPendingInstitutionsUseCase _getPending;
-  final ApproveInstitutionUseCase _approve;
-  final RejectInstitutionUseCase _reject;
+  const InstitutionState({
+    this.registerOp = const AsyncValue.data(null),
+    this.pendingOp = const AsyncValue.data(null),
+    this.pending = const [],
+  });
 
-  InstitutionViewModel({
-    required RegisterInstitutionUseCase register,
-    required GetPendingInstitutionsUseCase getPending,
-    required ApproveInstitutionUseCase approve,
-    required RejectInstitutionUseCase reject,
-  })  : _register = register,
-        _getPending = getPending,
-        _approve = approve,
-        _reject = reject;
+  bool get isLoading => pendingOp.isLoading;
+  String? get error => pendingOp.hasError ? 'No se pudo completar la operación.' : null;
+  bool get isRegistering => registerOp.isLoading;
+  String? get registerError => registerOp.hasError
+      ? 'No se pudo registrar la institución. Verifica los datos e intenta de nuevo.'
+      : null;
 
-  RegisterInstitutionStatus registerStatus = RegisterInstitutionStatus.idle;
-  String? registerError;
+  InstitutionState copyWith({AsyncValue<void>? registerOp, AsyncValue<void>? pendingOp, List<InstitutionEntity>? pending}) {
+    return InstitutionState(
+      registerOp: registerOp ?? this.registerOp,
+      pendingOp: pendingOp ?? this.pendingOp,
+      pending: pending ?? this.pending,
+    );
+  }
+}
 
-  List<InstitutionEntity> _pending = [];
-  bool _isLoading = false;
-  String? _error;
+class InstitutionNotifier extends Notifier<InstitutionState> {
+  late RegisterInstitutionUseCase _register;
+  late GetPendingInstitutionsUseCase _getPending;
+  late ApproveInstitutionUseCase _approve;
+  late RejectInstitutionUseCase _reject;
 
-  List<InstitutionEntity> get pending => _pending;
-  bool get isLoading => _isLoading;
-  String? get error => _error;
+  @override
+  InstitutionState build() {
+    final repo = ref.watch(institutionRepositoryProvider);
+    _register = RegisterInstitutionUseCase(repo);
+    _getPending = GetPendingInstitutionsUseCase(repo);
+    _approve = ApproveInstitutionUseCase(repo);
+    _reject = RejectInstitutionUseCase(repo);
+    return const InstitutionState();
+  }
 
   Future<bool> registerInstitution(RegisterInstitutionParams params) async {
-    registerStatus = RegisterInstitutionStatus.loading;
-    registerError = null;
-    notifyListeners();
+    state = state.copyWith(registerOp: const AsyncValue.loading());
     try {
       await _register(params);
-      registerStatus = RegisterInstitutionStatus.success;
-      notifyListeners();
+      state = state.copyWith(registerOp: const AsyncValue.data(null));
       return true;
-    } catch (e) {
-      registerStatus = RegisterInstitutionStatus.error;
-      registerError = 'No se pudo registrar la institución. Verifica los datos e intenta de nuevo.';
-      notifyListeners();
+    } catch (e, st) {
+      state = state.copyWith(registerOp: AsyncValue.error(e, st));
       return false;
     }
   }
 
   Future<void> loadPending() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
+    state = state.copyWith(pendingOp: const AsyncValue.loading());
     try {
-      _pending = await _getPending();
-    } catch (e) {
-      _error = 'No se pudo cargar la lista de instituciones pendientes';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      final pending = await _getPending();
+      state = state.copyWith(pendingOp: const AsyncValue.data(null), pending: pending);
+    } catch (e, st) {
+      state = state.copyWith(pendingOp: AsyncValue.error(e, st));
     }
   }
 
   Future<bool> approveInstitution(String institutionId) async {
     try {
       await _approve(institutionId);
-      _pending = [for (final i in _pending) if (i.id != institutionId) i];
-      notifyListeners();
+      state = state.copyWith(pending: [for (final i in state.pending) if (i.id != institutionId) i]);
       return true;
-    } catch (e) {
-      _error = 'No se pudo aprobar la institución';
-      notifyListeners();
+    } catch (e, st) {
+      state = state.copyWith(pendingOp: AsyncValue.error(e, st));
       return false;
     }
   }
@@ -84,10 +92,11 @@ class InstitutionViewModel extends ChangeNotifier {
       // Sale de la lista de pendientes: el backend ya la excluye de /pending.
       await loadPending();
       return true;
-    } catch (_) {
-      _error = 'No se pudo rechazar la institución';
-      notifyListeners();
+    } catch (e, st) {
+      state = state.copyWith(pendingOp: AsyncValue.error(e, st));
       return false;
     }
   }
 }
+
+final institutionViewModelProvider = NotifierProvider<InstitutionNotifier, InstitutionState>(InstitutionNotifier.new);

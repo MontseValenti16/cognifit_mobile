@@ -1,41 +1,32 @@
 import 'package:flutter/material.dart';
-import '../../../../core/di/service_locator.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
 import '../viewmodels/learning_curve_viewmodel.dart';
 import '../widgets/learning_curve_chart.dart';
 
-class LearningCurveScreen extends StatefulWidget {
+class LearningCurveScreen extends ConsumerStatefulWidget {
   final String studentId;
   final String studentName;
   const LearningCurveScreen({super.key, required this.studentId, required this.studentName});
 
   @override
-  State<LearningCurveScreen> createState() => _LearningCurveScreenState();
+  ConsumerState<LearningCurveScreen> createState() => _LearningCurveScreenState();
 }
 
-class _LearningCurveScreenState extends State<LearningCurveScreen> {
-  late final LearningCurveViewModel _vm;
+class _LearningCurveScreenState extends ConsumerState<LearningCurveScreen> {
+  LearningCurveNotifier get _notifier => ref.read(learningCurveViewModelProvider.notifier);
 
   @override
   void initState() {
     super.initState();
-    _vm = ServiceLocator.instance.learningCurveViewModel;
-    _vm.addListener(_rebuild);
-    _vm.load(widget.studentId);
+    _notifier.load(widget.studentId);
   }
-
-  @override
-  void dispose() {
-    _vm.removeListener(_rebuild);
-    super.dispose();
-  }
-
-  void _rebuild() { if (mounted) setState(() {}); }
 
   @override
   Widget build(BuildContext context) {
+    final async = ref.watch(learningCurveViewModelProvider);
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
@@ -49,38 +40,37 @@ class _LearningCurveScreenState extends State<LearningCurveScreen> {
         ]),
         actions: const [ThemeToggleButton()],
       ),
-      body: _vm.isLoading
-          ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
-          : _vm.status == LearningCurveStatus.error
-              ? _ErrorBody(message: _vm.error ?? 'Error al cargar', onRetry: () => _vm.load(widget.studentId))
-              : RefreshIndicator(
-                  onRefresh: () => _vm.load(widget.studentId),
-                  color: AppTheme.primary,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: context.hPad, vertical: 16),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      if (_vm.metrics != null) _MetricsSummary(metrics: _vm.metrics!),
-                      const SizedBox(height: 24),
-                      Text('Evolución de precisión', style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 4),
-                      Text('Por número de sesión · % de aciertos',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
-                      const SizedBox(height: 16),
-                      if (_vm.curve != null)
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppTheme.cardColor,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5)),
-                          ),
-                          child: LearningCurveChart(curve: _vm.curve!),
-                        ),
-                      const SizedBox(height: 40),
-                    ]),
-                  ),
+      body: async.when(
+        loading: () => Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+        error: (e, st) => _ErrorBody(message: 'Error al cargar', onRetry: () => _notifier.load(widget.studentId)),
+        data: (curveData) => RefreshIndicator(
+          onRefresh: () => _notifier.load(widget.studentId),
+          color: AppTheme.primary,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: context.hPad, vertical: 16),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              _MetricsSummary(metrics: curveData.metrics),
+              const SizedBox(height: 24),
+              Text('Evolución de precisión', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 4),
+              Text('Por número de sesión · % de aciertos',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.mutedText)),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.cardColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppTheme.outline.withValues(alpha: 0.5)),
                 ),
+                child: LearningCurveChart(curve: curveData.curve),
+              ),
+              const SizedBox(height: 40),
+            ]),
+          ),
+        ),
+      ),
     );
   }
 }

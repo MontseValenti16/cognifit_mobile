@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/di/service_locator.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/errors/api_exception.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../domain/entities/screening_entity.dart';
@@ -69,38 +70,32 @@ class _Fila extends StatelessWidget {
   }
 }
 
-/// Envoltura con estado para la ruta: crea el viewmodel, dispara la carga y
-/// muestra la pantalla según el estado. La pantalla pura (CalendarioScreen)
+/// Envoltura para la ruta: el provider es AsyncNotifier autoDispose, así que
+/// `build()` dispara la carga solo con que la pantalla lo observe — no hace
+/// falta un `cargar()` manual en initState. La pantalla pura (CalendarioScreen)
 /// queda testeable sin cablear el viewmodel.
-class CalendarioPage extends StatefulWidget {
+class CalendarioPage extends ConsumerWidget {
   const CalendarioPage({super.key});
-  @override
-  State<CalendarioPage> createState() => _CalendarioPageState();
-}
 
-class _CalendarioPageState extends State<CalendarioPage> {
-  late final CalendarioViewModel _vm;
-
-  @override
-  void initState() {
-    super.initState();
-    _vm = ServiceLocator.instance.calendarioViewModel()..cargar();
+  String _errorMessage(Object error) {
+    if (error is ApiException && (error.statusCode == 503 || error.statusCode == 502)) {
+      return 'El servicio no está disponible. No es tu conexión.';
+    }
+    return 'No se pudo cargar el calendario.';
   }
 
   @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: _vm,
-      builder: (_, __) => switch (_vm.status) {
-        CalendarioStatus.loading => const Scaffold(body: Center(child: CircularProgressIndicator())),
-        CalendarioStatus.error => Scaffold(
-            appBar: AppBar(title: const Text('Qué evaluar y cuándo'), actions: const [ThemeToggleButton()]),
-            body: Center(child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(_vm.error ?? 'No se pudo cargar el calendario.', textAlign: TextAlign.center))),
-          ),
-        CalendarioStatus.loaded => CalendarioScreen(entradas: _vm.entradas),
-      },
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncEntradas = ref.watch(calendarioViewModelProvider);
+    return asyncEntradas.when(
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (error, _) => Scaffold(
+        appBar: AppBar(title: const Text('Qué evaluar y cuándo'), actions: const [ThemeToggleButton()]),
+        body: Center(child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(_errorMessage(error), textAlign: TextAlign.center))),
+      ),
+      data: (entradas) => CalendarioScreen(entradas: entradas),
     );
   }
 }

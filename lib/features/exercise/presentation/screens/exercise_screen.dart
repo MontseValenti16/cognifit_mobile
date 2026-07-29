@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/service_locator.dart';
+import '../../../../core/di/core_providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/offline/sync_service.dart';
 import '../../../../core/services/stt_service.dart';
@@ -14,18 +15,18 @@ import '../widgets/exercise_widgets.dart';
 
 /// Renders one screening session: GET items, collects responses,
 /// then submits + diagnoses when the last item is answered.
-class ExerciseScreen extends StatefulWidget {
+class ExerciseScreen extends ConsumerStatefulWidget {
   final String sessionId;
   final String moduleTitle;
 
   const ExerciseScreen({super.key, required this.sessionId, required this.moduleTitle});
 
   @override
-  State<ExerciseScreen> createState() => _ExerciseScreenState();
+  ConsumerState<ExerciseScreen> createState() => _ExerciseScreenState();
 }
 
-class _ExerciseScreenState extends State<ExerciseScreen> {
-  late final ExerciseViewModel _vm;
+class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
+  ExerciseNotifier get _notifier => ref.read(exerciseViewModelProvider.notifier);
   final _controller = TextEditingController();
   String _captureModality = 'teclado';
   double? _sttConfidence;
@@ -34,24 +35,20 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   @override
   void initState() {
     super.initState();
-    _vm = ServiceLocator.instance.exerciseViewModel;
-    _vm.addListener(_rebuild);
-    _vm.loadSession(widget.sessionId);
-    SyncService.instance.syncPending(ServiceLocator.instance.apiClient);
+    _notifier.loadSession(widget.sessionId);
+    SyncService.instance.syncPending(ref.read(apiClientProvider));
   }
 
   @override
   void dispose() {
-    _vm.removeListener(_rebuild);
     _controller.dispose();
     TtsService.instance.stop();
     SttService.instance.stop();
     super.dispose();
   }
-  void _rebuild() { if (mounted) setState(() {}); }
 
-  bool _supportsMode(String mode) =>
-      _vm.current?.inputModes.any((m) => m.toUpperCase().contains(mode)) ?? false;
+  bool _supportsMode(ExerciseData data, String mode) =>
+      data.current?.inputModes.any((m) => m.toUpperCase().contains(mode)) ?? false;
 
   Future<void> _startListening() async {
     setState(() => _isListening = true);
@@ -73,18 +70,18 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('Continuar')),
         TextButton(
-          onPressed: () { Navigator.pop(context); context.go(AppRouter.dashboard); _vm.reset(); },
+          onPressed: () { Navigator.pop(context); context.go(AppRouter.dashboard); _notifier.reset(); },
           child: Text('Salir', style: TextStyle(color: AppTheme.riskRed)),
         ),
       ],
     ));
   }
 
-  void _submitCurrent() {
-    if (_vm.lastAnswerCorrect != null) return; // esperando avance tras feedback
+  void _submitCurrent(ExerciseData data) {
+    if (data.lastAnswerCorrect != null) return; // esperando avance tras feedback
     final text = _controller.text.trim();
     if (text.isEmpty) return;
-    _vm.answer(text, captureModality: _captureModality, sttConfidence: _sttConfidence);
+    _notifier.answer(text, captureModality: _captureModality, sttConfidence: _sttConfidence);
     _controller.clear();
     _captureModality = 'teclado';
     _sttConfidence = null;
@@ -95,62 +92,64 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   /// Retroalimentación + avance. Compartido entre la respuesta escrita y la
   /// de opción múltiple para que ambas se comporten igual.
   void _afterAnswer() {
-    if (_vm.lastAnswerCorrect != null) {
-      TtsService.instance.speak(_vm.lastAnswerCorrect! ? '¡Muy bien!' : 'Sigamos practicando');
+    final lastAnswerCorrect = ref.read(exerciseViewModelProvider).valueOrNull?.lastAnswerCorrect;
+    if (lastAnswerCorrect != null) {
+      TtsService.instance.speak(lastAnswerCorrect ? '¡Muy bien!' : 'Sigamos practicando');
       Future.delayed(const Duration(milliseconds: 1300), () {
         if (!mounted) return;
-        _vm.nextItem();
+        _notifier.nextItem();
       });
     } else {
-      _vm.nextItem();
+      _notifier.nextItem();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final async = ref.watch(exerciseViewModelProvider);
     // Un solo wrapper cubre las cinco variantes de Scaffold que devuelve
     // _buildScaffold (cargando, error, completado, enviando, sin ítems,
     // contenido) sin repetir el Theme() en cada return.
     return Theme(
       data: childTheme(Theme.of(context)),
-      child: _buildScaffold(context),
+      child: _buildScaffold(context, async),
     );
   }
 
-  Widget _buildScaffold(BuildContext context) {
-    if (_vm.isLoading) {
-      return Scaffold(backgroundColor: AppTheme.surface, body: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
-    }
-
-    if (_vm.status == ExerciseStatus.error) {
-      return Scaffold(
+  Widget _buildScaffold(BuildContext context, AsyncValue<ExerciseData> async) {
+    return async.when(
+      loading: () => Scaffold(backgroundColor: AppTheme.surface, body: Center(child: CircularProgressIndicator(color: AppTheme.primary))),
+      error: (e, st) => Scaffold(
         backgroundColor: AppTheme.surface,
         body: SafeArea(child: Center(child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(Icons.error_outline_rounded, size: 48, color: AppTheme.riskRed),
             const SizedBox(height: 12),
-            Text(_vm.error ?? 'Ocurrió un error', textAlign: TextAlign.center),
+            Text(exerciseErrorMessage(e, duringSubmit: false), textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            OutlinedButton(onPressed: () { context.go(AppRouter.dashboard); _vm.reset(); }, child: const Text('Volver')),
+            OutlinedButton(onPressed: () { context.go(AppRouter.dashboard); _notifier.reset(); }, child: const Text('Volver')),
           ]),
         ))),
-      );
-    }
+      ),
+      data: (data) => _dataScaffold(context, data),
+    );
+  }
 
-    if (_vm.isCompleted) {
-      final d = _vm.diagnosis;
+  Widget _dataScaffold(BuildContext context, ExerciseData data) {
+    if (data.phase == ExercisePhase.completed) {
+      final d = data.diagnosis;
       return Scaffold(
         backgroundColor: AppTheme.surface,
         body: SafeArea(child: ExerciseCompletedCard(
           plnSubtype: d?.plnSubtype, plnSeverity: d?.plnSeverity,
           riskLevel: d?.riskLevel, riskProbability: d?.riskProbability,
-          onFinish: () { context.go(AppRouter.dashboard); _vm.reset(); },
+          onFinish: () { context.go(AppRouter.dashboard); _notifier.reset(); },
         )),
       );
     }
 
-    if (_vm.isSubmitting) {
+    if (data.phase == ExercisePhase.submitting) {
       return Scaffold(backgroundColor: AppTheme.surface, body: Center(child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -161,7 +160,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       )));
     }
 
-    final item = _vm.current;
+    final item = data.current;
     if (item == null) {
       return Scaffold(
         backgroundColor: AppTheme.surface,
@@ -174,7 +173,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               textAlign: TextAlign.center),
             const SizedBox(height: 20),
             OutlinedButton(
-              onPressed: () { context.go(AppRouter.dashboard); _vm.reset(); },
+              onPressed: () { context.go(AppRouter.dashboard); _notifier.reset(); },
               child: const Text('Volver'),
             ),
           ]),
@@ -182,16 +181,16 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       );
     }
 
-    final waitingFeedback = _vm.lastAnswerCorrect != null;
-    final showSpeaker = _supportsMode('TTS');
-    final showMic = _supportsMode('STT');
+    final waitingFeedback = data.lastAnswerCorrect != null;
+    final showSpeaker = _supportsMode(data, 'TTS');
+    final showMic = _supportsMode(data, 'STT');
     final opciones = MultipleChoiceAnswer.parseOptions(item.stimulusText);
 
     return Scaffold(
       backgroundColor: AppTheme.surface,
       body: SafeArea(child: Column(children: [
         const OfflineBanner(),
-        ExerciseProgressBar(progress: _vm.progress, moduleTitle: widget.moduleTitle, onClose: _confirmClose),
+        ExerciseProgressBar(progress: data.progress, moduleTitle: widget.moduleTitle, onClose: _confirmClose),
         Expanded(child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: context.hPad),
           child: Column(children: [
@@ -217,17 +216,17 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
             if (opciones.isNotEmpty)
               MultipleChoiceAnswer(
                 options: opciones,
-                selected: _vm.selectedAnswer,
+                selected: data.selectedAnswer,
                 enabled: !waitingFeedback,
                 onSelect: (opcion) {
-                  _vm.answer(opcion, captureModality: 'tactil');
+                  _notifier.answer(opcion, captureModality: 'tactil');
                   _afterAnswer();
                 },
               )
             else
               ResponseTextField(
                 controller: _controller,
-                onSubmit: _submitCurrent,
+                onSubmit: () => _submitCurrent(data),
                 showMic: showMic,
                 isListening: _isListening,
                 onMicTap: _startListening,
@@ -236,14 +235,14 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
             const SizedBox(height: 8),
             Text('Modalidad: ${item.inputModes.join(", ")}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
-            if (waitingFeedback) AnswerFeedbackBanner(isCorrect: _vm.lastAnswerCorrect!),
+            if (waitingFeedback) AnswerFeedbackBanner(isCorrect: data.lastAnswerCorrect!),
           ]),
         )),
         Padding(
           padding: EdgeInsets.fromLTRB(context.hPad, 8, context.hPad, 24),
           child: ElevatedButton(
-            onPressed: waitingFeedback ? null : _submitCurrent,
-            child: Text(_vm.currentIndex < _vm.totalItems - 1 ? 'Siguiente →' : 'Finalizar sesión'),
+            onPressed: waitingFeedback ? null : () => _submitCurrent(data),
+            child: Text(data.currentIndex < data.totalItems - 1 ? 'Siguiente →' : 'Finalizar sesión'),
           ),
         ),
       ])),

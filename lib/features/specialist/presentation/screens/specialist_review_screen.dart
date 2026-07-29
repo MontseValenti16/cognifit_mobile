@@ -1,38 +1,29 @@
 import 'package:flutter/material.dart';
-import '../../../../core/di/service_locator.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../../../features/tests/domain/entities/screening_entity.dart';
 import '../viewmodels/specialist_viewmodel.dart';
 
-class SpecialistReviewScreen extends StatefulWidget {
+class SpecialistReviewScreen extends ConsumerStatefulWidget {
   const SpecialistReviewScreen({super.key});
 
   @override
-  State<SpecialistReviewScreen> createState() => _SpecialistReviewScreenState();
+  ConsumerState<SpecialistReviewScreen> createState() => _SpecialistReviewScreenState();
 }
 
-class _SpecialistReviewScreenState extends State<SpecialistReviewScreen> {
-  late final SpecialistViewModel _vm;
+class _SpecialistReviewScreenState extends ConsumerState<SpecialistReviewScreen> {
+  SpecialistNotifier get _notifier => ref.read(specialistViewModelProvider.notifier);
 
   @override
   void initState() {
     super.initState();
-    _vm = ServiceLocator.instance.specialistViewModel;
-    _vm.addListener(_rebuild);
-    _vm.load();
+    _notifier.load();
   }
-
-  @override
-  void dispose() {
-    _vm.removeListener(_rebuild);
-    super.dispose();
-  }
-
-  void _rebuild() { if (mounted) setState(() {}); }
 
   @override
   Widget build(BuildContext context) {
+    final async = ref.watch(specialistViewModelProvider);
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
@@ -45,7 +36,7 @@ class _SpecialistReviewScreenState extends State<SpecialistReviewScreen> {
           child: Divider(height: 1, color: AppTheme.outline.withValues(alpha: 0.3)),
         ),
         actions: [
-          if (_vm.totalLabeled > 0)
+          if ((async.valueOrNull?.totalLabeled ?? 0) > 0)
             Padding(
               padding: const EdgeInsets.only(right: 16),
               child: Center(
@@ -56,7 +47,7 @@ class _SpecialistReviewScreenState extends State<SpecialistReviewScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '${_vm.totalLabeled} etiquetados',
+                    '${async.valueOrNull?.totalLabeled ?? 0} etiquetados',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: AppTheme.activeGreen, fontWeight: FontWeight.w700,
                     ),
@@ -67,30 +58,30 @@ class _SpecialistReviewScreenState extends State<SpecialistReviewScreen> {
           const ThemeToggleButton(),
         ],
       ),
-      body: _vm.isLoading
-          ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
-          : _vm.error != null
-              ? _ErrorView(message: _vm.error!, onRetry: _vm.load)
-              : _vm.pending.isEmpty
-                  ? _EmptyView(totalLabeled: _vm.totalLabeled)
-                  : RefreshIndicator(
-                      onRefresh: _vm.load,
-                      color: AppTheme.primary,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                        itemCount: _vm.pending.length,
-                        itemBuilder: (_, i) => _DiagnosisCard(
-                          diagnosis: _vm.pending[i],
-                          onConfirm: () => _handleConfirm(_vm.pending[i]),
-                          onCorrect: () => _showCorrectionSheet(_vm.pending[i]),
-                        ),
-                      ),
-                    ),
+      body: async.when(
+        loading: () => Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+        error: (e, st) => _ErrorView(message: 'No se pudieron cargar los diagnósticos: $e', onRetry: _notifier.load),
+        data: (data) => data.pending.isEmpty
+            ? _EmptyView(totalLabeled: data.totalLabeled)
+            : RefreshIndicator(
+                onRefresh: _notifier.load,
+                color: AppTheme.primary,
+                child: ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                  itemCount: data.pending.length,
+                  itemBuilder: (_, i) => _DiagnosisCard(
+                    diagnosis: data.pending[i],
+                    onConfirm: () => _handleConfirm(data.pending[i]),
+                    onCorrect: () => _showCorrectionSheet(data.pending[i]),
+                  ),
+                ),
+              ),
+      ),
     );
   }
 
   Future<void> _handleConfirm(PendingDiagnosisEntity d) async {
-    final ok = await _vm.confirm(d);
+    final ok = await _notifier.confirm(d);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(ok ? 'Diagnóstico confirmado' : 'Error al confirmar'),
@@ -105,7 +96,7 @@ class _SpecialistReviewScreenState extends State<SpecialistReviewScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _CorrectionSheet(diagnosis: d, vm: _vm),
+      builder: (_) => _CorrectionSheet(diagnosis: d, notifier: _notifier),
     );
   }
 }
@@ -277,8 +268,8 @@ class _Chip extends StatelessWidget {
 
 class _CorrectionSheet extends StatefulWidget {
   final PendingDiagnosisEntity diagnosis;
-  final SpecialistViewModel vm;
-  const _CorrectionSheet({required this.diagnosis, required this.vm});
+  final SpecialistNotifier notifier;
+  const _CorrectionSheet({required this.diagnosis, required this.notifier});
 
   @override
   State<_CorrectionSheet> createState() => _CorrectionSheetState();
@@ -421,7 +412,7 @@ class _CorrectionSheetState extends State<_CorrectionSheet> {
 
   Future<void> _submit() async {
     setState(() => _submitting = true);
-    final ok = await widget.vm.correct(
+    final ok = await widget.notifier.correct(
       diagnosisId: widget.diagnosis.id,
       subtype: _subtype,
       severity: _severity,

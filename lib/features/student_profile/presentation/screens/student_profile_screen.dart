@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/utils/text_format.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../../child/presentation/screens/child_home_screen.dart';
+import '../../../intervention/di/intervention_providers.dart';
 import '../../../intervention/presentation/screens/comprehension_track_screen.dart';
 import '../../../intervention/presentation/screens/intervention_screen.dart';
 import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
@@ -13,30 +14,30 @@ import '../../../tests/domain/entities/screening_entity.dart';
 import '../../../tracking/domain/entities/tracking_entity.dart';
 import '../viewmodels/student_profile_viewmodel.dart';
 
-class StudentProfileScreen extends StatefulWidget {
+class StudentProfileScreen extends ConsumerStatefulWidget {
   final String studentId;
   final String studentName;
   const StudentProfileScreen({super.key, required this.studentId, required this.studentName});
   @override
-  State<StudentProfileScreen> createState() => _StudentProfileScreenState();
+  ConsumerState<StudentProfileScreen> createState() => _StudentProfileScreenState();
 }
 
-class _StudentProfileScreenState extends State<StudentProfileScreen> {
-  late final StudentProfileViewModel _vm;
+class _StudentProfileScreenState extends ConsumerState<StudentProfileScreen> {
+  StudentProfileNotifier get _notifier => ref.read(studentProfileViewModelProvider.notifier);
+
   @override
-  void initState() { super.initState(); _vm = ServiceLocator.instance.studentProfileViewModel; _vm.addListener(_r); _vm.load(widget.studentId); }
-  @override
-  void dispose() { _vm.removeListener(_r); super.dispose(); }
-  void _r() { if (mounted) setState(() {}); }
+  void initState() { super.initState(); _notifier.load(widget.studentId); }
 
   @override
   Widget build(BuildContext context) {
+    final asyncData = ref.watch(studentProfileViewModelProvider);
+    final studentName = asyncData.valueOrNull?.student.fullName ?? widget.studentName;
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20), onPressed: () => Navigator.pop(context)),
         title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(_vm.student?.fullName ?? widget.studentName, style: Theme.of(context).textTheme.titleLarge),
+          Text(studentName, style: Theme.of(context).textTheme.titleLarge),
           Text('Perfil del alumno', style: Theme.of(context).textTheme.bodyMedium),
         ]),
         actions: [
@@ -46,7 +47,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             onPressed: () => Navigator.push(context, MaterialPageRoute(
               builder: (_) => ChildHomeScreen(
                 studentId: widget.studentId,
-                studentName: _vm.student?.fullName ?? widget.studentName,
+                studentName: studentName,
               ),
             )),
           ),
@@ -63,7 +64,6 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             tooltip: 'Intervención',
             onPressed: () => Navigator.push(context, MaterialPageRoute(
               builder: (_) => InterventionScreen(
-                vm: ServiceLocator.instance.interventionViewModel(),
                 studentId: widget.studentId,
                 studentName: widget.studentName,
               ),
@@ -74,7 +74,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             tooltip: 'Comprensión lectora',
             onPressed: () => Navigator.push(context, MaterialPageRoute(
               builder: (_) => ComprehensionTrackScreen(
-                repository: ServiceLocator.instance.interventionRepository,
+                repository: ref.read(interventionRepositoryProvider),
                 studentId: widget.studentId,
                 studentName: widget.studentName,
               ),
@@ -88,7 +88,6 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
               isScrollControlled: true,
               shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
               builder: (_) => ReportBottomSheet(
-                vm: ServiceLocator.instance.reportsViewModel,
                 studentId: widget.studentId,
                 studentName: widget.studentName,
               ),
@@ -102,11 +101,11 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
           const ThemeToggleButton(),
         ],
       ),
-      body: _vm.isLoading
-        ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
-        : _vm.status == StudentProfileStatus.error && _vm.student == null
-          ? _ErrorBody(message: _vm.error ?? 'Error', onRetry: () => _vm.load(widget.studentId))
-          : _ProfileBody(vm: _vm),
+      body: asyncData.when(
+        loading: () => Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+        error: (e, st) => _ErrorBody(message: 'No se pudo cargar el perfil del alumno.', onRetry: () => _notifier.load(widget.studentId)),
+        data: (data) => _ProfileBody(data: data, notifier: _notifier),
+      ),
     );
   }
 }
@@ -129,19 +128,20 @@ class _ErrorBody extends StatelessWidget {
 }
 
 class _ProfileBody extends StatelessWidget {
-  final StudentProfileViewModel vm;
-  const _ProfileBody({required this.vm});
+  final StudentProfileData data;
+  final StudentProfileNotifier notifier;
+  const _ProfileBody({required this.data, required this.notifier});
 
   @override
   Widget build(BuildContext context) {
-    final student = vm.student;
-    final risk = vm.latestRisk;
-    final metrics = vm.metrics;
+    final student = data.student;
+    final risk = data.latestRisk;
+    final metrics = data.metrics;
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: context.hPad, vertical: 12),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        if (student != null) _StudentHeaderCard(student: student),
+        _StudentHeaderCard(student: student),
         const SizedBox(height: 16),
 
         if (risk != null) ...[
@@ -159,9 +159,9 @@ class _ProfileBody extends StatelessWidget {
           _MetricsCard(metrics: metrics),
         ],
 
-        if (vm.pendingModules.isNotEmpty) ...[
+        if (data.pendingModules.isNotEmpty) ...[
           const SizedBox(height: 24),
-          _PendingModulesSection(vm: vm),
+          _PendingModulesSection(data: data, notifier: notifier),
         ],
 
         const SizedBox(height: 24),
@@ -358,15 +358,16 @@ class _MiniStat extends StatelessWidget {
 }
 
 class _PendingModulesSection extends StatelessWidget {
-  final StudentProfileViewModel vm;
-  const _PendingModulesSection({required this.vm});
+  final StudentProfileData data;
+  final StudentProfileNotifier notifier;
+  const _PendingModulesSection({required this.data, required this.notifier});
 
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text('Módulos pendientes', style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: 10),
-      ...vm.pendingModules.map((module) => Padding(
+      ...data.pendingModules.map((module) => Padding(
         padding: const EdgeInsets.only(bottom: 10),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
@@ -387,11 +388,11 @@ class _PendingModulesSection extends StatelessWidget {
               const SizedBox(height: 2),
               Text(module.moduleCode, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.mutedText)),
             ])),
-            vm.openingAssignmentId == module.assignmentId
+            data.openingAssignmentId == module.assignmentId
               ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primary))
               : TextButton(
-                  onPressed: vm.openingAssignmentId != null ? null : () async {
-                    final result = await vm.openModule(module);
+                  onPressed: data.openingAssignmentId != null ? null : () async {
+                    final result = await notifier.openModule(module);
                     if (!context.mounted) return;
                     if (result == null) {
                       ScaffoldMessenger.of(context).showSnackBar(

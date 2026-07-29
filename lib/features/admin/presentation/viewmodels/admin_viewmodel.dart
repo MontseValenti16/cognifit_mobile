@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../di/admin_providers.dart';
 import '../../domain/entities/admin_user_entity.dart';
 import '../../domain/usecases/get_users_usecase.dart';
 import '../../domain/usecases/create_user_usecase.dart';
@@ -7,164 +8,172 @@ import '../../domain/usecases/deactivate_user_usecase.dart';
 import '../../domain/usecases/get_students_for_picker_usecase.dart';
 import '../../domain/usecases/link_parent_usecase.dart';
 
-class AdminViewModel extends ChangeNotifier {
-  final GetUsersUseCase _getUsers;
-  final CreateUserUseCase _createUser;
-  final UpdateUserUseCase _updateUser;
-  final DeactivateUserUseCase _deactivateUser;
-  final GetStudentsForPickerUseCase _getStudentsForPicker;
-  final LinkParentUseCase _linkParent;
+const _unset = Object();
 
-  AdminViewModel({
-    required GetUsersUseCase getUsers,
-    required CreateUserUseCase createUser,
-    required UpdateUserUseCase updateUser,
-    required DeactivateUserUseCase deactivateUser,
-    required GetStudentsForPickerUseCase getStudentsForPicker,
-    required LinkParentUseCase linkParent,
-  })  : _getUsers = getUsers,
-        _createUser = createUser,
-        _updateUser = updateUser,
-        _deactivateUser = deactivateUser,
-        _getStudentsForPicker = getStudentsForPicker,
-        _linkParent = linkParent;
+/// `busy` cubre load()/createUser() (comparten el mismo indicador en el
+/// original); `studentsBusy` cubre loadStudentsForPicker(). Las demás
+/// mutaciones (updateUserRole/deactivateUser/reactivateUser/linkParent) no
+/// tocan ningún indicador de carga — igual que antes, solo actualizan
+/// error/successMessage y la lista.
+class AdminState {
+  final AsyncValue<void> busy;
+  final AsyncValue<void> studentsBusy;
+  final List<AdminUserEntity> users;
+  final List<Map<String, dynamic>> studentsForPicker;
+  final bool includeInactive;
+  final String? error;
+  final String? successMessage;
 
-  List<AdminUserEntity> _users = [];
-  List<Map<String, dynamic>> _studentsForPicker = [];
-  bool _includeInactive = false;
-  bool _isLoading = false;
-  bool _isLoadingStudents = false;
-  String? _error;
-  String? _successMessage;
+  const AdminState({
+    this.busy = const AsyncValue.data(null),
+    this.studentsBusy = const AsyncValue.data(null),
+    this.users = const [],
+    this.studentsForPicker = const [],
+    this.includeInactive = false,
+    this.error,
+    this.successMessage,
+  });
 
-  List<AdminUserEntity> get users => _users;
-  List<Map<String, dynamic>> get studentsForPicker => _studentsForPicker;
-  bool get includeInactive => _includeInactive;
-  bool get isLoading => _isLoading;
-  bool get isLoadingStudents => _isLoadingStudents;
-  String? get error => _error;
-  String? get successMessage => _successMessage;
+  bool get isLoading => busy.isLoading;
+  bool get isLoadingStudents => studentsBusy.isLoading;
+
+  AdminState copyWith({
+    AsyncValue<void>? busy,
+    AsyncValue<void>? studentsBusy,
+    List<AdminUserEntity>? users,
+    List<Map<String, dynamic>>? studentsForPicker,
+    bool? includeInactive,
+    Object? error = _unset,
+    Object? successMessage = _unset,
+  }) {
+    return AdminState(
+      busy: busy ?? this.busy,
+      studentsBusy: studentsBusy ?? this.studentsBusy,
+      users: users ?? this.users,
+      studentsForPicker: studentsForPicker ?? this.studentsForPicker,
+      includeInactive: includeInactive ?? this.includeInactive,
+      error: identical(error, _unset) ? this.error : error as String?,
+      successMessage: identical(successMessage, _unset) ? this.successMessage : successMessage as String?,
+    );
+  }
+}
+
+class AdminNotifier extends Notifier<AdminState> {
+  late GetUsersUseCase _getUsers;
+  late CreateUserUseCase _createUser;
+  late UpdateUserUseCase _updateUser;
+  late DeactivateUserUseCase _deactivateUser;
+  late GetStudentsForPickerUseCase _getStudentsForPicker;
+  late LinkParentUseCase _linkParent;
+
+  @override
+  AdminState build() {
+    final repo = ref.watch(adminRepositoryProvider);
+    _getUsers = GetUsersUseCase(repo);
+    _createUser = CreateUserUseCase(repo);
+    _updateUser = UpdateUserUseCase(repo);
+    _deactivateUser = DeactivateUserUseCase(repo);
+    _getStudentsForPicker = GetStudentsForPickerUseCase(repo);
+    _linkParent = LinkParentUseCase(repo);
+    return const AdminState();
+  }
 
   Future<void> load() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
+    state = state.copyWith(busy: const AsyncValue.loading(), error: null);
     try {
-      _users = await _getUsers(includeInactive: _includeInactive);
-    } catch (e) {
-      _error = 'No se pudo cargar la lista de usuarios';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      final users = await _getUsers(includeInactive: state.includeInactive);
+      state = state.copyWith(busy: const AsyncValue.data(null), users: users);
+    } catch (e, st) {
+      state = state.copyWith(busy: AsyncValue.error(e, st), error: 'No se pudo cargar la lista de usuarios');
     }
   }
 
   void toggleInactive() {
-    _includeInactive = !_includeInactive;
+    state = state.copyWith(includeInactive: !state.includeInactive);
     load();
   }
 
   Future<bool> createUser(CreateUserParams params) async {
-    _isLoading = true;
-    _error = null;
-    _successMessage = null;
-    notifyListeners();
+    state = state.copyWith(busy: const AsyncValue.loading(), error: null, successMessage: null);
     try {
       final created = await _createUser(params);
-      _users = [created, ..._users];
-      _successMessage = 'Usuario creado: ${created.email}';
+      state = state.copyWith(
+        busy: const AsyncValue.data(null),
+        users: [created, ...state.users],
+        successMessage: 'Usuario creado: ${created.email}',
+      );
       return true;
-    } catch (e) {
-      _error = 'No se pudo crear el usuario. Verifica que el correo no esté registrado.';
+    } catch (e, st) {
+      state = state.copyWith(
+        busy: AsyncValue.error(e, st),
+        error: 'No se pudo crear el usuario. Verifica que el correo no esté registrado.',
+      );
       return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
     }
   }
 
   Future<bool> updateUserRole(String userId, String newRole) async {
-    _error = null;
-    _successMessage = null;
+    state = state.copyWith(error: null, successMessage: null);
     try {
       final updated = await _updateUser(UpdateUserParams(userId: userId, role: newRole));
-      _replaceUser(updated);
-      _successMessage = 'Rol actualizado';
-      notifyListeners();
+      state = state.copyWith(users: _replaceUser(updated), successMessage: 'Rol actualizado');
       return true;
     } catch (e) {
-      _error = 'No se pudo actualizar el rol';
-      notifyListeners();
+      state = state.copyWith(error: 'No se pudo actualizar el rol');
       return false;
     }
   }
 
   Future<bool> deactivateUser(String userId) async {
-    _error = null;
-    _successMessage = null;
+    state = state.copyWith(error: null, successMessage: null);
     try {
       final updated = await _deactivateUser(userId);
-      _replaceUser(updated);
-      _successMessage = 'Usuario desactivado';
-      notifyListeners();
+      state = state.copyWith(users: _replaceUser(updated), successMessage: 'Usuario desactivado');
       return true;
     } catch (e) {
-      _error = 'No se pudo desactivar el usuario';
-      notifyListeners();
+      state = state.copyWith(error: 'No se pudo desactivar el usuario');
       return false;
     }
   }
 
   Future<bool> reactivateUser(String userId) async {
-    _error = null;
-    _successMessage = null;
+    state = state.copyWith(error: null, successMessage: null);
     try {
       final updated = await _updateUser(UpdateUserParams(userId: userId, isActive: true));
-      _replaceUser(updated);
-      _successMessage = 'Usuario reactivado';
-      notifyListeners();
+      state = state.copyWith(users: _replaceUser(updated), successMessage: 'Usuario reactivado');
       return true;
     } catch (e) {
-      _error = 'No se pudo reactivar el usuario';
-      notifyListeners();
+      state = state.copyWith(error: 'No se pudo reactivar el usuario');
       return false;
     }
   }
 
   Future<void> loadStudentsForPicker() async {
-    _isLoadingStudents = true;
-    notifyListeners();
+    state = state.copyWith(studentsBusy: const AsyncValue.loading());
     try {
-      _studentsForPicker = await _getStudentsForPicker();
-    } catch (_) {
-      _studentsForPicker = [];
-    } finally {
-      _isLoadingStudents = false;
-      notifyListeners();
+      final students = await _getStudentsForPicker();
+      state = state.copyWith(studentsBusy: const AsyncValue.data(null), studentsForPicker: students);
+    } catch (e, st) {
+      state = state.copyWith(studentsBusy: AsyncValue.error(e, st), studentsForPicker: const []);
     }
   }
 
   Future<bool> linkParent(String userId, String studentId) async {
-    _error = null;
-    _successMessage = null;
+    state = state.copyWith(error: null, successMessage: null);
     try {
       await _linkParent(userId, studentId);
-      _successMessage = 'Alumno vinculado correctamente';
-      notifyListeners();
+      state = state.copyWith(successMessage: 'Alumno vinculado correctamente');
       return true;
     } catch (e) {
-      _error = 'No se pudo vincular el alumno';
-      notifyListeners();
+      state = state.copyWith(error: 'No se pudo vincular el alumno');
       return false;
     }
   }
 
-  void clearMessages() {
-    _error = null;
-    _successMessage = null;
-  }
+  void clearMessages() => state = state.copyWith(error: null, successMessage: null);
 
-  void _replaceUser(AdminUserEntity updated) {
-    _users = [for (final u in _users) u.id == updated.id ? updated : u];
-  }
+  List<AdminUserEntity> _replaceUser(AdminUserEntity updated) =>
+      [for (final u in state.users) u.id == updated.id ? updated : u];
 }
+
+final adminViewModelProvider = NotifierProvider<AdminNotifier, AdminState>(AdminNotifier.new);

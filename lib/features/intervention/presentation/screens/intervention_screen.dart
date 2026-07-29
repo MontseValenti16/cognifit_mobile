@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/child_theme.dart';
@@ -11,39 +12,34 @@ import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
 import '../viewmodels/intervention_viewmodel.dart';
 
-class InterventionScreen extends StatefulWidget {
-  final InterventionViewModel vm;
+class InterventionScreen extends ConsumerStatefulWidget {
   final String studentId;
   final String studentName;
 
   const InterventionScreen({
     super.key,
-    required this.vm,
     required this.studentId,
     required this.studentName,
   });
 
   @override
-  State<InterventionScreen> createState() => _InterventionScreenState();
+  ConsumerState<InterventionScreen> createState() => _InterventionScreenState();
 }
 
-class _InterventionScreenState extends State<InterventionScreen> {
+class _InterventionScreenState extends ConsumerState<InterventionScreen> {
   @override
   void initState() {
     super.initState();
-    widget.vm.addListener(_rebuild);
-    widget.vm.load(widget.studentId);
+    // `read`, no `watch`: es un disparo único al abrir la pantalla. La
+    // reactividad de verdad viene del ref.watch en build().
+    ref.read(interventionViewModelProvider.notifier).load(widget.studentId);
   }
 
   @override
   void dispose() {
-    widget.vm.removeListener(_rebuild);
     TtsService.instance.stop();
-    widget.vm.reset();
     super.dispose();
   }
-
-  void _rebuild() { if (mounted) setState(() {}); }
 
   /// Elige el reproductor según lo que trae el ejercicio. Devuelve null para
   /// los que todavía no tienen uno (voz y trazo), que siguen con calificación
@@ -142,7 +138,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
   }
 
   void _rate(double accuracy) =>
-      widget.vm.recordAndAdvance(widget.studentId, accuracy);
+      ref.read(interventionViewModelProvider.notifier).recordAndAdvance(widget.studentId, accuracy);
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +149,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
   }
 
   Widget _buildScaffold(BuildContext context) {
-    final vm = widget.vm;
+    final async = ref.watch(interventionViewModelProvider);
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
@@ -165,30 +161,35 @@ class _InterventionScreenState extends State<InterventionScreen> {
         ]),
         actions: const [ThemeToggleButton()],
       ),
-      body: SafeArea(child: _body(context, vm)),
+      body: SafeArea(child: _body(context, async)),
     );
   }
 
-  Widget _body(BuildContext context, InterventionViewModel vm) {
-    if (vm.isLoading) {
-      return Center(child: CircularProgressIndicator(color: AppTheme.primary));
-    }
-    if (vm.status == InterventionStatus.noPath) {
+  Widget _body(BuildContext context, AsyncValue<InterventionData> async) {
+    return async.when(
+      loading: () => Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+      error: (e, st) => _centeredMessage(context,
+        icon: Icons.error_outline_rounded, color: AppTheme.riskRed,
+        title: 'Error',
+        body: interventionErrorMessage(e),
+        action: TextButton(
+          onPressed: () => ref.read(interventionViewModelProvider.notifier).load(widget.studentId),
+          child: const Text('Reintentar'),
+        ),
+      ),
+      data: (data) => _dataBody(context, data),
+    );
+  }
+
+  Widget _dataBody(BuildContext context, InterventionData data) {
+    if (data.phase == InterventionPhase.noPath) {
       return _centeredMessage(context,
         icon: Icons.route_rounded, color: AppTheme.pendingOrange,
         title: 'Sin ruta activa',
         body: 'Este alumno aún no tiene una ruta de intervención asignada. Ejecuta un diagnóstico primero.',
       );
     }
-    if (vm.status == InterventionStatus.error) {
-      return _centeredMessage(context,
-        icon: Icons.error_outline_rounded, color: AppTheme.riskRed,
-        title: 'Error',
-        body: vm.error ?? 'Error desconocido',
-        action: TextButton(onPressed: () => vm.load(widget.studentId), child: const Text('Reintentar')),
-      );
-    }
-    if (vm.status == InterventionStatus.complete) {
+    if (data.phase == InterventionPhase.complete) {
       return _centeredMessage(context,
         icon: Icons.celebration_rounded, color: AppTheme.activeGreen,
         title: '¡Ruta completada!',
@@ -197,18 +198,18 @@ class _InterventionScreenState extends State<InterventionScreen> {
       );
     }
 
-    final exercise = vm.current?.exerciseDetail;
+    final exercise = data.current?.exerciseDetail;
     if (exercise == null) return const SizedBox.shrink();
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: context.hPad, vertical: 20),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         // Route info chip
-        if (vm.path != null)
+        if (data.path != null)
           Align(alignment: Alignment.centerLeft, child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
-            child: Text('${vm.path!.routeCode} · Nivel ${vm.path!.currentDifficulty}',
+            child: Text('${data.path!.routeCode} · Nivel ${data.path!.currentDifficulty}',
               style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.w700)),
           )),
         const SizedBox(height: 20),
@@ -286,7 +287,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
         ]),
         ],
 
-        if (vm.current?.support != null) ...[
+        if (data.current?.support != null) ...[
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(14),
@@ -294,7 +295,7 @@ class _InterventionScreenState extends State<InterventionScreen> {
             child: Row(children: [
               Icon(Icons.lightbulb_outline_rounded, color: AppTheme.tertiary, size: 18),
               const SizedBox(width: 8),
-              Expanded(child: Text(vm.current!.support!, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.tertiary))),
+              Expanded(child: Text(data.current!.support!, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.tertiary))),
             ]),
           ),
         ],

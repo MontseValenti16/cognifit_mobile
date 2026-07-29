@@ -1,49 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../viewmodels/reports_viewmodel.dart';
 
-class ReportBottomSheet extends StatefulWidget {
-  final ReportsViewModel vm;
+class ReportBottomSheet extends ConsumerStatefulWidget {
   final String studentId;
   final String studentName;
 
   const ReportBottomSheet({
     super.key,
-    required this.vm,
     required this.studentId,
     required this.studentName,
   });
 
   @override
-  State<ReportBottomSheet> createState() => _ReportBottomSheetState();
+  ConsumerState<ReportBottomSheet> createState() => _ReportBottomSheetState();
 }
 
-class _ReportBottomSheetState extends State<ReportBottomSheet> {
-  @override
-  void initState() {
-    super.initState();
-    widget.vm.addListener(_rebuild);
-  }
-
+class _ReportBottomSheetState extends ConsumerState<ReportBottomSheet> {
   @override
   void dispose() {
-    widget.vm.removeListener(_rebuild);
-    widget.vm.reset();
+    // El provider no es autoDispose (es el mismo ReportsNotifier que ya
+    // usa el resto de la pantalla de perfil), así que sí conviene limpiar
+    // su estado al cerrar la hoja para que la próxima apertura no arrastre
+    // el reporte anterior.
+    ref.read(reportsViewModelProvider.notifier).reset();
     super.dispose();
   }
 
-  void _rebuild() { if (mounted) setState(() {}); }
-
-  String _statusLabel() => switch (widget.vm.status) {
-    ReportStatus.requesting  => 'Solicitando reporte...',
-    ReportStatus.generating  => 'Generando PDF...',
-    ReportStatus.downloading => 'Descargando archivo...',
-    _ => '',
+  String _statusLabel(ReportsState vm) => switch (vm.stage) {
+    ReportStage.requesting  => 'Solicitando reporte...',
+    ReportStage.generating  => 'Generando PDF...',
+    ReportStage.downloading => 'Descargando archivo...',
+    null => '',
   };
 
   @override
   Widget build(BuildContext context) {
-    final vm = widget.vm;
+    final vm = ref.watch(reportsViewModelProvider);
+    final notifier = ref.read(reportsViewModelProvider.notifier);
 
     return SafeArea(
       child: Padding(
@@ -59,13 +54,13 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
           const SizedBox(height: 16),
 
           // Type picker (only when idle or error)
-          if (vm.isIdle || vm.status == ReportStatus.error) ...[
+          if (vm.isIdle || vm.isError) ...[
             _TypeOption(
               label: 'Resumen para padres',
               subtitle: 'Redacción sencilla, sin tecnicismos',
               value: 'PARENT_SUMMARY',
               groupValue: vm.reportType,
-              onChanged: vm.setReportType,
+              onChanged: notifier.setReportType,
             ),
             const SizedBox(height: 8),
             _TypeOption(
@@ -73,7 +68,7 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
               subtitle: 'Datos clínicos, métricas y recomendaciones detalladas',
               value: 'SPECIALIST_FULL',
               groupValue: vm.reportType,
-              onChanged: vm.setReportType,
+              onChanged: notifier.setReportType,
             ),
             const SizedBox(height: 20),
           ],
@@ -83,13 +78,13 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
             const SizedBox(height: 16),
             Center(child: CircularProgressIndicator(color: AppTheme.primary)),
             const SizedBox(height: 12),
-            Text(_statusLabel(), textAlign: TextAlign.center,
+            Text(_statusLabel(vm), textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.mutedText)),
             const SizedBox(height: 24),
           ],
 
           // Error
-          if (vm.status == ReportStatus.error && vm.error != null) ...[
+          if (vm.isError && vm.error != null) ...[
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: AppTheme.riskRed.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)),
@@ -113,19 +108,19 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
             ElevatedButton.icon(
               icon: const Icon(Icons.share_rounded),
               label: const Text('Compartir / Descargar PDF'),
-              onPressed: vm.share,
+              onPressed: notifier.share,
             ),
             const SizedBox(height: 8),
             TextButton(
-              onPressed: vm.reset,
+              onPressed: notifier.reset,
               child: const Text('Generar otro reporte'),
             ),
           ],
 
           // Generate button
-          if (vm.isIdle || vm.status == ReportStatus.error)
+          if (vm.isIdle || vm.isError)
             ElevatedButton(
-              onPressed: () => vm.generate(widget.studentId),
+              onPressed: () => notifier.generate(widget.studentId),
               child: const Text('Generar reporte'),
             ),
         ]),

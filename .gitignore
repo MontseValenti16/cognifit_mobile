@@ -45,3 +45,10 @@ app.*.map.json
 /android/app/release
 *.hprof
 android/hs_err_pid*.log
+
+# Credenciales de firma de la aplicacion (NUNCA deben versionarse: quien tenga
+# el keystore puede firmar APKs que Android acepta como CogniFit legitimo).
+*.jks
+*.keystore
+key.properties
+android/key.properties

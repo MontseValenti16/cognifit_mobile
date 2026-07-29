@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
@@ -10,36 +10,27 @@ import '../viewmodels/students_viewmodel.dart';
 import '../widgets/students_widgets.dart';
 import '../widgets/student_form_modal.dart';
 
-class StudentsScreen extends StatefulWidget {
+class StudentsScreen extends ConsumerStatefulWidget {
   final String? initialGroupId;
   const StudentsScreen({super.key, this.initialGroupId});
   @override
-  State<StudentsScreen> createState() => _StudentsScreenState();
+  ConsumerState<StudentsScreen> createState() => _StudentsScreenState();
 }
 
-class _StudentsScreenState extends State<StudentsScreen> {
-  late final StudentsViewModel _vm;
+class _StudentsScreenState extends ConsumerState<StudentsScreen> {
+  // `ref.read`, no `watch`: se usan en callbacks fuera de build (donde watch
+  // no es válido). build() se suscribe aparte con ref.watch(...) al inicio.
+  StudentsState get _state => ref.read(studentsViewModelProvider);
+  StudentsNotifier get _notifier => ref.read(studentsViewModelProvider.notifier);
 
   @override
   void initState() {
     super.initState();
-    _vm = ServiceLocator.instance.studentsViewModel;
-    _vm.addListener(_rebuild);
-    _vm.loadStudents().then((_) {
+    _notifier.loadStudents().then((_) {
       if (widget.initialGroupId != null) {
-        _vm.filterByGroup(widget.initialGroupId);
+        _notifier.filterByGroup(widget.initialGroupId);
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _vm.removeListener(_rebuild);
-    super.dispose();
-  }
-
-  void _rebuild() {
-    if (mounted) setState(() {});
   }
 
   void _showSnack(String msg, Color color) {
@@ -58,42 +49,44 @@ class _StudentsScreenState extends State<StudentsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => ListenableBuilder(
-        listenable: _vm,
-        builder: (_, __) => StudentFormModal(
-          existing: existing,
-          groups: _vm.groups,
-          isSaving: _vm.isMutating,
-          onCreateGroup: _vm.createGroup,
-          onSubmit: (groupId, name, year, gender) async {
-            final ok = existing == null
-                ? await _vm.create(
-                    CreateStudentParams(
-                      groupId: groupId,
-                      fullName: name,
-                      birthYear: year,
-                      gender: gender,
-                    ),
-                  )
-                : await _vm.update(
-                    UpdateStudentParams(
-                      studentId: existing.id,
-                      fullName: name,
-                      birthYear: year,
-                      gender: gender,
-                    ),
-                  );
-            if (ok && mounted) {
-              Navigator.pop(context);
-              _showSnack(
-                existing == null ? '✓ Alumno creado' : '✓ Cambios guardados',
-                AppTheme.activeGreen,
-              );
-            } else if (mounted) {
-              _showSnack(_vm.error ?? 'Ocurrió un error', AppTheme.riskRed);
-            }
-          },
-        ),
+      builder: (_) => Consumer(
+        builder: (_, modalRef, __) {
+          final state = modalRef.watch(studentsViewModelProvider);
+          return StudentFormModal(
+            existing: existing,
+            groups: state.groups,
+            isSaving: state.isMutating,
+            onCreateGroup: _notifier.createGroup,
+            onSubmit: (groupId, name, year, gender) async {
+              final ok = existing == null
+                  ? await _notifier.create(
+                      CreateStudentParams(
+                        groupId: groupId,
+                        fullName: name,
+                        birthYear: year,
+                        gender: gender,
+                      ),
+                    )
+                  : await _notifier.update(
+                      UpdateStudentParams(
+                        studentId: existing.id,
+                        fullName: name,
+                        birthYear: year,
+                        gender: gender,
+                      ),
+                    );
+              if (ok && mounted) {
+                Navigator.pop(context);
+                _showSnack(
+                  existing == null ? '✓ Alumno creado' : '✓ Cambios guardados',
+                  AppTheme.activeGreen,
+                );
+              } else if (mounted) {
+                _showSnack(_state.error ?? 'Ocurrió un error', AppTheme.riskRed);
+              }
+            },
+          );
+        },
       ),
     );
   }
@@ -120,9 +113,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
-                final ok = await _vm.deleteGroup(group.id);
+                final ok = await _notifier.deleteGroup(group.id);
                 _showSnack(
-                  ok ? '✓ Grupo eliminado' : (_vm.error ?? 'No se pudo eliminar'),
+                  ok ? '✓ Grupo eliminado' : (_state.error ?? 'No se pudo eliminar'),
                   ok ? AppTheme.activeGreen : AppTheme.riskRed,
                 );
               },
@@ -152,11 +145,11 @@ class _StudentsScreenState extends State<StudentsScreen> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              final ok = await _vm.delete(student.id);
+              final ok = await _notifier.delete(student.id);
               _showSnack(
                 ok
                     ? '✓ Alumno desactivado'
-                    : (_vm.error ?? 'No se pudo desactivar'),
+                    : (_state.error ?? 'No se pudo desactivar'),
                 ok ? AppTheme.activeGreen : AppTheme.riskRed,
               );
             },
@@ -198,9 +191,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
             style: FilledButton.styleFrom(backgroundColor: AppTheme.riskRed),
             onPressed: () async {
               Navigator.pop(context);
-              final ok = await _vm.permanentDelete(student.id);
+              final ok = await _notifier.permanentDelete(student.id);
               _showSnack(
-                ok ? '✓ ${student.fullName} eliminado permanentemente' : (_vm.error ?? 'No se pudo eliminar'),
+                ok ? '✓ ${student.fullName} eliminado permanentemente' : (_state.error ?? 'No se pudo eliminar'),
                 ok ? AppTheme.activeGreen : AppTheme.riskRed,
               );
             },
@@ -212,15 +205,16 @@ class _StudentsScreenState extends State<StudentsScreen> {
   }
 
   void _activate(StudentEntity student) async {
-    final ok = await _vm.activate(student.id);
+    final ok = await _notifier.activate(student.id);
     _showSnack(
-      ok ? '✓ ${student.fullName} reactivado' : (_vm.error ?? 'No se pudo reactivar'),
+      ok ? '✓ ${student.fullName} reactivado' : (_state.error ?? 'No se pudo reactivar'),
       ok ? AppTheme.activeGreen : AppTheme.riskRed,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(studentsViewModelProvider);
     return Scaffold(
       backgroundColor: AppTheme.surface,
       body: SafeArea(
@@ -253,7 +247,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                                   ?.copyWith(fontWeight: FontWeight.w700),
                             ),
                             Text(
-                              '${_vm.totalCount} en total · ${_vm.activeCount} activos',
+                              '${state.totalCount} en total · ${state.activeCount} activos',
                               style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(color: AppTheme.mutedText),
                             ),
@@ -272,13 +266,13 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     ],
                   ),
                   const SizedBox(height: 14),
-                  StudentsSearchBar(onChanged: _vm.search),
-                  if (_vm.groups.isNotEmpty) ...[
+                  StudentsSearchBar(onChanged: _notifier.search),
+                  if (state.groups.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     GroupFilterChips(
-                      groups: _vm.groups,
-                      selectedGroupId: _vm.groupFilter,
-                      onSelected: _vm.filterByGroup,
+                      groups: state.groups,
+                      selectedGroupId: state.groupFilter,
+                      onSelected: _notifier.filterByGroup,
                       onDeleteGroup: _confirmDeleteGroup,
                     ),
                   ],
@@ -288,16 +282,16 @@ class _StudentsScreenState extends State<StudentsScreen> {
             const SizedBox(height: 12),
 
             Expanded(
-              child: _vm.isLoading
+              child: state.isLoading
                   ? Center(
                       child: CircularProgressIndicator(color: AppTheme.primary),
                     )
-                  : _vm.error != null && _vm.students.isEmpty
-                  ? _ErrorState(message: _vm.error!, onRetry: _vm.loadStudents)
-                  : _vm.students.isEmpty
+                  : state.error != null && state.students.isEmpty
+                  ? _ErrorState(message: state.error!, onRetry: _notifier.loadStudents)
+                  : state.students.isEmpty
                   ? StudentsEmptyState(onAdd: () => _openForm())
                   : RefreshIndicator(
-                      onRefresh: _vm.loadStudents,
+                      onRefresh: _notifier.loadStudents,
                       color: AppTheme.primary,
                       child: ListView.builder(
                         padding: EdgeInsets.fromLTRB(
@@ -306,9 +300,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
                           context.hPad,
                           90,
                         ),
-                        itemCount: _vm.students.length,
+                        itemCount: state.students.length,
                         itemBuilder: (context, i) {
-                          final s = _vm.students[i];
+                          final s = state.students[i];
                           return StudentListTile(
                             student: s,
                             onTap: () => context.push(

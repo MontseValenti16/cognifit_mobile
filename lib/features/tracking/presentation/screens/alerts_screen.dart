@@ -1,45 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
 import '../../domain/entities/tracking_entity.dart';
 import '../viewmodels/tracking_viewmodel.dart';
 
-class AlertsScreen extends StatefulWidget {
+class AlertsScreen extends ConsumerStatefulWidget {
   const AlertsScreen({super.key});
 
   @override
-  State<AlertsScreen> createState() => _AlertsScreenState();
+  ConsumerState<AlertsScreen> createState() => _AlertsScreenState();
 }
 
-class _AlertsScreenState extends State<AlertsScreen> {
-  late final TrackingViewModel _vm;
+class _AlertsScreenState extends ConsumerState<AlertsScreen> {
+  TrackingNotifier get _notifier => ref.read(trackingViewModelProvider.notifier);
 
   @override
   void initState() {
     super.initState();
-    _vm = ServiceLocator.instance.trackingViewModel;
-    _vm.addListener(_rebuild);
-    _vm.loadAlerts();
+    _notifier.loadAlerts();
   }
-
-  @override
-  void dispose() {
-    _vm.removeListener(_rebuild);
-    super.dispose();
-  }
-
-  void _rebuild() { if (mounted) setState(() {}); }
 
   Future<void> _onTapAlert(AlertEntity alert) async {
-    if (!alert.isRead) await _vm.markRead(alert.id);
+    if (!alert.isRead) await _notifier.markRead(alert.id);
     if (!mounted) return;
     context.push('/student/${alert.studentId}', extra: {'name': 'Alumno'});
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(trackingViewModelProvider);
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
@@ -49,25 +40,25 @@ class _AlertsScreenState extends State<AlertsScreen> {
         ),
         title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Alertas', style: Theme.of(context).textTheme.titleLarge),
-          if (_vm.unreadAlerts.isNotEmpty)
-            Text('${_vm.unreadAlerts.length} sin leer',
+          if (state.unreadAlerts.isNotEmpty)
+            Text('${state.unreadAlerts.length} sin leer',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.warning)),
         ]),
         actions: const [ThemeToggleButton()],
       ),
-      body: _vm.isLoading
+      body: state.isLoading
           ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : RefreshIndicator(
-              onRefresh: _vm.loadAlerts,
+              onRefresh: _notifier.loadAlerts,
               color: AppTheme.primary,
-              child: _vm.alerts.isEmpty
+              child: state.alerts.isEmpty
                   ? _EmptyAlerts()
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      itemCount: _vm.alerts.length,
+                      itemCount: state.alerts.length,
                       itemBuilder: (_, i) => _AlertTile(
-                        alert: _vm.alerts[i],
-                        onTap: () => _onTapAlert(_vm.alerts[i]),
+                        alert: state.alerts[i],
+                        onTap: () => _onTapAlert(state.alerts[i]),
                       ),
                     ),
             ),

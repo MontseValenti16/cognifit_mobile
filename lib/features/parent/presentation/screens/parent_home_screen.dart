@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/service_locator.dart';
+import '../../../../core/di/session_providers.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
+import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
 
-class ParentHomeScreen extends StatelessWidget {
+class ParentHomeScreen extends ConsumerWidget {
   final String studentId;
   final String studentName;
 
@@ -15,7 +17,7 @@ class ParentHomeScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: AppTheme.surface,
@@ -26,8 +28,8 @@ class ParentHomeScreen extends StatelessWidget {
             icon: const Icon(Icons.logout_rounded),
             tooltip: 'Cerrar sesión',
             onPressed: () async {
-              await ServiceLocator.instance.authViewModel.logout();
-              ServiceLocator.instance.resetSessionScopedViewModels();
+              await ref.read(authViewModelProvider.notifier).logout();
+              invalidateSessionScopedProviders(ref);
               if (context.mounted) context.go('/');
             },
           ),

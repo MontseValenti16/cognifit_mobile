@@ -1,68 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/service_locator.dart';
+import '../../../../core/di/session_providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
+import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../../domain/entities/admin_user_entity.dart';
 import '../viewmodels/admin_viewmodel.dart';
 
-class AdminUsersScreen extends StatefulWidget {
+class AdminUsersScreen extends ConsumerStatefulWidget {
   const AdminUsersScreen({super.key});
   @override
-  State<AdminUsersScreen> createState() => _AdminUsersScreenState();
+  ConsumerState<AdminUsersScreen> createState() => _AdminUsersScreenState();
 }
 
-class _AdminUsersScreenState extends State<AdminUsersScreen> {
-  late final AdminViewModel _vm;
+class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
+  AdminNotifier get _notifier => ref.read(adminViewModelProvider.notifier);
 
   @override
   void initState() {
     super.initState();
-    _vm = ServiceLocator.instance.adminViewModel;
-    _vm.addListener(_rebuild);
-    _vm.load();
-  }
-
-  @override
-  void dispose() {
-    _vm.removeListener(_rebuild);
-    super.dispose();
-  }
-
-  void _rebuild() {
-    if (!mounted) return;
-    final msg = _vm.successMessage ?? _vm.error;
-    if (msg != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(msg),
-        backgroundColor: _vm.error != null ? AppTheme.riskRed : AppTheme.activeGreen,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ));
-      _vm.clearMessages();
-    }
-    setState(() {});
+    _notifier.load();
   }
 
   Future<void> _logout() async {
-    await ServiceLocator.instance.authViewModel.logout();
-    ServiceLocator.instance.resetSessionScopedViewModels();
+    await ref.read(authViewModelProvider.notifier).logout();
+    invalidateSessionScopedProviders(ref);
     if (mounted) context.go(AppRouter.login);
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(adminViewModelProvider);
+
+    // Reemplaza el _rebuild manual: reacciona a mensajes de éxito/error sin
+    // que la pantalla tenga que suscribirse a mano.
+    ref.listen<AdminState>(adminViewModelProvider, (previous, next) {
+      final msg = next.successMessage ?? next.error;
+      if (msg != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(msg),
+          backgroundColor: next.error != null ? AppTheme.riskRed : AppTheme.activeGreen,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ));
+        _notifier.clearMessages();
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
         title: const Text('Gestión de usuarios'),
         actions: [
           Tooltip(
-            message: _vm.includeInactive ? 'Mostrar solo activos' : 'Mostrar inactivos también',
+            message: state.includeInactive ? 'Mostrar solo activos' : 'Mostrar inactivos también',
             child: IconButton(
-              icon: Icon(_vm.includeInactive ? Icons.visibility_off_rounded : Icons.visibility_rounded),
-              onPressed: _vm.toggleInactive,
+              icon: Icon(state.includeInactive ? Icons.visibility_off_rounded : Icons.visibility_rounded),
+              onPressed: _notifier.toggleInactive,
             ),
           ),
           IconButton(icon: const Icon(Icons.logout_rounded), tooltip: 'Cerrar sesión', onPressed: _logout),
@@ -76,11 +72,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
       ),
-      body: _vm.isLoading
+      body: state.isLoading
           ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
-          : _vm.users.isEmpty
-              ? _EmptyView(includeInactive: _vm.includeInactive)
-              : _UserList(vm: _vm),
+          : state.users.isEmpty
+              ? _EmptyView(includeInactive: state.includeInactive)
+              : _UserList(users: state.users, notifier: _notifier),
     );
   }
 
@@ -89,7 +85,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _CreateUserSheet(vm: _vm),
+      builder: (_) => _CreateUserSheet(notifier: _notifier),
     );
   }
 }
@@ -97,24 +93,25 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
 // ─── Lista de usuarios ────────────────────────────────────────────────────────
 
 class _UserList extends StatelessWidget {
-  final AdminViewModel vm;
-  const _UserList({required this.vm});
+  final List<AdminUserEntity> users;
+  final AdminNotifier notifier;
+  const _UserList({required this.users, required this.notifier});
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-      itemCount: vm.users.length,
+      itemCount: users.length,
       separatorBuilder: (_, __) => const SizedBox(height: 8),
-      itemBuilder: (context, i) => _UserTile(user: vm.users[i], vm: vm),
+      itemBuilder: (context, i) => _UserTile(user: users[i], notifier: notifier),
     );
   }
 }
 
 class _UserTile extends StatelessWidget {
   final AdminUserEntity user;
-  final AdminViewModel vm;
-  const _UserTile({required this.user, required this.vm});
+  final AdminNotifier notifier;
+  const _UserTile({required this.user, required this.notifier});
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +151,7 @@ class _UserTile extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (_) => _UserOptionsSheet(user: user, vm: vm),
+      builder: (_) => _UserOptionsSheet(user: user, notifier: notifier),
     );
   }
 
@@ -206,8 +203,8 @@ class _InactiveChip extends StatelessWidget {
 
 class _UserOptionsSheet extends StatelessWidget {
   final AdminUserEntity user;
-  final AdminViewModel vm;
-  const _UserOptionsSheet({required this.user, required this.vm});
+  final AdminNotifier notifier;
+  const _UserOptionsSheet({required this.user, required this.notifier});
 
   @override
   Widget build(BuildContext context) {
@@ -238,13 +235,13 @@ class _UserOptionsSheet extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.person_off_rounded, color: Colors.orange),
             title: const Text('Desactivar cuenta'),
-            onTap: () { Navigator.pop(context); _confirm(context, 'Desactivar', () => vm.deactivateUser(user.id)); },
+            onTap: () { Navigator.pop(context); _confirm(context, 'Desactivar', () => notifier.deactivateUser(user.id)); },
           )
         else
           ListTile(
             leading: Icon(Icons.person_rounded, color: AppTheme.activeGreen),
             title: const Text('Reactivar cuenta'),
-            onTap: () { Navigator.pop(context); vm.reactivateUser(user.id); },
+            onTap: () { Navigator.pop(context); notifier.reactivateUser(user.id); },
           ),
         const SizedBox(height: 16),
       ]),
@@ -255,7 +252,7 @@ class _UserOptionsSheet extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (_) => _ChangeRoleSheet(user: user, vm: vm),
+      builder: (_) => _ChangeRoleSheet(user: user, notifier: notifier),
     );
   }
 
@@ -264,7 +261,7 @@ class _UserOptionsSheet extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _LinkStudentSheet(user: user, vm: vm),
+      builder: (_) => _LinkStudentSheet(user: user),
     );
   }
 
@@ -290,8 +287,8 @@ class _UserOptionsSheet extends StatelessWidget {
 
 class _ChangeRoleSheet extends StatefulWidget {
   final AdminUserEntity user;
-  final AdminViewModel vm;
-  const _ChangeRoleSheet({required this.user, required this.vm});
+  final AdminNotifier notifier;
+  const _ChangeRoleSheet({required this.user, required this.notifier});
   @override
   State<_ChangeRoleSheet> createState() => _ChangeRoleSheetState();
 }
@@ -337,7 +334,7 @@ class _ChangeRoleSheetState extends State<_ChangeRoleSheet> {
             const SizedBox(width: 12),
             Expanded(child: ElevatedButton(
               onPressed: _selected == widget.user.role ? null : () async {
-                final ok = await widget.vm.updateUserRole(widget.user.id, _selected);
+                final ok = await widget.notifier.updateUserRole(widget.user.id, _selected);
                 if (ok && context.mounted) Navigator.pop(context);
               },
               child: const Text('Guardar'),
@@ -351,15 +348,14 @@ class _ChangeRoleSheetState extends State<_ChangeRoleSheet> {
 
 // ─── Vincular alumno a padre/tutor ───────────────────────────────────────────
 
-class _LinkStudentSheet extends StatefulWidget {
+class _LinkStudentSheet extends ConsumerStatefulWidget {
   final AdminUserEntity user;
-  final AdminViewModel vm;
-  const _LinkStudentSheet({required this.user, required this.vm});
+  const _LinkStudentSheet({required this.user});
   @override
-  State<_LinkStudentSheet> createState() => _LinkStudentSheetState();
+  ConsumerState<_LinkStudentSheet> createState() => _LinkStudentSheetState();
 }
 
-class _LinkStudentSheetState extends State<_LinkStudentSheet> {
+class _LinkStudentSheetState extends ConsumerState<_LinkStudentSheet> {
   final _searchCtrl = TextEditingController();
   String? _selectedId;
   String _query = '';
@@ -367,7 +363,7 @@ class _LinkStudentSheetState extends State<_LinkStudentSheet> {
   @override
   void initState() {
     super.initState();
-    widget.vm.loadStudentsForPicker();
+    ref.read(adminViewModelProvider.notifier).loadStudentsForPicker();
     _searchCtrl.addListener(() => setState(() => _query = _searchCtrl.text.trim().toLowerCase()));
   }
 
@@ -377,14 +373,15 @@ class _LinkStudentSheetState extends State<_LinkStudentSheet> {
     super.dispose();
   }
 
-  List<Map<String, dynamic>> get _filtered {
-    final all = widget.vm.studentsForPicker;
+  List<Map<String, dynamic>> _filtered(List<Map<String, dynamic>> all) {
     if (_query.isEmpty) return all;
     return all.where((s) => (s['full_name'] as String? ?? '').toLowerCase().contains(_query)).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(adminViewModelProvider);
+    final filtered = _filtered(state.studentsForPicker);
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
@@ -407,7 +404,7 @@ class _LinkStudentSheetState extends State<_LinkStudentSheet> {
               ),
             ),
           ),
-          if (widget.vm.isLoadingStudents)
+          if (state.isLoadingStudents)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: CircularProgressIndicator(color: AppTheme.primary),
@@ -415,16 +412,16 @@ class _LinkStudentSheetState extends State<_LinkStudentSheet> {
           else
             ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 280),
-              child: _filtered.isEmpty
+              child: filtered.isEmpty
                   ? Padding(
                       padding: const EdgeInsets.symmetric(vertical: 24),
                       child: Text('Sin resultados', style: TextStyle(color: AppTheme.mutedText)),
                     )
                   : ListView.builder(
                       shrinkWrap: true,
-                      itemCount: _filtered.length,
+                      itemCount: filtered.length,
                       itemBuilder: (_, i) {
-                        final s = _filtered[i];
+                        final s = filtered[i];
                         final id = s['id'] as String;
                         final name = s['full_name'] as String? ?? 'Alumno';
                         return ListTile(
@@ -446,7 +443,7 @@ class _LinkStudentSheetState extends State<_LinkStudentSheet> {
               const SizedBox(width: 12),
               Expanded(child: ElevatedButton(
                 onPressed: _selectedId == null ? null : () async {
-                  final ok = await widget.vm.linkParent(widget.user.id, _selectedId!);
+                  final ok = await ref.read(adminViewModelProvider.notifier).linkParent(widget.user.id, _selectedId!);
                   if (ok && context.mounted) Navigator.pop(context);
                 },
                 child: const Text('Vincular'),
@@ -462,8 +459,8 @@ class _LinkStudentSheetState extends State<_LinkStudentSheet> {
 // ─── Crear usuario ────────────────────────────────────────────────────────────
 
 class _CreateUserSheet extends StatefulWidget {
-  final AdminViewModel vm;
-  const _CreateUserSheet({required this.vm});
+  final AdminNotifier notifier;
+  const _CreateUserSheet({required this.notifier});
   @override
   State<_CreateUserSheet> createState() => _CreateUserSheetState();
 }
@@ -571,7 +568,7 @@ class _CreateUserSheetState extends State<_CreateUserSheet> {
       return;
     }
     setState(() { _saving = true; _localError = null; });
-    final ok = await widget.vm.createUser(CreateUserParams(email: email, password: pass, role: _role));
+    final ok = await widget.notifier.createUser(CreateUserParams(email: email, password: pass, role: _role));
     if (!mounted) return;
     setState(() => _saving = false);
     if (ok) Navigator.pop(context);

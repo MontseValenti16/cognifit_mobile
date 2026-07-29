@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
@@ -38,39 +39,49 @@ class AppRouter {
   static const String cardCheckout   = '/billing/checkout/card';
   static const String cashCheckout   = '/billing/checkout/cash';
 
-  static final GoRouter router = GoRouter(
-    initialLocation: splash,
+  static const String childHome = '/child/:studentId';
+  static String childHomeOf(String studentId) => '/child/$studentId';
+}
+
+/// El GoRouter vive detrás de un provider (en vez de `static final` suelto)
+/// para que pueda construirse dentro del árbol de Riverpod — hoy no necesita
+/// leer ningún otro provider, pero así queda listo para agregar redirects
+/// que sí lo hagan (ej. mandar a /login si expira la sesión) sin mover nada
+/// de sitio otra vez.
+final goRouterProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    initialLocation: AppRouter.splash,
     routes: [
-      GoRoute(path: splash,    builder: (c, s) => const SplashScreen()),
-      GoRoute(path: login,     builder: (c, s) => const LoginScreen()),
-      GoRoute(path: registerInstitution, builder: (c, s) => const RegisterInstitutionScreen()),
-      GoRoute(path: superadminInstitutions, builder: (c, s) => const InstitutionsApprovalScreen()),
-      GoRoute(path: plans, builder: (c, s) => const PlanSelectionScreen()),
+      GoRoute(path: AppRouter.splash,    builder: (c, s) => const SplashScreen()),
+      GoRoute(path: AppRouter.login,     builder: (c, s) => const LoginScreen()),
+      GoRoute(path: AppRouter.registerInstitution, builder: (c, s) => const RegisterInstitutionScreen()),
+      GoRoute(path: AppRouter.superadminInstitutions, builder: (c, s) => const InstitutionsApprovalScreen()),
+      GoRoute(path: AppRouter.plans, builder: (c, s) => const PlanSelectionScreen()),
       GoRoute(
-        path: cardCheckout,
+        path: AppRouter.cardCheckout,
         builder: (c, s) {
           final extra = s.extra as Map<String, dynamic>?;
           return CardCheckoutScreen(plan: extra?['plan'] as PlanEntity);
         },
       ),
       GoRoute(
-        path: cashCheckout,
+        path: AppRouter.cashCheckout,
         builder: (c, s) {
           final extra = s.extra as Map<String, dynamic>?;
           return CashCheckoutScreen(plan: extra?['plan'] as PlanEntity);
         },
       ),
-      GoRoute(path: dashboard, builder: (c, s) => const DashboardScreen()),
+      GoRoute(path: AppRouter.dashboard, builder: (c, s) => const DashboardScreen()),
       GoRoute(
-        path: students,
+        path: AppRouter.students,
         builder: (c, s) {
           final extra = s.extra as Map<String, dynamic>?;
           return StudentsScreen(initialGroupId: extra?['groupId']);
         },
       ),
-      GoRoute(path: tests,     builder: (c, s) => const TestsScreen()),
-      GoRoute(path: calendario, builder: (c, s) => const CalendarioPage()),
-      GoRoute(path: alerts,    builder: (c, s) => const AlertsScreen()),
+      GoRoute(path: AppRouter.tests,     builder: (c, s) => const TestsScreen()),
+      GoRoute(path: AppRouter.calendario, builder: (c, s) => const CalendarioPage()),
+      GoRoute(path: AppRouter.alerts,    builder: (c, s) => const AlertsScreen()),
 
       GoRoute(
         path: '/student/:id',
@@ -106,19 +117,19 @@ class AppRouter {
 
       // Revisión clínica para SPECIALIST
       GoRoute(
-        path: specialistReview,
+        path: AppRouter.specialistReview,
         builder: (c, s) => const SpecialistReviewScreen(),
       ),
 
       // Panel de administración — solo ADMIN
       GoRoute(
-        path: adminUsers,
+        path: AppRouter.adminUsers,
         builder: (c, s) => const AdminUsersScreen(),
       ),
 
       // Vista de padre: perfil de su hijo en modo lectura
       GoRoute(
-        path: parentHome,
+        path: AppRouter.parentHome,
         builder: (c, s) {
           final extra = s.extra as Map<String, dynamic>?;
           return ParentHomeScreen(
@@ -143,7 +154,4 @@ class AppRouter {
       ),
     ],
   );
-
-  static const String childHome = '/child/:studentId';
-  static String childHomeOf(String studentId) => '/child/$studentId';
-}
+});

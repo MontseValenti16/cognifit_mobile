@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/validation/input_rules.dart';
 import '../../../../core/widgets/cognifit_app_bar.dart';
 import '../../../auth/presentation/widgets/auth_widgets.dart';
 import '../../domain/entities/payment_entity.dart';
 import '../../domain/entities/plan_entity.dart';
 import '../viewmodels/payment_viewmodel.dart';
 
-class CardCheckoutScreen extends StatefulWidget {
+class CardCheckoutScreen extends ConsumerStatefulWidget {
   final PlanEntity plan;
   const CardCheckoutScreen({super.key, required this.plan});
 
   @override
-  State<CardCheckoutScreen> createState() => _CardCheckoutScreenState();
+  ConsumerState<CardCheckoutScreen> createState() => _CardCheckoutScreenState();
 }
 
-class _CardCheckoutScreenState extends State<CardCheckoutScreen> {
-  late final PaymentViewModel _vm;
+class _CardCheckoutScreenState extends ConsumerState<CardCheckoutScreen> {
+  PaymentNotifier get _notifier => ref.read(paymentViewModelProvider.notifier);
   final _formKey = GlobalKey<FormState>();
 
   final _nameCtrl = TextEditingController();
@@ -28,32 +29,16 @@ class _CardCheckoutScreenState extends State<CardCheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    _vm = ServiceLocator.instance.paymentViewModel;
-    _vm.resetCheckout();
-    _vm.addListener(_onChanged);
+    _notifier.resetCheckout();
   }
 
   @override
   void dispose() {
-    _vm.removeListener(_onChanged);
     _nameCtrl.dispose();
     _numberCtrl.dispose();
     _expiryCtrl.dispose();
     _cvcCtrl.dispose();
     super.dispose();
-  }
-
-  void _onChanged() {
-    if (!mounted) return;
-    if (_vm.checkoutStatus == CheckoutStatus.error && _vm.checkoutError != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(_vm.checkoutError!),
-        backgroundColor: AppTheme.riskRed,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ));
-    }
-    setState(() {});
   }
 
   Future<void> _submit() async {
@@ -64,7 +49,7 @@ class _CardCheckoutScreenState extends State<CardCheckoutScreen> {
     final year = int.tryParse(parts[1]);
     if (month == null || year == null) return;
 
-    await _vm.payWithCard(
+    await _notifier.payWithCard(
       planId: widget.plan.id,
       card: CardInput(
         number: _numberCtrl.text,
@@ -78,20 +63,34 @@ class _CardCheckoutScreenState extends State<CardCheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(paymentViewModelProvider);
+
+    // Reemplaza el _onChanged manual.
+    ref.listen<PaymentState>(paymentViewModelProvider, (previous, next) {
+      if (next.checkoutError != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(next.checkoutError!),
+          backgroundColor: AppTheme.riskRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ));
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: const CogniFitAppBar(title: 'Pago con tarjeta', showBack: true),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-          child: _vm.checkoutStatus == CheckoutStatus.success ? _SuccessView(plan: widget.plan) : _buildForm(),
+          child: state.checkoutSuccess ? _SuccessView(plan: widget.plan) : _buildForm(state),
         ),
       ),
     );
   }
 
-  Widget _buildForm() {
-    final busy = _vm.checkoutStatus == CheckoutStatus.tokenizing || _vm.checkoutStatus == CheckoutStatus.processing;
+  Widget _buildForm(PaymentState state) {
+    final busy = state.checkoutBusy;
     return Form(
       key: _formKey,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -112,7 +111,7 @@ class _CardCheckoutScreenState extends State<CardCheckoutScreen> {
           label: 'Nombre en la tarjeta',
           hint: 'Como aparece en la tarjeta',
           prefixIcon: Icons.person_outline_rounded,
-          validator: (v) => (v == null || v.trim().isEmpty) ? 'Ingresa el nombre del titular' : null,
+          validator: (v) => Validators.requerido(v, campo: 'El nombre del titular'),
         ),
         const SizedBox(height: 20),
         CogniFitTextField(
@@ -121,11 +120,7 @@ class _CardCheckoutScreenState extends State<CardCheckoutScreen> {
           hint: '4242 4242 4242 4242',
           prefixIcon: Icons.credit_card_rounded,
           keyboardType: TextInputType.number,
-          validator: (v) {
-            final digits = (v ?? '').replaceAll(' ', '');
-            if (digits.length < 13 || digits.length > 19) return 'Número de tarjeta inválido';
-            return null;
-          },
+          validator: Validators.tarjeta,
         ),
         const SizedBox(height: 20),
         Row(children: [
@@ -136,7 +131,7 @@ class _CardCheckoutScreenState extends State<CardCheckoutScreen> {
               hint: 'MM/AA',
               prefixIcon: Icons.calendar_month_outlined,
               keyboardType: TextInputType.number,
-              validator: (v) => RegExp(r'^\d{2}/\d{2}$').hasMatch(v ?? '') ? null : 'Formato MM/AA',
+              validator: Validators.vencimientoTarjeta,
             ),
           ),
           const SizedBox(width: 16),
@@ -148,7 +143,7 @@ class _CardCheckoutScreenState extends State<CardCheckoutScreen> {
               prefixIcon: Icons.lock_outline_rounded,
               keyboardType: TextInputType.number,
               obscureText: true,
-              validator: (v) => (v != null && v.length >= 3) ? null : 'CVC inválido',
+              validator: Validators.cvc,
             ),
           ),
         ]),

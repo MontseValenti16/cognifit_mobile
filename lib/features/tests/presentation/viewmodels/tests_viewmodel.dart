@@ -1,186 +1,205 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/errors/api_exception.dart';
+import '../../../groups/di/groups_providers.dart';
+import '../../../groups/domain/usecases/get_groups_usecase.dart';
+import '../../../students/domain/entities/student_entity.dart';
+import '../../di/tests_providers.dart';
 import '../../domain/entities/screening_entity.dart';
-import '../../domain/entities/test_entity.dart';
 import '../../domain/usecases/get_teacher_items_usecase.dart';
 import '../../domain/usecases/submit_teacher_results_usecase.dart';
 import '../../domain/usecases/get_catalog_usecase.dart';
 import '../../domain/usecases/assign_battery_usecase.dart';
 import '../../domain/usecases/open_session_usecase.dart';
-import '../../../groups/domain/usecases/get_groups_usecase.dart';
-import '../../../students/domain/entities/student_entity.dart';
 
-enum TestsStatus { idle, loading, loaded, submitting, error }
+const _unset = Object();
+
+String _messageFor(Object error, String fallback) => error is ApiException ? error.userMessage : fallback;
+
+/// `load` cubre catálogo/cuestionario (spinner de pantalla completa);
+/// `submit` cubre envío de cuestionario + asignación de batería (spinner
+/// local en el botón / paso de resultado). Se mantienen separados porque
+/// la UI reacciona distinto a cada uno.
+class TestsState {
+  final AsyncValue<void> load;
+  final AsyncValue<void> submit;
+  final List<TeacherItemEntity> teacherItems;
+  final List<ScreeningModuleEntity> catalog;
+  final Map<String, double> answers;
+  final String? selectedStudentId;
+  final TeacherResultEntity? teacherResult;
+  final AssignmentResultEntity? assignmentResult;
+
+  const TestsState({
+    this.load = const AsyncValue.data(null),
+    this.submit = const AsyncValue.data(null),
+    this.teacherItems = const [],
+    this.catalog = const [],
+    this.answers = const {},
+    this.selectedStudentId,
+    this.teacherResult,
+    this.assignmentResult,
+  });
+
+  bool get isLoading => load.isLoading;
+  bool get isSubmitting => submit.isLoading;
+
+  String? get error {
+    final err = submit.error ?? load.error;
+    if (err == null) return null;
+    return _messageFor(err, 'Ocurrió un error.');
+  }
+
+  // En lugar de comparar contra 8 fijo, compara contra lo que llegó
+  bool get questionnaireComplete => teacherItems.isNotEmpty && answers.length == teacherItems.length;
+
+  Map<String, List<TeacherItemEntity>> get itemsPorCategoria => agruparPorCategoria(teacherItems);
+
+  String moduleName(String code) => catalog.where((m) => m.moduleCode == code).firstOrNull?.name ?? code;
+
+  TestsState copyWith({
+    AsyncValue<void>? load,
+    AsyncValue<void>? submit,
+    List<TeacherItemEntity>? teacherItems,
+    List<ScreeningModuleEntity>? catalog,
+    Map<String, double>? answers,
+    Object? selectedStudentId = _unset,
+    Object? teacherResult = _unset,
+    Object? assignmentResult = _unset,
+  }) {
+    return TestsState(
+      load: load ?? this.load,
+      submit: submit ?? this.submit,
+      teacherItems: teacherItems ?? this.teacherItems,
+      catalog: catalog ?? this.catalog,
+      answers: answers ?? this.answers,
+      selectedStudentId: identical(selectedStudentId, _unset) ? this.selectedStudentId : selectedStudentId as String?,
+      teacherResult: identical(teacherResult, _unset) ? this.teacherResult : teacherResult as TeacherResultEntity?,
+      assignmentResult: identical(assignmentResult, _unset) ? this.assignmentResult : assignmentResult as AssignmentResultEntity?,
+    );
+  }
+}
 
 /// Orchestrates the real flow documented in API_UI_GUIA section 4:
 /// teacher-items -> teacher-results -> catalog -> assignments -> open first session
-class TestsViewModel extends ChangeNotifier {
-  final GetTeacherItemsUseCase _getTeacherItems;
-  final SubmitTeacherResultsUseCase _submitTeacherResults;
-  final GetCatalogUseCase _getCatalog;
-  final AssignBatteryUseCase _assignBattery;
-  final OpenSessionUseCase _openSession;
-  final GetGroupsUseCase _getGroups;
+class TestsNotifier extends Notifier<TestsState> {
+  late GetTeacherItemsUseCase _getTeacherItems;
+  late SubmitTeacherResultsUseCase _submitTeacherResults;
+  late GetCatalogUseCase _getCatalog;
+  late AssignBatteryUseCase _assignBattery;
+  late OpenSessionUseCase _openSession;
+  late GetGroupsUseCase _getGroups;
   Map<String, int> _gradePorGrupo = {};
-  int? _selectedGrade;
 
-  TestsViewModel({
-    required GetTeacherItemsUseCase getTeacherItems,
-    required SubmitTeacherResultsUseCase submitTeacherResults,
-    required GetCatalogUseCase getCatalog,
-    required AssignBatteryUseCase assignBattery,
-    required OpenSessionUseCase openSession,
-    required GetGroupsUseCase getGroups,
-  })  : _getTeacherItems = getTeacherItems,
-        _submitTeacherResults = submitTeacherResults,
-        _getCatalog = getCatalog,
-        _assignBattery = assignBattery,
-        _openSession = openSession,
-        _getGroups = getGroups;
-
-  TestsStatus _status = TestsStatus.idle;
-  String? _error;
-
-  List<TeacherItemEntity> _teacherItems = [];
-  List<ScreeningModuleEntity> _catalog = [];
-  List<AssignableStudentEntity> _students = [];
-
-  final Map<String, double> answers = {};
-  String? _selectedStudentId;
-  TeacherResultEntity? _teacherResult;
-  AssignmentResultEntity? _assignmentResult;
-  TestEntity? _selectedTest;
-  bool _isAssigning = false;
-
-  TestsStatus get status => _status;
-  String? get error => _error;
-  bool get isLoading => _status == TestsStatus.loading;
-  bool get isSubmitting => _status == TestsStatus.submitting;
-  bool get isAssigning => _isAssigning;
-  List<TeacherItemEntity> get teacherItems => _teacherItems;
-  List<ScreeningModuleEntity> get catalog => _catalog;
-  List<AssignableStudentEntity> get students => _students;
-  TeacherResultEntity? get teacherResult => _teacherResult;
-  AssignmentResultEntity? get assignmentResult => _assignmentResult;
-  String? get selectedStudentId => _selectedStudentId;
-  TestEntity? get selectedTest => _selectedTest;
-  
-// En lugar de comparar contra 8 fijo, compara contra lo que llegó
-bool get questionnaireComplete =>
-    _teacherItems.isNotEmpty && answers.length == _teacherItems.length;
+  @override
+  TestsState build() {
+    final repo = ref.watch(screeningRepositoryProvider);
+    _getTeacherItems = GetTeacherItemsUseCase(repo);
+    _submitTeacherResults = SubmitTeacherResultsUseCase(repo);
+    _getCatalog = GetCatalogUseCase(repo);
+    _assignBattery = AssignBatteryUseCase(repo);
+    _openSession = OpenSessionUseCase(repo);
+    _getGroups = GetGroupsUseCase(ref.watch(groupRepositoryProvider));
+    return const TestsState();
+  }
 
   void selectStudent(String studentId) {
-    _selectedStudentId = studentId;
-    answers.clear();
-    _teacherResult = null;
-    _assignmentResult = null;
-    notifyListeners();
+    state = state.copyWith(selectedStudentId: studentId, answers: const {}, teacherResult: null, assignmentResult: null);
   }
 
   /// Elige el alumno y carga el cuestionario de su ciclo. El grado sale del
   /// grupo del alumno (ver `gradeDesdeGrupo`); si el grupo no está en el mapa,
   /// `grade` va null y el backend devuelve el cuestionario del primer ciclo.
   Future<void> selectStudentAndLoad(StudentEntity student) async {
-    _selectedStudentId = student.id;
-    _selectedGrade = gradeDesdeGrupo(student.groupId, _gradePorGrupo);
-    answers.clear();
-    _teacherResult = null;
-    _assignmentResult = null;
-    _status = TestsStatus.loading;
-    notifyListeners();
-    try {
-      _teacherItems = await _getTeacherItems(grade: _selectedGrade);
-      _status = TestsStatus.loaded;
-    } on ApiException catch (e) {
-      _error = e.userMessage; _status = TestsStatus.error;
-    } catch (_) {
-      _error = 'No se pudo cargar el cuestionario.'; _status = TestsStatus.error;
-    }
-    notifyListeners();
+    final grade = gradeDesdeGrupo(student.groupId, _gradePorGrupo);
+    state = state.copyWith(
+      selectedStudentId: student.id,
+      answers: const {},
+      teacherResult: null,
+      assignmentResult: null,
+      load: const AsyncValue.loading(),
+    );
+    final result = await AsyncValue.guard(() => _getTeacherItems(grade: grade));
+    state = result.when(
+      data: (items) => state.copyWith(load: const AsyncValue.data(null), teacherItems: items),
+      error: (e, st) => state.copyWith(load: AsyncValue.error(e, st)),
+      loading: () => state,
+    );
   }
 
-  Map<String, List<TeacherItemEntity>> get itemsPorCategoria =>
-      agruparPorCategoria(_teacherItems);
-
   Future<void> loadTeacherItemsAndCatalog() async {
-    _status = TestsStatus.loading;
-    _error = null;
-    notifyListeners();
-    try {
+    state = state.copyWith(load: const AsyncValue.loading());
+    final result = await AsyncValue.guard(() async {
       final raw = await _getCatalog();
       final seen = <String>{};
-      _catalog = raw.where((m) => seen.add(m.moduleCode)).toList();
+      final catalog = raw.where((m) => seen.add(m.moduleCode)).toList();
       // El grado del alumno se resuelve desde su grupo: el backend no lo manda
       // con la lista de alumnos. Se carga el mapa una vez, acá.
       final grupos = await _getGroups();
       _gradePorGrupo = {for (final g in grupos) g.id: g.grade};
-      _status = TestsStatus.loaded;
-    } on ApiException catch (e) {
-      _error = e.userMessage; _status = TestsStatus.error;
-    } catch (_) {
-      _error = 'No se pudo cargar el catálogo.'; _status = TestsStatus.error;
-    }
-    notifyListeners();
+      return catalog;
+    });
+    state = result.when(
+      data: (catalog) => state.copyWith(load: const AsyncValue.data(null), catalog: catalog),
+      error: (e, st) => state.copyWith(load: AsyncValue.error(e, st)),
+      loading: () => state,
+    );
   }
 
   void answerQuestion(String itemCode, double value) {
-    answers[itemCode] = value;
-    notifyListeners();
+    state = state.copyWith(answers: {...state.answers, itemCode: value});
   }
 
   Future<bool> submitQuestionnaire() async {
-    if (_selectedStudentId == null || !questionnaireComplete) return false;
-    _status = TestsStatus.submitting; _error = null; notifyListeners();
+    if (state.selectedStudentId == null || !state.questionnaireComplete) return false;
+    state = state.copyWith(submit: const AsyncValue.loading());
     try {
-      final list = _teacherItems.map((i) => TeacherAnswer(itemCode: i.itemCode, value: answers[i.itemCode]!)).toList();
-      _teacherResult = await _submitTeacherResults(_selectedStudentId!, list);
-      _status = TestsStatus.loaded;
-      notifyListeners();
+      final list = state.teacherItems.map((i) => TeacherAnswer(itemCode: i.itemCode, value: state.answers[i.itemCode]!)).toList();
+      final result = await _submitTeacherResults(state.selectedStudentId!, list);
+      state = state.copyWith(submit: const AsyncValue.data(null), teacherResult: result);
       return true;
-    } on ApiException catch (e) {
-      _error = e.userMessage; _status = TestsStatus.error; notifyListeners(); return false;
-    } catch (_) {
-      _error = 'No se pudo enviar el cuestionario.'; _status = TestsStatus.error; notifyListeners(); return false;
+    } catch (e, st) {
+      state = state.copyWith(submit: AsyncValue.error(e, st));
+      return false;
     }
   }
 
   Future<bool> assignBattery() async {
-    if (_selectedStudentId == null || _teacherResult == null) return false;
-    _status = TestsStatus.submitting; _error = null; notifyListeners();
+    if (state.selectedStudentId == null || state.teacherResult == null) return false;
+    state = state.copyWith(submit: const AsyncValue.loading());
     try {
-      _assignmentResult = await _assignBattery(_selectedStudentId!, _teacherResult!.score, _teacherResult!.riskFlags);
-      _status = TestsStatus.loaded;
-      notifyListeners();
+      final result = await _assignBattery(state.selectedStudentId!, state.teacherResult!.score, state.teacherResult!.riskFlags);
+      state = state.copyWith(submit: const AsyncValue.data(null), assignmentResult: result);
       return true;
-    } on ApiException catch (e) {
-      _error = e.userMessage; _status = TestsStatus.error; notifyListeners(); return false;
-    } catch (_) {
-      _error = 'No se pudo asignar la batería.'; _status = TestsStatus.error; notifyListeners(); return false;
+    } catch (e, st) {
+      state = state.copyWith(submit: AsyncValue.error(e, st));
+      return false;
     }
   }
 
   Future<ScreeningSessionEntity?> openFirstSession() async {
-    if (_assignmentResult == null || _assignmentResult!.assignments.isEmpty) return null;
-    final first = _assignmentResult!.assignments.first;
+    final assignmentResult = state.assignmentResult;
+    if (assignmentResult == null || assignmentResult.assignments.isEmpty) return null;
+    final first = assignmentResult.assignments.first;
     try {
       return await _openSession(assignmentId: first.id, moduleCode: first.moduleCode, deviceId: 'flutter-app', appVersion: '1.0.0');
-    } on ApiException catch (e) {
-      _error = e.userMessage; notifyListeners(); return null;
+    } on ApiException catch (e, st) {
+      state = state.copyWith(submit: AsyncValue.error(e, st));
+      return null;
     }
   }
 
-  String moduleName(String code) =>
-      _catalog.where((m) => m.moduleCode == code).firstOrNull?.name ?? code;
-
   void reset() {
-    answers.clear();
-    _selectedStudentId = null;
-    _teacherResult = null;
-    _assignmentResult = null;
-    _status = TestsStatus.loaded;
-    notifyListeners();
+    state = state.copyWith(
+      answers: const {},
+      selectedStudentId: null,
+      teacherResult: null,
+      assignmentResult: null,
+      submit: const AsyncValue.data(null),
+    );
   }
 }
+
+final testsViewModelProvider = NotifierProvider<TestsNotifier, TestsState>(TestsNotifier.new);
 
 /// Agrupa los ítems del cuestionario por bloque del protocolo, con la historia
 /// clínica primero: son las preguntas que pueden explicar la dificultad por
@@ -198,5 +217,4 @@ Map<String, List<TeacherItemEntity>> agruparPorCategoria(List<TeacherItemEntity>
 /// El grado de un alumno sale de su grupo, no del alumno: el backend no lo
 /// envía en la lista de alumnos y `StudentEntity` solo tiene `groupId`.
 /// Devuelve null si el grupo no está en el mapa, para caer al primer ciclo.
-int? gradeDesdeGrupo(String groupId, Map<String, int> gradePorGrupo) =>
-    gradePorGrupo[groupId];
+int? gradeDesdeGrupo(String groupId, Map<String, int> gradePorGrupo) => gradePorGrupo[groupId];

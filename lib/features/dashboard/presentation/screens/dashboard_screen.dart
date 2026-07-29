@@ -1,35 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/service_locator.dart';
+import '../../../../core/di/session_providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
+import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../viewmodels/dashboard_viewmodel.dart';
 import '../widgets/dashboard_widgets.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
-  late final DashboardViewModel _vm;
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  DashboardNotifier get _notifier => ref.read(dashboardViewModelProvider.notifier);
   int _tab = 0;
 
   @override
   void initState() {
     super.initState();
-    _vm = ServiceLocator.instance.dashboardViewModel;
-    _vm.addListener(_rebuild);
-    _vm.loadDashboard();
+    _notifier.loadDashboard();
   }
-
-  @override
-  void dispose() { _vm.removeListener(_rebuild); super.dispose(); }
-  void _rebuild() { if (mounted) setState(() {}); }
 
   void _onTabTap(int index) {
     if (index == 1) { context.push(AppRouter.students); return; }
@@ -38,127 +34,137 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _logout() async {
-    await ServiceLocator.instance.authViewModel.logout();
-    ServiceLocator.instance.resetSessionScopedViewModels();
+    await ref.read(authViewModelProvider.notifier).logout();
+    invalidateSessionScopedProviders(ref);
     if (mounted) context.go(AppRouter.login);
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = ServiceLocator.instance.authViewModel.currentUser;
+    final asyncData = ref.watch(dashboardViewModelProvider);
+    final user = ref.watch(authViewModelProvider).currentUser;
     return Scaffold(
       backgroundColor: AppTheme.surface,
       body: SafeArea(
-        child: _vm.isLoading
-          ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
-          : RefreshIndicator(
-              onRefresh: _vm.loadDashboard,
-              color: AppTheme.primary,
-              child: CustomScrollView(slivers: [
-                SliverToBoxAdapter(child: _header(context, user?.email ?? '')),
-                SliverPadding(
-                  padding: EdgeInsets.symmetric(horizontal: context.hPad),
-                  sliver: SliverList(delegate: SliverChildListDelegate([
-                    const SizedBox(height: 20),
-                    _sectionLabel(context, 'RESUMEN'),
+        child: asyncData.when(
+          loading: () => Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+          error: (e, st) => Center(child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              const Text('No se pudo cargar el panel.', textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              OutlinedButton(onPressed: _notifier.loadDashboard, child: const Text('Reintentar')),
+            ]),
+          )),
+          data: (data) => RefreshIndicator(
+            onRefresh: _notifier.loadDashboard,
+            color: AppTheme.primary,
+            child: CustomScrollView(slivers: [
+              SliverToBoxAdapter(child: _header(context, user?.email ?? '')),
+              SliverPadding(
+                padding: EdgeInsets.symmetric(horizontal: context.hPad),
+                sliver: SliverList(delegate: SliverChildListDelegate([
+                  const SizedBox(height: 20),
+                  _sectionLabel(context, 'RESUMEN'),
+                  const SizedBox(height: 12),
+                  Row(children: [
+                    StatCard(value: data.totalStudents.toString(), label: 'Alumnos', color: AppTheme.primary),
+                    const SizedBox(width: 10),
+                    StatCard(value: data.atRiskCount.toString(), label: 'En riesgo', color: AppTheme.riskRed),
+                    const SizedBox(width: 10),
+                    StatCard(value: data.unreadAlerts.length.toString(), label: 'Alertas', color: AppTheme.tertiary, onTap: () => context.push(AppRouter.alerts)),
+                  ]),
+                  const SizedBox(height: 12),
+                  _CalendarioBanner(onTap: () => context.push(AppRouter.calendario)),
+                  const SizedBox(height: 16),
+                  if (data.topAlert != null)
+                    AlertBanner(
+                      message: data.topAlert!.message,
+                      onTap: () => context.push('/student/${data.topAlert!.studentId}', extra: {'name': 'Alumno'}),
+                    ),
+                  const SizedBox(height: 24),
+                  if (data.groupSummaries.isNotEmpty) ...[
+                    _sectionLabel(context, 'GRUPOS'),
                     const SizedBox(height: 12),
-                    Row(children: [
-                      StatCard(value: _vm.totalStudents.toString(), label: 'Alumnos', color: AppTheme.primary),
-                      const SizedBox(width: 10),
-                      StatCard(value: _vm.atRiskCount.toString(), label: 'En riesgo', color: AppTheme.riskRed),
-                      const SizedBox(width: 10),
-                      StatCard(value: _vm.unreadAlerts.length.toString(), label: 'Alertas', color: AppTheme.tertiary, onTap: () => context.push(AppRouter.alerts)),
-                    ]),
-                    const SizedBox(height: 12),
-                    _CalendarioBanner(onTap: () => context.push(AppRouter.calendario)),
-                    const SizedBox(height: 16),
-                    if (_vm.topAlert != null)
-                      AlertBanner(
-                        message: _vm.topAlert!.message,
-                        onTap: () => context.push('/student/${_vm.topAlert!.studentId}', extra: {'name': 'Alumno'}),
-                      ),
-                    const SizedBox(height: 24),
-                    if (_vm.groupSummaries.isNotEmpty) ...[
-                      _sectionLabel(context, 'GRUPOS'),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        // 148 se quedaba corto: con las 3 etiquetas de riesgo
-                        // completas ("0 Alto"/"0 Medio"/"0 Bajo") el Wrap de
-                        // GroupRiskSummaryCard casi siempre baja a 2 líneas,
-                        // y a 148 el contenido no entraba (overflow inferior).
-                        height: 168,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _vm.groupSummaries.length,
-                          itemBuilder: (_, i) => GroupRiskSummaryCard(
-                            summary: _vm.groupSummaries[i],
-                            onTap: () => context.push(
-                              AppRouter.students,
-                              extra: {'groupId': _vm.groupSummaries[i].groupId},
-                            ),
+                    SizedBox(
+                      // 148 se quedaba corto: con las 3 etiquetas de riesgo
+                      // completas ("0 Alto"/"0 Medio"/"0 Bajo") el Wrap de
+                      // GroupRiskSummaryCard casi siempre baja a 2 líneas,
+                      // y a 148 el contenido no entraba (overflow inferior).
+                      height: 168,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: data.groupSummaries.length,
+                        itemBuilder: (_, i) => GroupRiskSummaryCard(
+                          summary: data.groupSummaries[i],
+                          onTap: () => context.push(
+                            AppRouter.students,
+                            extra: {'groupId': data.groupSummaries[i].groupId},
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
-                    ],
-                    if (user?.role == UserRole.admin) ...[
-                      _sectionLabel(context, 'ADMINISTRACIÓN'),
-                      const SizedBox(height: 10),
-                      _AdminBanner(onTap: () => context.push(AppRouter.adminUsers)),
-                      const SizedBox(height: 12),
-                      _BillingBanner(onTap: () => context.push(AppRouter.plans)),
-                      const SizedBox(height: 24),
-                    ],
-                    if (user?.role == UserRole.specialist || user?.role == UserRole.admin) ...[
-                      _sectionLabel(context, 'REVISIÓN CLÍNICA'),
-                      const SizedBox(height: 10),
-                      _SpecialistBanner(onTap: () => context.push(AppRouter.specialistReview)),
-                      const SizedBox(height: 24),
-                    ],
-                    if (_vm.pendingAssignments.isNotEmpty) ...[
-                      _sectionLabel(context, 'TESTS PENDIENTES'),
-                      const SizedBox(height: 10),
-                      ..._vm.pendingAssignments.map((a) => _AssignmentTile(
-                        studentName: a.studentName,
-                        moduleName: a.moduleName,
-                        status: a.status,
-                        isCompleted: false,
-                        onTap: () => context.push('/student/${a.studentId}', extra: {'name': a.studentName}),
-                      )),
-                      const SizedBox(height: 24),
-                    ],
-                    if (_vm.recentCompleted.isNotEmpty) ...[
-                      _sectionLabel(context, 'TESTS COMPLETADOS RECIENTES'),
-                      const SizedBox(height: 10),
-                      ..._vm.recentCompleted.map((a) => _AssignmentTile(
-                        studentName: a.studentName,
-                        moduleName: a.moduleName,
-                        status: a.status,
-                        isCompleted: true,
-                        onTap: () => context.push('/student/${a.studentId}', extra: {'name': a.studentName}),
-                      )),
-                      const SizedBox(height: 24),
-                    ],
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                      _sectionLabel(context, 'ALUMNOS'),
-                      TextButton(
-                        onPressed: () => context.push(AppRouter.students),
-                        child: Text('Ver todos', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.w600)),
-                      ),
-                    ]),
-                    if (_vm.recentStudents.isEmpty)
-                      Padding(padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: Center(child: Text('Aún no hay alumnos registrados', style: Theme.of(context).textTheme.bodyMedium)))
-                    else
-                      ..._vm.recentStudents.map((s) => DashboardStudentTile(
-                        student: s, atRisk: _vm.isStudentAtRisk(s.id),
-                        onTap: () => context.push('/student/${s.id}', extra: {'name': s.fullName}),
-                      )),
-                    const SizedBox(height: 100),
-                  ])),
-                ),
-              ]),
-            ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                  if (user?.role == UserRole.admin) ...[
+                    _sectionLabel(context, 'ADMINISTRACIÓN'),
+                    const SizedBox(height: 10),
+                    _AdminBanner(onTap: () => context.push(AppRouter.adminUsers)),
+                    const SizedBox(height: 12),
+                    _BillingBanner(onTap: () => context.push(AppRouter.plans)),
+                    const SizedBox(height: 24),
+                  ],
+                  if (user?.role == UserRole.specialist || user?.role == UserRole.admin) ...[
+                    _sectionLabel(context, 'REVISIÓN CLÍNICA'),
+                    const SizedBox(height: 10),
+                    _SpecialistBanner(onTap: () => context.push(AppRouter.specialistReview)),
+                    const SizedBox(height: 24),
+                  ],
+                  if (data.pendingAssignments.isNotEmpty) ...[
+                    _sectionLabel(context, 'TESTS PENDIENTES'),
+                    const SizedBox(height: 10),
+                    ...data.pendingAssignments.map((a) => _AssignmentTile(
+                      studentName: a.studentName,
+                      moduleName: a.moduleName,
+                      status: a.status,
+                      isCompleted: false,
+                      onTap: () => context.push('/student/${a.studentId}', extra: {'name': a.studentName}),
+                    )),
+                    const SizedBox(height: 24),
+                  ],
+                  if (data.recentCompleted.isNotEmpty) ...[
+                    _sectionLabel(context, 'TESTS COMPLETADOS RECIENTES'),
+                    const SizedBox(height: 10),
+                    ...data.recentCompleted.map((a) => _AssignmentTile(
+                      studentName: a.studentName,
+                      moduleName: a.moduleName,
+                      status: a.status,
+                      isCompleted: true,
+                      onTap: () => context.push('/student/${a.studentId}', extra: {'name': a.studentName}),
+                    )),
+                    const SizedBox(height: 24),
+                  ],
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    _sectionLabel(context, 'ALUMNOS'),
+                    TextButton(
+                      onPressed: () => context.push(AppRouter.students),
+                      child: Text('Ver todos', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.w600)),
+                    ),
+                  ]),
+                  if (data.recentStudents.isEmpty)
+                    Padding(padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Center(child: Text('Aún no hay alumnos registrados', style: Theme.of(context).textTheme.bodyMedium)))
+                  else
+                    ...data.recentStudents.map((s) => DashboardStudentTile(
+                      student: s, atRisk: data.isStudentAtRisk(s.id),
+                      onTap: () => context.push('/student/${s.id}', extra: {'name': s.fullName}),
+                    )),
+                  const SizedBox(height: 100),
+                ])),
+              ),
+            ]),
+          ),
+        ),
       ),
       bottomNavigationBar: _BottomNav(selected: _tab, onTap: _onTabTap),
     );

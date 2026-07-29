@@ -1,75 +1,72 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/service_locator.dart';
+import '../../../../core/di/session_providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/validation/input_rules.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
+import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../../domain/entities/institution_entity.dart';
 import '../viewmodels/institution_viewmodel.dart';
 
-class InstitutionsApprovalScreen extends StatefulWidget {
+class InstitutionsApprovalScreen extends ConsumerStatefulWidget {
   const InstitutionsApprovalScreen({super.key});
   @override
-  State<InstitutionsApprovalScreen> createState() => _InstitutionsApprovalScreenState();
+  ConsumerState<InstitutionsApprovalScreen> createState() => _InstitutionsApprovalScreenState();
 }
 
-class _InstitutionsApprovalScreenState extends State<InstitutionsApprovalScreen> {
-  late final InstitutionViewModel _vm;
+class _InstitutionsApprovalScreenState extends ConsumerState<InstitutionsApprovalScreen> {
+  InstitutionNotifier get _notifier => ref.read(institutionViewModelProvider.notifier);
 
   @override
   void initState() {
     super.initState();
-    _vm = ServiceLocator.instance.institutionViewModel;
-    _vm.addListener(_rebuild);
-    _vm.loadPending();
-  }
-
-  @override
-  void dispose() {
-    _vm.removeListener(_rebuild);
-    super.dispose();
-  }
-
-  void _rebuild() {
-    if (!mounted) return;
-    if (_vm.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(_vm.error!),
-        backgroundColor: AppTheme.riskRed,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ));
-    }
-    setState(() {});
+    _notifier.loadPending();
   }
 
   Future<void> _logout() async {
-    await ServiceLocator.instance.authViewModel.logout();
-    ServiceLocator.instance.resetSessionScopedViewModels();
+    await ref.read(authViewModelProvider.notifier).logout();
+    invalidateSessionScopedProviders(ref);
     if (mounted) context.go(AppRouter.login);
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(institutionViewModelProvider);
+
+    // Reemplaza el _rebuild manual: reacciona al error sin que la pantalla
+    // tenga que suscribirse a mano.
+    ref.listen<InstitutionState>(institutionViewModelProvider, (previous, next) {
+      if (next.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(next.error!),
+          backgroundColor: AppTheme.riskRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ));
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
         title: const Text('Instituciones pendientes'),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh_rounded), onPressed: _vm.loadPending),
+          IconButton(icon: const Icon(Icons.refresh_rounded), onPressed: _notifier.loadPending),
           IconButton(icon: const Icon(Icons.logout_rounded), tooltip: 'Cerrar sesión', onPressed: _logout),
           const ThemeToggleButton(),
         ],
       ),
-      body: _vm.isLoading
+      body: state.isLoading
           ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
-          : _vm.pending.isEmpty
+          : state.pending.isEmpty
               ? const _EmptyView()
               : ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                  itemCount: _vm.pending.length,
+                  itemCount: state.pending.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, i) => _InstitutionCard(institution: _vm.pending[i], vm: _vm),
+                  itemBuilder: (context, i) => _InstitutionCard(institution: state.pending[i], notifier: _notifier),
                 ),
     );
   }
@@ -77,8 +74,8 @@ class _InstitutionsApprovalScreenState extends State<InstitutionsApprovalScreen>
 
 class _InstitutionCard extends StatelessWidget {
   final InstitutionEntity institution;
-  final InstitutionViewModel vm;
-  const _InstitutionCard({required this.institution, required this.vm});
+  final InstitutionNotifier notifier;
+  const _InstitutionCard({required this.institution, required this.notifier});
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +106,7 @@ class _InstitutionCard extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: ElevatedButton(
-              onPressed: () => vm.approveInstitution(institution.id),
+              onPressed: () => notifier.approveInstitution(institution.id),
               style: ElevatedButton.styleFrom(backgroundColor: AppTheme.activeGreen),
               child: const Text('Aprobar'),
             ),
@@ -132,7 +129,7 @@ class _InstitutionCard extends StatelessWidget {
             const SizedBox(height: 12),
             TextField(
               controller: motivoCtrl,
-              maxLength: 500,
+              maxLength: InputRules.motivoRechazoMax,
               maxLines: 3,
               decoration: const InputDecoration(
                 labelText: 'Motivo (opcional)',
@@ -149,7 +146,7 @@ class _InstitutionCard extends StatelessWidget {
             onPressed: () {
               final motivo = motivoCtrl.text.trim();
               Navigator.pop(dialogCtx);
-              vm.rejectInstitution(institution.id, reason: motivo.isEmpty ? null : motivo);
+              notifier.rejectInstitution(institution.id, reason: motivo.isEmpty ? null : motivo);
             },
             child: const Text('Rechazar'),
           ),

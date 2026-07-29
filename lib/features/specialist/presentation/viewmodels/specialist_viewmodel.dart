@@ -1,46 +1,40 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../features/tests/di/tests_providers.dart';
 import '../../../../features/tests/domain/entities/screening_entity.dart';
 import '../../../../features/tests/domain/usecases/get_pending_diagnoses_usecase.dart';
 import '../../../../features/tests/domain/usecases/label_diagnosis_usecase.dart';
 
-class SpecialistViewModel extends ChangeNotifier {
-  final GetPendingDiagnosesUseCase _getPending;
-  final LabelDiagnosisUseCase _label;
+class SpecialistData {
+  final List<PendingDiagnosisEntity> pending;
+  final int totalLabeled;
+  const SpecialistData({this.pending = const [], this.totalLabeled = 0});
+}
 
-  SpecialistViewModel({
-    required GetPendingDiagnosesUseCase getPending,
-    required LabelDiagnosisUseCase label,
-  })  : _getPending = getPending,
-        _label = label;
+class SpecialistNotifier extends Notifier<AsyncValue<SpecialistData>> {
+  late GetPendingDiagnosesUseCase _getPending;
+  late LabelDiagnosisUseCase _label;
 
-  bool _isLoading = false;
-  String? _error;
-  List<PendingDiagnosisEntity> _pending = [];
-  // IDs de diagnósticos etiquetados en esta sesión (para filtrarlos de la lista)
-  final Set<String> _labeled = {};
-
-  bool get isLoading => _isLoading;
-  String? get error => _error;
-  List<PendingDiagnosisEntity> get pending =>
-      _pending.where((d) => !_labeled.contains(d.id)).toList();
-  int get totalLabeled => _labeled.length;
+  @override
+  AsyncValue<SpecialistData> build() {
+    final repo = ref.watch(screeningRepositoryProvider);
+    _getPending = GetPendingDiagnosesUseCase(repo);
+    _label = LabelDiagnosisUseCase(repo);
+    return const AsyncValue.loading();
+  }
 
   Future<void> load() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
+    state = const AsyncValue.loading();
     try {
-      _pending = await _getPending();
-    } catch (e) {
-      _error = 'No se pudieron cargar los diagnósticos: $e';
+      final pending = await _getPending();
+      state = AsyncValue.data(SpecialistData(pending: pending));
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
-    _isLoading = false;
-    notifyListeners();
   }
 
   /// Confirma el diagnóstico automático tal cual (sin corrección).
-  Future<bool> confirm(PendingDiagnosisEntity d, {String? notes}) =>
-      _submitLabel(
+  Future<bool> confirm(PendingDiagnosisEntity d, {String? notes}) => _submitLabel(
         diagnosisId: d.id,
         subtype: d.autoSubtype,
         severity: d.autoSeverity,
@@ -78,8 +72,13 @@ class SpecialistViewModel extends ChangeNotifier {
         confirmedRiskLevel: riskLevel,
         notes: notes,
       );
-      _labeled.add(diagnosisId);
-      notifyListeners();
+      final current = state.valueOrNull;
+      if (current != null) {
+        state = AsyncValue.data(SpecialistData(
+          pending: current.pending.where((d) => d.id != diagnosisId).toList(),
+          totalLabeled: current.totalLabeled + 1,
+        ));
+      }
       return true;
     } catch (e) {
       if (kDebugMode) debugPrint('labelDiagnosis error: $e');
@@ -87,3 +86,5 @@ class SpecialistViewModel extends ChangeNotifier {
     }
   }
 }
+
+final specialistViewModelProvider = NotifierProvider<SpecialistNotifier, AsyncValue<SpecialistData>>(SpecialistNotifier.new);

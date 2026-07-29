@@ -1,93 +1,103 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/errors/api_exception.dart';
+import '../../di/reports_providers.dart';
 import '../../domain/usecases/download_report_usecase.dart';
 import '../../domain/usecases/generate_report_usecase.dart';
 import '../../domain/usecases/request_report_usecase.dart';
 
-enum ReportStatus { idle, requesting, generating, downloading, ready, error }
+enum ReportStage { requesting, generating, downloading }
 
-class ReportsViewModel extends ChangeNotifier {
-  final RequestReportUseCase _requestReport;
-  final GenerateReportUseCase _generateReport;
-  final DownloadReportUseCase _downloadReport;
+const _unset = Object();
 
-  ReportsViewModel({
-    required RequestReportUseCase requestReport,
-    required GenerateReportUseCase generateReport,
-    required DownloadReportUseCase downloadReport,
-  })  : _requestReport = requestReport,
-        _generateReport = generateReport,
-        _downloadReport = downloadReport;
+/// `result` es data(null) en idle, data(path) cuando el PDF ya se guardó, y
+/// AsyncLoading/AsyncError durante la generación. `stage` distingue en cuál
+/// de las tres llamadas al backend va mientras `result` está en loading —
+/// AsyncValue por sí solo no alcanza para el label de progreso de la UI.
+class ReportsState {
+  final AsyncValue<String?> result;
+  final ReportStage? stage;
+  final String reportType;
 
-  ReportStatus _status = ReportStatus.idle;
-  String? _error;
-  String? _savedPath;
-  String _reportType = 'PARENT_SUMMARY';
+  const ReportsState({
+    this.result = const AsyncValue.data(null),
+    this.stage,
+    this.reportType = 'PARENT_SUMMARY',
+  });
 
-  ReportStatus get status => _status;
-  String? get error => _error;
-  String get reportType => _reportType;
-  bool get isIdle => _status == ReportStatus.idle;
-  bool get isReady => _status == ReportStatus.ready;
-  bool get isBusy => _status == ReportStatus.requesting ||
-      _status == ReportStatus.generating ||
-      _status == ReportStatus.downloading;
+  bool get isBusy => result.isLoading;
+  bool get isIdle => !isBusy && !result.hasError && result.valueOrNull == null;
+  bool get isReady => result.valueOrNull != null;
+  bool get isError => result.hasError;
+  String? get savedPath => result.valueOrNull;
+
+  String? get error {
+    final err = result.error;
+    if (err == null) return null;
+    return err is ApiException ? err.userMessage : 'No se pudo generar el reporte.';
+  }
+
+  ReportsState copyWith({AsyncValue<String?>? result, Object? stage = _unset, String? reportType}) {
+    return ReportsState(
+      result: result ?? this.result,
+      stage: identical(stage, _unset) ? this.stage : stage as ReportStage?,
+      reportType: reportType ?? this.reportType,
+    );
+  }
+}
+
+class ReportsNotifier extends Notifier<ReportsState> {
+  late RequestReportUseCase _requestReport;
+  late GenerateReportUseCase _generateReport;
+  late DownloadReportUseCase _downloadReport;
+
+  @override
+  ReportsState build() {
+    final repo = ref.watch(reportRepositoryProvider);
+    _requestReport = RequestReportUseCase(repo);
+    _generateReport = GenerateReportUseCase(repo);
+    _downloadReport = DownloadReportUseCase(repo);
+    return const ReportsState();
+  }
 
   void setReportType(String type) {
-    if (isBusy) return;
-    _reportType = type;
-    notifyListeners();
+    if (state.isBusy) return;
+    state = state.copyWith(reportType: type);
   }
 
   Future<void> generate(String studentId) async {
-    if (isBusy) return;
-    _error = null;
-    _savedPath = null;
-
-    _status = ReportStatus.requesting;
-    notifyListeners();
+    if (state.isBusy) return;
+    state = state.copyWith(result: const AsyncValue.loading(), stage: ReportStage.requesting);
     try {
-      final report = await _requestReport(studentId: studentId, reportType: _reportType);
+      final report = await _requestReport(studentId: studentId, reportType: state.reportType);
 
-      _status = ReportStatus.generating;
-      notifyListeners();
+      state = state.copyWith(stage: ReportStage.generating);
       await _generateReport(report.id);
 
-      _status = ReportStatus.downloading;
-      notifyListeners();
+      state = state.copyWith(stage: ReportStage.downloading);
       final bytes = await _downloadReport(report.id);
 
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/reporte_${report.id}.pdf');
       await file.writeAsBytes(bytes);
-      _savedPath = file.path;
 
-      _status = ReportStatus.ready;
-    } on ApiException catch (e) {
-      _error = e.userMessage;
-      _status = ReportStatus.error;
-    } catch (_) {
-      _error = 'No se pudo generar el reporte.';
-      _status = ReportStatus.error;
+      state = state.copyWith(result: AsyncValue.data(file.path), stage: null);
+    } catch (e, st) {
+      state = state.copyWith(result: AsyncValue.error(e, st), stage: null);
     }
-    notifyListeners();
   }
 
   Future<void> share() async {
-    if (_savedPath == null) return;
-    await Share.shareXFiles([XFile(_savedPath!)], text: 'Reporte CogniFit');
+    final path = state.savedPath;
+    if (path == null) return;
+    await Share.shareXFiles([XFile(path)], text: 'Reporte CogniFit');
   }
 
-  void reset() {
-    _status = ReportStatus.idle;
-    _error = null;
-    _savedPath = null;
-    _reportType = 'PARENT_SUMMARY';
-    notifyListeners();
-  }
+  void reset() => state = ReportsState(reportType: state.reportType);
 }
+
+final reportsViewModelProvider = NotifierProvider<ReportsNotifier, ReportsState>(ReportsNotifier.new);

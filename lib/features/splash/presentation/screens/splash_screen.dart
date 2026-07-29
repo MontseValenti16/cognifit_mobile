@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/service_locator.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../widgets/circuit_background.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   bool _checkedSession = false;
 
   @override
@@ -23,24 +23,26 @@ class _SplashScreenState extends State<SplashScreen> {
     _checkSession();
   }
 
+  /// `ref.read`, no `watch`: es una comprobación de una sola vez al abrir la
+  /// app, no algo a lo que esta pantalla deba reaccionar en cada rebuild.
   Future<void> _checkSession() async {
-    final vm = ServiceLocator.instance.authViewModel;
-    final restored = await vm.tryRestoreSession();
+    final notifier = ref.read(authViewModelProvider.notifier);
+    final restored = await notifier.tryRestoreSession();
     if (!mounted) return;
     if (restored) {
-      _navigateByRole(vm);
+      _navigateByRole(ref.read(authViewModelProvider));
     } else {
       setState(() => _checkedSession = true);
     }
   }
 
-  void _navigateByRole(AuthViewModel vm) {
+  void _navigateByRole(AuthState vm) {
     final role = vm.currentUser?.role;
     final linkedId = vm.linkedStudentId;
     final linkedName = vm.linkedStudentName ?? 'Alumno';
 
     if (role == UserRole.student) {
-      vm.logout();
+      ref.read(authViewModelProvider.notifier).logout();
       setState(() => _checkedSession = true);
       return;
     }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/validation/input_rules.dart';
 import '../../../../core/widgets/theme_toggle_button.dart';
@@ -9,14 +9,14 @@ import '../../../splash/presentation/widgets/circuit_background.dart';
 import '../../domain/entities/institution_entity.dart';
 import '../viewmodels/institution_viewmodel.dart';
 
-class RegisterInstitutionScreen extends StatefulWidget {
+class RegisterInstitutionScreen extends ConsumerStatefulWidget {
   const RegisterInstitutionScreen({super.key});
   @override
-  State<RegisterInstitutionScreen> createState() => _RegisterInstitutionScreenState();
+  ConsumerState<RegisterInstitutionScreen> createState() => _RegisterInstitutionScreenState();
 }
 
-class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
-  late final InstitutionViewModel _vm;
+class _RegisterInstitutionScreenState extends ConsumerState<RegisterInstitutionScreen> {
+  InstitutionNotifier get _notifier => ref.read(institutionViewModelProvider.notifier);
 
   final _schoolNameCtrl = TextEditingController();
   final _cctCtrl = TextEditingController();
@@ -28,15 +28,7 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
   final _formKey = GlobalKey<FormState>();
 
   @override
-  void initState() {
-    super.initState();
-    _vm = ServiceLocator.instance.institutionViewModel;
-    _vm.addListener(_onChanged);
-  }
-
-  @override
   void dispose() {
-    _vm.removeListener(_onChanged);
     _schoolNameCtrl.dispose();
     _cctCtrl.dispose();
     _municipalityCtrl.dispose();
@@ -45,28 +37,13 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
     super.dispose();
   }
 
-  void _onChanged() {
-    if (!mounted) return;
-    if (_vm.registerStatus == RegisterInstitutionStatus.success) {
-      setState(() => _submitted = true);
-    } else if (_vm.registerStatus == RegisterInstitutionStatus.error) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(_vm.registerError ?? 'Error'),
-        backgroundColor: AppTheme.riskRed,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ));
-    }
-    setState(() {});
-  }
-
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_schoolNameCtrl.text.trim().isEmpty || _adminEmailCtrl.text.trim().isEmpty || _adminPasswordCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Completa nombre de la escuela, correo y contraseña')));
       return;
     }
-    await _vm.registerInstitution(RegisterInstitutionParams(
+    await _notifier.registerInstitution(RegisterInstitutionParams(
       schoolName: _schoolNameCtrl.text.trim(),
       cct: _cctCtrl.text.trim().isEmpty ? null : _cctCtrl.text.trim(),
       municipality: _municipalityCtrl.text.trim().isEmpty ? null : _municipalityCtrl.text.trim(),
@@ -77,6 +54,24 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(institutionViewModelProvider);
+
+    // Reemplaza el _onChanged manual: reacciona al éxito/error del registro
+    // sin que la pantalla tenga que suscribirse/desuscribirse a mano.
+    ref.listen<InstitutionState>(institutionViewModelProvider, (previous, next) {
+      final justSucceeded = (previous?.isRegistering ?? false) && !next.isRegistering && next.registerError == null;
+      if (justSucceeded) {
+        setState(() => _submitted = true);
+      } else if (next.registerError != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(next.registerError!),
+          backgroundColor: AppTheme.riskRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ));
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppTheme.surface,
       body: Stack(children: [
@@ -166,14 +161,16 @@ class _RegisterInstitutionScreenState extends State<RegisterInstitutionScreen> {
         ),
       ),
       const SizedBox(height: 32),
-      ListenableBuilder(
-        listenable: _vm,
-        builder: (_, __) => ElevatedButton(
-          onPressed: _vm.registerStatus == RegisterInstitutionStatus.loading ? null : _submit,
-          child: _vm.registerStatus == RegisterInstitutionStatus.loading
-              ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-              : const Text('Registrar mi institución'),
-        ),
+      Consumer(
+        builder: (_, consumerRef, __) {
+          final isRegistering = consumerRef.watch(institutionViewModelProvider).isRegistering;
+          return ElevatedButton(
+            onPressed: isRegistering ? null : _submit,
+            child: isRegistering
+                ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                : const Text('Registrar mi institución'),
+          );
+        },
       ),
       const SizedBox(height: 24),
       Wrap(alignment: WrapAlignment.center, crossAxisAlignment: WrapCrossAlignment.center, children: [

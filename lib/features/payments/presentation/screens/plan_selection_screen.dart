@@ -1,37 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/service_locator.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/cognifit_app_bar.dart';
 import '../../domain/entities/plan_entity.dart';
 import '../viewmodels/payment_viewmodel.dart';
 
-class PlanSelectionScreen extends StatefulWidget {
+class PlanSelectionScreen extends ConsumerStatefulWidget {
   const PlanSelectionScreen({super.key});
   @override
-  State<PlanSelectionScreen> createState() => _PlanSelectionScreenState();
+  ConsumerState<PlanSelectionScreen> createState() => _PlanSelectionScreenState();
 }
 
-class _PlanSelectionScreenState extends State<PlanSelectionScreen> {
-  late final PaymentViewModel _vm;
-
+class _PlanSelectionScreenState extends ConsumerState<PlanSelectionScreen> {
   @override
   void initState() {
     super.initState();
-    _vm = ServiceLocator.instance.paymentViewModel;
-    _vm.addListener(_onChanged);
-    _vm.loadPlans();
-  }
-
-  @override
-  void dispose() {
-    _vm.removeListener(_onChanged);
-    super.dispose();
-  }
-
-  void _onChanged() {
-    if (mounted) setState(() {});
+    ref.read(paymentViewModelProvider.notifier).loadPlans();
   }
 
   void _choosePaymentMethod(PlanEntity plan) {
@@ -74,25 +60,25 @@ class _PlanSelectionScreenState extends State<PlanSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(paymentViewModelProvider);
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: const CogniFitAppBar(title: 'Planes de licencia', showBack: true),
       body: SafeArea(
-        child: switch (_vm.plansStatus) {
-          PlansStatus.loading || PlansStatus.idle =>
-            Center(child: CircularProgressIndicator(color: AppTheme.primary)),
-          PlansStatus.error => Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(_vm.plansError ?? 'Error', textAlign: TextAlign.center),
-              ),
-            ),
-          PlansStatus.loaded => ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: _vm.plans.length,
-              itemBuilder: (_, i) => _PlanCard(plan: _vm.plans[i], onTap: () => _choosePaymentMethod(_vm.plans[i])),
-            ),
-        },
+        child: state.plansLoading || state.plansIdle
+            ? Center(child: CircularProgressIndicator(color: AppTheme.primary))
+            : state.plansError != null
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(state.plansError!, textAlign: TextAlign.center),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(20),
+                    itemCount: state.plans.length,
+                    itemBuilder: (_, i) => _PlanCard(plan: state.plans[i], onTap: () => _choosePaymentMethod(state.plans[i])),
+                  ),
       ),
     );
   }

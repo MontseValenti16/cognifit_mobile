@@ -11,7 +11,7 @@
 /// usuarios legítimos. El caso concreto que motivó esta advertencia: el
 /// servidor exige 12 caracteres al registrar un usuario
 /// (`RegisterUserRequest`), pero solo 8 al registrar la institución
-/// (`InstitutionRegister.admin_password`), y **ninguno** al iniciar sesión
+/// (`RegisterInstitutionRequest.admin_password`), y **ninguno** al iniciar sesión
 /// (`LoginRequest.password` no declara restricción). Poner 12 en la pantalla
 /// de acceso dejaría fuera a cualquier administrador dado de alta con 8.
 ///
@@ -55,6 +55,32 @@ class InputRules {
 
   /// `group_label = Field(min_length=1, max_length=16)`
   static const int etiquetaGrupoMax = 16;
+
+  /// `RejectInstitutionRequest.reason = Field(default=None, max_length=500)`
+  /// en `api/api/v1/institutions/schemas.py`. Vivía como literal
+  /// `maxLength: 500` dentro de `institutions_approval_screen.dart`, fuera del
+  /// alcance del guardián anti-divergencia; se movió aquí para que también
+  /// quede cubierto por `test_reglas_cliente_espejo.py`.
+  static const int motivoRechazoMax = 500;
+
+  // --- Tarjeta bancaria ----------------------------------------------------
+  /// Estos límites **no** son espejo de un esquema de Pydantic: el número de
+  /// tarjeta nunca llega a nuestro backend. Viaja del dispositivo directo a
+  /// Conekta (`conekta_tokenization_datasource.dart`) y lo único que después
+  /// recibe la API es el `token_id` de un solo uso
+  /// (`CardCheckoutRequest.token_id`). Por eso la única validación previa
+  /// posible es la del cliente, y por eso vale la pena que sea real: un
+  /// número mal tecleado que se detecta aquí ahorra un viaje a la pasarela y
+  /// un mensaje de error genérico devuelto por un tercero.
+  ///
+  /// Rango de longitudes de la norma ISO/IEC 7812 (13 dígitos de algunas Visa
+  /// antiguas hasta 19 de Maestro/UnionPay).
+  static const int tarjetaMinDigitos = 13;
+  static const int tarjetaMaxDigitos = 19;
+
+  /// 3 dígitos en Visa/Mastercard/Carnet, 4 en American Express.
+  static const int cvcMin = 3;
+  static const int cvcMax = 4;
 }
 
 /// Validadores para usar en el parámetro `validator:` de un `TextFormField`.
@@ -143,6 +169,90 @@ class Validators {
     if (v.isEmpty) return 'El nombre de la escuela es obligatorio';
     if (v.length < InputRules.nombreEscuelaMin) {
       return 'Debe tener al menos ${InputRules.nombreEscuelaMin} caracteres';
+    }
+    return null;
+  }
+
+  /// Motivo por el que el SUPERADMIN rechaza una institución. Opcional, pero
+  /// acotado: el texto viaja al correo del solicitante.
+  static String? motivoRechazo(String? valor) {
+    return largoMaximo(valor, InputRules.motivoRechazoMax, campo: 'El motivo');
+  }
+
+  /// Número de tarjeta: longitud ISO/IEC 7812 más **algoritmo de Luhn**.
+  ///
+  /// Luhn es una suma de verificación, no un control de seguridad: detecta
+  /// dígitos mal tecleados o transpuestos (`4242` por `4422`), que es la causa
+  /// real de la mayoría de los pagos rechazados. No prueba que la tarjeta
+  /// exista ni que tenga fondos; eso solo lo sabe la pasarela.
+  static String? tarjeta(String? valor) {
+    final digitos = (valor ?? '').replaceAll(RegExp(r'[\s-]'), '');
+    if (digitos.isEmpty) return 'El número de tarjeta es obligatorio';
+    if (!RegExp(r'^\d+$').hasMatch(digitos)) {
+      return 'El número de tarjeta solo puede tener dígitos';
+    }
+    if (digitos.length < InputRules.tarjetaMinDigitos ||
+        digitos.length > InputRules.tarjetaMaxDigitos) {
+      return 'Debe tener entre ${InputRules.tarjetaMinDigitos} y '
+          '${InputRules.tarjetaMaxDigitos} dígitos';
+    }
+    if (!pasaLuhn(digitos)) return 'El número de tarjeta no es válido';
+    return null;
+  }
+
+  /// Algoritmo de Luhn (ISO/IEC 7812-1), de derecha a izquierda: se duplica
+  /// cada segundo dígito y, si el doble pasa de 9, se le restan 9 (equivale a
+  /// sumar sus dos cifras). La tarjeta es válida si el total es múltiplo de 10.
+  ///
+  /// Público para que la prueba unitaria pueda ejercitarlo con los números de
+  /// prueba oficiales sin pasar por el mensaje de error.
+  static bool pasaLuhn(String digitos) {
+    var suma = 0;
+    var duplicar = false;
+    for (var i = digitos.length - 1; i >= 0; i--) {
+      var d = digitos.codeUnitAt(i) - 0x30;
+      if (duplicar) {
+        d *= 2;
+        if (d > 9) d -= 9;
+      }
+      suma += d;
+      duplicar = !duplicar;
+    }
+    return suma % 10 == 0;
+  }
+
+  /// Vencimiento en formato `MM/AA`.
+  ///
+  /// Comprueba el formato, que el mes exista y que la tarjeta no esté vencida.
+  /// La versión anterior solo validaba el formato con
+  /// `RegExp(r'^\d{2}/\d{2}$')`, así que aceptaba `99/99` y cualquier fecha ya
+  /// pasada. `ahora` se inyecta para que la prueba no dependa del reloj.
+  static String? vencimientoTarjeta(String? valor, {DateTime? ahora}) {
+    final v = (valor ?? '').trim();
+    if (v.isEmpty) return 'El vencimiento es obligatorio';
+    if (!RegExp(r'^\d{2}/\d{2}$').hasMatch(v)) return 'Usa el formato MM/AA';
+
+    final mes = int.parse(v.substring(0, 2));
+    final anio = 2000 + int.parse(v.substring(3, 5));
+    if (mes < 1 || mes > 12) return 'El mes debe estar entre 01 y 12';
+
+    // La tarjeta sigue siendo válida durante todo su mes de vencimiento, así
+    // que se compara contra el primer día del mes siguiente.
+    final hoy = ahora ?? DateTime.now();
+    final vence = DateTime(anio, mes + 1, 1);
+    if (!vence.isAfter(DateTime(hoy.year, hoy.month, hoy.day))) {
+      return 'La tarjeta ya venció';
+    }
+    return null;
+  }
+
+  /// Código de seguridad: 3 o 4 dígitos según la marca.
+  static String? cvc(String? valor) {
+    final v = (valor ?? '').trim();
+    if (v.isEmpty) return 'El CVC es obligatorio';
+    if (!RegExp(r'^\d+$').hasMatch(v)) return 'El CVC solo puede tener dígitos';
+    if (v.length < InputRules.cvcMin || v.length > InputRules.cvcMax) {
+      return 'El CVC debe tener ${InputRules.cvcMin} o ${InputRules.cvcMax} dígitos';
     }
     return null;
   }

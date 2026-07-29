@@ -2,14 +2,13 @@
 /// (avg_time_norm es la feature #1 de las 28 del modelo). Estas pruebas fijan
 /// que ese número mida lo que dice medir: el tiempo que el niño tardó en
 /// resolver, y no el audio de apoyo que escuchó mientras tanto.
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cognifit_mobile/features/exercise/presentation/viewmodels/exercise_viewmodel.dart';
+import 'package:cognifit_mobile/features/tests/di/tests_providers.dart';
 import 'package:cognifit_mobile/features/tests/domain/entities/screening_entity.dart';
 import 'package:cognifit_mobile/features/tests/domain/repositories/screening_repository.dart';
-import 'package:cognifit_mobile/features/tests/domain/usecases/diagnose_usecase.dart';
-import 'package:cognifit_mobile/features/tests/domain/usecases/get_session_items_usecase.dart';
-import 'package:cognifit_mobile/features/tests/domain/usecases/submit_responses_usecase.dart';
 
 SessionItemEntity _item(String id) => SessionItemEntity(
       itemId: id,
@@ -47,17 +46,22 @@ class _FakeRepo implements ScreeningRepository {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  ExerciseViewModel build(_FakeRepo repo, {required int ttsMs}) => ExerciseViewModel(
-        getItems: GetSessionItemsUseCase(repo),
-        submitResponses: SubmitResponsesUseCase(repo),
-        diagnose: DiagnoseUseCase(repo),
-        ttsPlaybackMs: () => ttsMs,
-        resetTtsPlayback: () {},
-      );
+  /// Construye un ProviderContainer con el repo falso inyectado y el
+  /// notifier ya expuesto — el reemplazo Riverpod de instanciar el
+  /// ChangeNotifier directamente con un constructor a mano.
+  ({ProviderContainer container, ExerciseNotifier notifier}) build(_FakeRepo repo, {required int ttsMs}) {
+    final container = ProviderContainer(overrides: [
+      screeningRepositoryProvider.overrideWithValue(repo),
+    ]);
+    addTearDown(container.dispose);
+    final notifier = container.read(exerciseViewModelProvider.notifier);
+    notifier.debugSetTtsHooks(playbackMs: () => ttsMs, resetPlayback: () {});
+    return (container: container, notifier: notifier);
+  }
 
   test('el tiempo de reproduccion del TTS se descuenta de la respuesta', () async {
     final repo = _FakeRepo();
-    final vm = build(repo, ttsMs: 4000);
+    final vm = build(repo, ttsMs: 4000).notifier;
     await vm.loadSession('s1');
 
     // El niño escucha 4s de audio y responde; su tiempo real de resolución
@@ -72,7 +76,7 @@ void main() {
 
   test('sin audio, el tiempo medido se conserva', () async {
     final repo = _FakeRepo();
-    final vm = build(repo, ttsMs: 0);
+    final vm = build(repo, ttsMs: 0).notifier;
     await vm.loadSession('s1');
 
     await Future<void>.delayed(const Duration(milliseconds: 60));
@@ -83,7 +87,7 @@ void main() {
 
   test('el tiempo nunca queda negativo', () async {
     final repo = _FakeRepo();
-    final vm = build(repo, ttsMs: 999999);
+    final vm = build(repo, ttsMs: 999999).notifier;
     await vm.loadSession('s1');
     vm.answer('casa');
 

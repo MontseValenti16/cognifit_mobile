@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/errors/api_exception.dart';
 import '../../../../core/storage/token_storage.dart';
 import '../../domain/entities/user_entity.dart';
@@ -7,98 +7,140 @@ import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/get_me_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../../../students/domain/usecases/get_linked_student_usecase.dart';
+import '../../di/auth_providers.dart';
+import '../../../../core/di/core_providers.dart';
+import '../../../students/di/students_providers.dart';
 
-enum AuthStatus { idle, loading, success, error }
+/// Estado inmutable de auth. `submission` es un [AsyncValue] que representa
+/// únicamente la operación de login/registro/restauración en curso — no la
+/// sesión en sí. `currentUser` vive aparte porque debe sobrevivir a un
+/// `reset()` del formulario (el usuario sigue autenticado tras navegar).
+class AuthState {
+  final AsyncValue<void> submission;
+  final UserEntity? currentUser;
+  final String? linkedStudentId;
+  final String? linkedStudentName;
+  final bool obscurePassword;
+  final String name;
+  final String email;
+  final String password;
 
-class AuthViewModel extends ChangeNotifier {
-  final LoginUseCase _login;
-  final LogoutUseCase _logout;
-  final GetMeUseCase _getMe;
-  final RegisterUseCase _register;
-  final TokenStorage _tokenStorage;
-  final GetLinkedStudentUseCase _getLinkedStudent;
+  const AuthState({
+    this.submission = const AsyncValue.data(null),
+    this.currentUser,
+    this.linkedStudentId,
+    this.linkedStudentName,
+    this.obscurePassword = true,
+    this.name = '',
+    this.email = '',
+    this.password = '',
+  });
 
-  AuthViewModel({
-    required LoginUseCase login,
-    required LogoutUseCase logout,
-    required GetMeUseCase getMe,
-    required RegisterUseCase register,
-    required TokenStorage tokenStorage,
-    required GetLinkedStudentUseCase getLinkedStudent,
-  })  : _login = login, _logout = logout, _getMe = getMe, _register = register,
-        _tokenStorage = tokenStorage, _getLinkedStudent = getLinkedStudent;
+  bool get isLoading => submission.isLoading;
 
-  AuthStatus _status = AuthStatus.idle;
-  String? _errorMessage;
-  String? _errorField;
-  bool _obscurePassword = true;
-  UserEntity? currentUser;
-  String? linkedStudentId;
-  String? linkedStudentName;
+  String? get errorMessage {
+    final err = submission.error;
+    if (err == null) return null;
+    return err is ApiException ? err.userMessage : 'Ocurrió un error. Intenta de nuevo.';
+  }
 
-  String name = '';
-  String email = '';
-  String password = '';
+  String? get errorField {
+    final err = submission.error;
+    return err is ApiException ? err.fieldError : null;
+  }
 
-  AuthStatus get status => _status;
-  String? get errorMessage => _errorMessage;
-  String? get errorField => _errorField;
-  bool get obscurePassword => _obscurePassword;
-  bool get isLoading => _status == AuthStatus.loading;
+  AuthState copyWith({
+    AsyncValue<void>? submission,
+    UserEntity? currentUser,
+    String? linkedStudentId,
+    String? linkedStudentName,
+    bool? obscurePassword,
+    String? name,
+    String? email,
+    String? password,
+  }) {
+    return AuthState(
+      submission: submission ?? this.submission,
+      currentUser: currentUser ?? this.currentUser,
+      linkedStudentId: linkedStudentId ?? this.linkedStudentId,
+      linkedStudentName: linkedStudentName ?? this.linkedStudentName,
+      obscurePassword: obscurePassword ?? this.obscurePassword,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      password: password ?? this.password,
+    );
+  }
+}
 
-  void togglePasswordVisibility() { _obscurePassword = !_obscurePassword; notifyListeners(); }
-  void setName(String v) => name = v;
-  void setEmail(String v) => email = v;
-  void setPassword(String v) => password = v;
+class AuthNotifier extends Notifier<AuthState> {
+  late LoginUseCase _login;
+  late LogoutUseCase _logout;
+  late GetMeUseCase _getMe;
+  late RegisterUseCase _register;
+  late GetLinkedStudentUseCase _getLinkedStudent;
+  late TokenStorage _tokenStorage;
+
+  @override
+  AuthState build() {
+    final repo = ref.watch(authRepositoryProvider);
+    _login = LoginUseCase(repo);
+    _logout = LogoutUseCase(repo);
+    _getMe = GetMeUseCase(repo);
+    _register = RegisterUseCase(repo);
+    _tokenStorage = ref.watch(tokenStorageProvider);
+    _getLinkedStudent = GetLinkedStudentUseCase(ref.watch(studentRepositoryProvider));
+    return const AuthState();
+  }
+
+  void togglePasswordVisibility() => state = state.copyWith(obscurePassword: !state.obscurePassword);
+  void setName(String v) => state = state.copyWith(name: v);
+  void setEmail(String v) => state = state.copyWith(email: v);
+  void setPassword(String v) => state = state.copyWith(password: v);
 
   Future<void> _fetchLinkedStudent() async {
-    linkedStudentId = null;
-    linkedStudentName = null;
     final result = await _getLinkedStudent();
-    linkedStudentId = result?.id;
-    linkedStudentName = result?.fullName;
+    state = state.copyWith(linkedStudentId: result?.id, linkedStudentName: result?.fullName);
   }
 
   Future<void> login() async {
-    if (email.isEmpty || password.isEmpty) { _setError('Por favor completa todos los campos.'); return; }
-    _setLoading();
-    try {
-      await _login(email, password, deviceInfo: 'Flutter App');
-      currentUser = await _getMe();
-      final role = currentUser?.role;
-      if (role == UserRole.student || role == UserRole.parent) {
-        await _fetchLinkedStudent();
-      }
-      _status = AuthStatus.success;
-      notifyListeners();
-    } on ApiException catch (e) {
-      _setError(e.userMessage, field: e.fieldError);
-    } catch (e) {
-      _setError('No se pudo iniciar sesión. Intenta de nuevo.');
+    if (state.email.isEmpty || state.password.isEmpty) {
+      state = state.copyWith(submission: AsyncValue.error('Por favor completa todos los campos.', StackTrace.current));
+      return;
     }
+    state = state.copyWith(submission: const AsyncValue.loading());
+    state = state.copyWith(
+      submission: await AsyncValue.guard(() async {
+        await _login(state.email, state.password, deviceInfo: 'Flutter App');
+        final user = await _getMe();
+        state = state.copyWith(currentUser: user);
+        if (user.role == UserRole.student || user.role == UserRole.parent) {
+          await _fetchLinkedStudent();
+        }
+      }),
+    );
   }
 
   Future<void> register() async {
-    if (name.isEmpty || email.isEmpty || password.isEmpty) { _setError('Por favor completa todos los campos.'); return; }
-    _setLoading();
-    try {
-      await _register(name, email, password);
-      currentUser = await _getMe();
-      _status = AuthStatus.success;
-      notifyListeners();
-    } on ApiException catch (e) {
-      _setError(e.userMessage, field: e.fieldError);
-    } catch (e) {
-      _setError('No se pudo registrar. Intenta de nuevo.');
+    if (state.name.isEmpty || state.email.isEmpty || state.password.isEmpty) {
+      state = state.copyWith(submission: AsyncValue.error('Por favor completa todos los campos.', StackTrace.current));
+      return;
     }
+    state = state.copyWith(submission: const AsyncValue.loading());
+    state = state.copyWith(
+      submission: await AsyncValue.guard(() async {
+        await _register(state.name, state.email, state.password);
+        final user = await _getMe();
+        state = state.copyWith(currentUser: user);
+      }),
+    );
   }
 
   Future<bool> tryRestoreSession() async {
     if (!await _tokenStorage.hasSession) return false;
     try {
-      currentUser = await _getMe();
-      final role = currentUser?.role;
-      if (role == UserRole.student || role == UserRole.parent) {
+      final user = await _getMe();
+      state = state.copyWith(currentUser: user);
+      if (user.role == UserRole.student || user.role == UserRole.parent) {
         await _fetchLinkedStudent();
       }
       return true;
@@ -110,14 +152,15 @@ class AuthViewModel extends ChangeNotifier {
 
   Future<void> logout() async {
     await _logout();
-    currentUser = null;
-    linkedStudentId = null;
-    linkedStudentName = null;
-    reset();
+    state = const AuthState();
   }
 
-  void _setLoading() { _status = AuthStatus.loading; _errorMessage = null; _errorField = null; notifyListeners(); }
-  void _setError(String msg, {String? field}) { _errorMessage = msg; _errorField = field; _status = AuthStatus.error; notifyListeners(); }
-
-  void reset() { _status = AuthStatus.idle; _errorMessage = null; _errorField = null; name = ''; email = ''; password = ''; notifyListeners(); }
+  /// Limpia el formulario y el resultado de la última operación tras
+  /// consumirla (p. ej. después de navegar en un login exitoso), sin tocar
+  /// `currentUser` — la sesión sigue activa.
+  void reset() {
+    state = state.copyWith(submission: const AsyncValue.data(null), name: '', email: '', password: '');
+  }
 }
+
+final authViewModelProvider = NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);

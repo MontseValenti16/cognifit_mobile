@@ -1,89 +1,90 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/api_exception.dart';
+import '../../di/intervention_providers.dart';
 import '../../domain/entities/intervention_entity.dart';
 import '../../domain/usecases/get_active_path_usecase.dart';
 import '../../domain/usecases/next_exercise_usecase.dart';
 
-enum InterventionStatus { idle, loading, active, loadingNext, complete, noPath, error }
+enum InterventionPhase { active, complete, noPath }
 
-class InterventionViewModel extends ChangeNotifier {
-  final GetActivePathUseCase _getActivePath;
-  final NextExerciseUseCase _nextExercise;
+/// `noPath` (404: sin ruta asignada) y `complete` (ruta terminada) son
+/// estados de éxito, no de error — por eso viven como discriminador dentro
+/// del `data` del AsyncValue en vez de como AsyncError.
+class InterventionData {
+  final InterventionPhase phase;
+  final ActivePathEntity? path;
+  final NextExerciseEntity? current;
+  const InterventionData({required this.phase, this.path, this.current});
+}
 
-  InterventionViewModel({
-    required GetActivePathUseCase getActivePath,
-    required NextExerciseUseCase nextExercise,
-  })  : _getActivePath = getActivePath,
-        _nextExercise = nextExercise;
-
-  InterventionStatus _status = InterventionStatus.idle;
-  String? _error;
+class InterventionNotifier extends AutoDisposeNotifier<AsyncValue<InterventionData>> {
+  late GetActivePathUseCase _getActivePath;
+  late NextExerciseUseCase _nextExercise;
   ActivePathEntity? _path;
-  NextExerciseEntity? _current;
   final List<Map<String, dynamic>> _sessionHistory = [];
 
-  InterventionStatus get status => _status;
-  String? get error => _error;
-  NextExerciseEntity? get current => _current;
-  ActivePathEntity? get path => _path;
-  bool get isLoading => _status == InterventionStatus.loading || _status == InterventionStatus.loadingNext;
+  @override
+  AsyncValue<InterventionData> build() {
+    final repo = ref.watch(interventionRepositoryProvider);
+    _getActivePath = GetActivePathUseCase(repo);
+    _nextExercise = NextExerciseUseCase(repo);
+    return const AsyncValue.loading();
+  }
 
   Future<void> load(String studentId) async {
-    _status = InterventionStatus.loading;
     _sessionHistory.clear();
-    _current = null;
-    _error = null;
-    notifyListeners();
+    _path = null;
+    state = const AsyncValue.loading();
     try {
       _path = await _getActivePath(studentId);
-      await _fetchNext(studentId);
-    } on ApiException catch (e) {
-      if (e.statusCode == 404) {
-        _status = InterventionStatus.noPath;
-      } else {
-        _error = e.userMessage;
-        _status = InterventionStatus.error;
-      }
-    } catch (_) {
-      _error = 'No se pudo cargar la ruta de intervención.';
-      _status = InterventionStatus.error;
+      state = await _fetchNext(studentId);
+    } on ApiException catch (e, st) {
+      state = e.statusCode == 404
+          ? const AsyncValue.data(InterventionData(phase: InterventionPhase.noPath))
+          : AsyncValue.error(e, st);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
-    notifyListeners();
   }
 
+  /// Comparte el mismo spinner de pantalla completa que `load`: la UI nunca
+  /// distinguió entre "cargando por primera vez" y "cargando el siguiente
+  /// ejercicio", así que un solo AsyncValue.loading() cubre ambos.
   Future<void> recordAndAdvance(String studentId, double accuracy) async {
-    final ex = _current;
-    if (ex == null || ex.exerciseId == null) return;
-    _sessionHistory.add({'exercise_id': ex.exerciseId!, 'accuracy': accuracy});
-    _status = InterventionStatus.loadingNext;
-    notifyListeners();
+    final current = state.valueOrNull?.current;
+    if (current == null || current.exerciseId == null) return;
+    _sessionHistory.add({'exercise_id': current.exerciseId!, 'accuracy': accuracy});
+    state = const AsyncValue.loading();
     try {
-      await _fetchNext(studentId);
-    } catch (_) {
-      _error = 'Error al obtener el siguiente ejercicio.';
-      _status = InterventionStatus.error;
+      state = await _fetchNext(studentId);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
-    notifyListeners();
   }
 
-  Future<void> _fetchNext(String studentId) async {
-    if (_path == null) return;
+  Future<AsyncValue<InterventionData>> _fetchNext(String studentId) async {
+    if (_path == null) return state;
     final next = await _nextExercise(
       studentId: studentId,
       currentRoute: _path!.exerciseRoute,
       sessionHistory: _sessionHistory,
     );
-    _current = next;
-    _status = next.isComplete ? InterventionStatus.complete : InterventionStatus.active;
+    return AsyncValue.data(InterventionData(
+      phase: next.isComplete ? InterventionPhase.complete : InterventionPhase.active,
+      path: _path,
+      current: next,
+    ));
   }
 
   void reset() {
-    _status = InterventionStatus.idle;
-    _error = null;
     _path = null;
-    _current = null;
     _sessionHistory.clear();
-    notifyListeners();
+    state = const AsyncValue.loading();
   }
 }
+
+final interventionViewModelProvider =
+    NotifierProvider.autoDispose<InterventionNotifier, AsyncValue<InterventionData>>(InterventionNotifier.new);
+
+String interventionErrorMessage(Object error) => error is ApiException ? error.userMessage : 'No se pudo cargar la ruta de intervención.';

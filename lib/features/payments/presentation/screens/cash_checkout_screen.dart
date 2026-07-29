@@ -1,90 +1,89 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
-import '../../../../core/di/service_locator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/cognifit_app_bar.dart';
 import '../../domain/entities/payment_entity.dart';
 import '../../domain/entities/plan_entity.dart';
 import '../viewmodels/payment_viewmodel.dart';
 
-class CashCheckoutScreen extends StatefulWidget {
+class CashCheckoutScreen extends ConsumerStatefulWidget {
   final PlanEntity plan;
   const CashCheckoutScreen({super.key, required this.plan});
 
   @override
-  State<CashCheckoutScreen> createState() => _CashCheckoutScreenState();
+  ConsumerState<CashCheckoutScreen> createState() => _CashCheckoutScreenState();
 }
 
-class _CashCheckoutScreenState extends State<CashCheckoutScreen> {
-  late final PaymentViewModel _vm;
+class _CashCheckoutScreenState extends ConsumerState<CashCheckoutScreen> {
+  PaymentNotifier get _notifier => ref.read(paymentViewModelProvider.notifier);
   Timer? _pollTimer;
 
   @override
   void initState() {
     super.initState();
-    _vm = ServiceLocator.instance.paymentViewModel;
-    _vm.resetCheckout();
-    _vm.addListener(_onChanged);
+    _notifier.resetCheckout();
   }
 
   @override
   void dispose() {
-    _vm.removeListener(_onChanged);
     _pollTimer?.cancel();
     super.dispose();
-  }
-
-  void _onChanged() {
-    if (!mounted) return;
-    if (_vm.checkoutStatus == CheckoutStatus.success && _pollTimer == null) {
-      _startPolling();
-    }
-    if (_vm.checkoutStatus == CheckoutStatus.error && _vm.checkoutError != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(_vm.checkoutError!),
-        backgroundColor: AppTheme.riskRed,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ));
-    }
-    setState(() {});
   }
 
   /// La confirmación de un pago en efectivo llega por webhook cuando el
   /// ADMIN paga en tienda, no en la respuesta de este checkout — por eso se
   /// consulta el estado cada 15s mientras esta pantalla siga abierta.
   void _startPolling() {
-    final paymentId = _vm.lastPayment?.id;
+    final paymentId = ref.read(paymentViewModelProvider).lastPayment?.id;
     if (paymentId == null) return;
     _pollTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
-      if (_vm.lastPayment?.status == PaymentStatus.paid) {
+      if (ref.read(paymentViewModelProvider).lastPayment?.status == PaymentStatus.paid) {
         timer.cancel();
         return;
       }
-      _vm.refreshPaymentStatus(paymentId);
+      _notifier.refreshPaymentStatus(paymentId);
     });
   }
 
-  Future<void> _generate() => _vm.payWithCash(planId: widget.plan.id);
+  Future<void> _generate() => _notifier.payWithCash(planId: widget.plan.id);
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(paymentViewModelProvider);
+
+    // Reemplaza el _onChanged manual: arranca el polling apenas se genera la
+    // referencia y muestra el error, sin que la pantalla se suscriba a mano.
+    ref.listen<PaymentState>(paymentViewModelProvider, (previous, next) {
+      if (next.checkoutSuccess && _pollTimer == null) {
+        _startPolling();
+      }
+      if (next.checkoutError != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(next.checkoutError!),
+          backgroundColor: AppTheme.riskRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ));
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: const CogniFitAppBar(title: 'Pago en OXXO', showBack: true),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-          child: _vm.lastPayment != null ? _ReferenceView(payment: _vm.lastPayment!) : _buildIntro(),
+          child: state.lastPayment != null ? _ReferenceView(payment: state.lastPayment!) : _buildIntro(state),
         ),
       ),
     );
   }
 
-  Widget _buildIntro() {
-    final busy = _vm.checkoutStatus == CheckoutStatus.processing;
+  Widget _buildIntro(PaymentState state) {
+    final busy = state.checkoutBusy;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Card(
         child: Padding(

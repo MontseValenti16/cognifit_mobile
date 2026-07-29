@@ -1,64 +1,61 @@
-import 'package:flutter/foundation.dart';
-import '../../../../core/errors/api_exception.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../di/tracking_providers.dart';
 import '../../domain/entities/tracking_entity.dart';
 import '../../domain/usecases/get_alerts_usecase.dart';
 import '../../domain/usecases/mark_alert_read_usecase.dart';
 import '../../domain/usecases/get_group_metrics_usecase.dart';
 
-enum TrackingStatus { idle, loading, loaded, error }
+class TrackingState {
+  final AsyncValue<List<AlertEntity>> alertsAsync;
+  final GroupMetricsEntity? groupMetrics;
 
-class TrackingViewModel extends ChangeNotifier {
-  final GetAlertsUseCase _getAlerts;
-  final MarkAlertReadUseCase _markAlertRead;
-  final GetGroupMetricsUseCase _getGroupMetrics;
+  const TrackingState({this.alertsAsync = const AsyncValue.data([]), this.groupMetrics});
 
-  TrackingViewModel({
-    required GetAlertsUseCase getAlerts,
-    required MarkAlertReadUseCase markAlertRead,
-    required GetGroupMetricsUseCase getGroupMetrics,
-  })  : _getAlerts = getAlerts, _markAlertRead = markAlertRead, _getGroupMetrics = getGroupMetrics;
+  List<AlertEntity> get alerts => alertsAsync.valueOrNull ?? const [];
+  List<AlertEntity> get unreadAlerts => alerts.where((a) => !a.isRead).toList();
+  bool get isLoading => alertsAsync.isLoading;
 
-  TrackingStatus _status = TrackingStatus.idle;
-  List<AlertEntity> _alerts = [];
-  GroupMetricsEntity? _groupMetrics;
-  String? _error;
+  TrackingState copyWith({AsyncValue<List<AlertEntity>>? alertsAsync, GroupMetricsEntity? groupMetrics}) {
+    return TrackingState(
+      alertsAsync: alertsAsync ?? this.alertsAsync,
+      groupMetrics: groupMetrics ?? this.groupMetrics,
+    );
+  }
+}
 
-  TrackingStatus get status => _status;
-  List<AlertEntity> get alerts => _alerts;
-  List<AlertEntity> get unreadAlerts => _alerts.where((a) => !a.isRead).toList();
-  GroupMetricsEntity? get groupMetrics => _groupMetrics;
-  String? get error => _error;
-  bool get isLoading => _status == TrackingStatus.loading;
+class TrackingNotifier extends Notifier<TrackingState> {
+  late GetAlertsUseCase _getAlerts;
+  late MarkAlertReadUseCase _markAlertRead;
+  late GetGroupMetricsUseCase _getGroupMetrics;
+
+  @override
+  TrackingState build() {
+    final repo = ref.watch(trackingRepositoryProvider);
+    _getAlerts = GetAlertsUseCase(repo);
+    _markAlertRead = MarkAlertReadUseCase(repo);
+    _getGroupMetrics = GetGroupMetricsUseCase(repo);
+    return const TrackingState();
+  }
 
   Future<void> loadAlerts({bool onlyUnread = false}) async {
-    _status = TrackingStatus.loading; notifyListeners();
-    try {
-      _alerts = await _getAlerts(onlyUnread: onlyUnread);
-      _status = TrackingStatus.loaded;
-    } on ApiException catch (e) {
-      _error = e.userMessage; _status = TrackingStatus.error;
-    } catch (_) {
-      _error = 'No se pudieron cargar las alertas.'; _status = TrackingStatus.error;
-    }
-    notifyListeners();
+    state = state.copyWith(alertsAsync: const AsyncValue.loading());
+    state = state.copyWith(alertsAsync: await AsyncValue.guard(() => _getAlerts(onlyUnread: onlyUnread)));
   }
 
   Future<void> loadGroupMetrics(String groupId) async {
     try {
-      _groupMetrics = await _getGroupMetrics(groupId);
-      notifyListeners();
-    } on ApiException catch (e) {
-      _error = e.userMessage; notifyListeners();
+      final metrics = await _getGroupMetrics(groupId);
+      state = state.copyWith(groupMetrics: metrics);
     } catch (_) {}
   }
 
   Future<void> markRead(String alertId) async {
     try {
       final updated = await _markAlertRead(alertId);
-      _alerts = _alerts.map((a) => a.id == alertId ? updated : a).toList();
-      notifyListeners();
-    } on ApiException catch (e) {
-      _error = e.userMessage; notifyListeners();
-    }
+      final list = state.alerts.map((a) => a.id == alertId ? updated : a).toList();
+      state = state.copyWith(alertsAsync: AsyncValue.data(list));
+    } catch (_) {}
   }
 }
+
+final trackingViewModelProvider = NotifierProvider<TrackingNotifier, TrackingState>(TrackingNotifier.new);

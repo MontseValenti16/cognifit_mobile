@@ -1,42 +1,37 @@
-import 'package:flutter/foundation.dart';
-import '../../../../core/errors/api_exception.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../di/tracking_providers.dart';
 import '../../domain/entities/tracking_entity.dart';
 import '../../domain/usecases/get_learning_curve_usecase.dart';
 import '../../domain/usecases/get_student_metrics_usecase.dart';
 
-enum LearningCurveStatus { idle, loading, loaded, error }
+typedef LearningCurveData = ({LearningCurveEntity curve, StudentMetricsEntity metrics});
 
-class LearningCurveViewModel extends ChangeNotifier {
-  final GetLearningCurveUseCase _getLearningCurve;
-  final GetStudentMetricsUseCase _getStudentMetrics;
+/// El estado ES el AsyncValue: no hay campos síncronos aparte de los datos
+/// cargados, así que envolver un objeto extra sería ceremonia sin beneficio.
+/// A diferencia de `calendarioViewModelProvider` (AsyncNotifier, carga
+/// automática en `build()`), acá el `studentId` llega en tiempo de uso vía
+/// `load(id)`, así que se modela como `Notifier<AsyncValue<T>>` con carga manual.
+class LearningCurveNotifier extends Notifier<AsyncValue<LearningCurveData>> {
+  late GetLearningCurveUseCase _getLearningCurve;
+  late GetStudentMetricsUseCase _getStudentMetrics;
 
-  LearningCurveViewModel({
-    required GetLearningCurveUseCase getLearningCurve,
-    required GetStudentMetricsUseCase getStudentMetrics,
-  })  : _getLearningCurve = getLearningCurve, _getStudentMetrics = getStudentMetrics;
-
-  LearningCurveStatus _status = LearningCurveStatus.idle;
-  LearningCurveEntity? _curve;
-  StudentMetricsEntity? _metrics;
-  String? _error;
-
-  LearningCurveStatus get status => _status;
-  LearningCurveEntity? get curve => _curve;
-  StudentMetricsEntity? get metrics => _metrics;
-  String? get error => _error;
-  bool get isLoading => _status == LearningCurveStatus.loading;
+  @override
+  AsyncValue<LearningCurveData> build() {
+    final repo = ref.watch(trackingRepositoryProvider);
+    _getLearningCurve = GetLearningCurveUseCase(repo);
+    _getStudentMetrics = GetStudentMetricsUseCase(repo);
+    return const AsyncValue.loading();
+  }
 
   Future<void> load(String studentId) async {
-    _status = LearningCurveStatus.loading; notifyListeners();
-    try {
-      _curve = await _getLearningCurve(studentId);
-      _metrics = await _getStudentMetrics(studentId);
-      _status = LearningCurveStatus.loaded;
-    } on ApiException catch (e) {
-      _error = e.userMessage; _status = LearningCurveStatus.error;
-    } catch (_) {
-      _error = 'No se pudo cargar el progreso.'; _status = LearningCurveStatus.error;
-    }
-    notifyListeners();
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final curve = await _getLearningCurve(studentId);
+      final metrics = await _getStudentMetrics(studentId);
+      return (curve: curve, metrics: metrics);
+    });
   }
 }
+
+final learningCurveViewModelProvider =
+    NotifierProvider<LearningCurveNotifier, AsyncValue<LearningCurveData>>(LearningCurveNotifier.new);
