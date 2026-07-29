@@ -22,7 +22,11 @@ class _InstitutionsApprovalScreenState extends ConsumerState<InstitutionsApprova
   @override
   void initState() {
     super.initState();
-    _notifier.loadPending();
+    // Ver nota en dashboard_screen: modificar un provider desde initState
+    // ocurre durante el build y Riverpod lo rechaza.
+    Future(() {
+      if (mounted) _notifier.loadPending();
+    });
   }
 
   Future<void> _logout() async {

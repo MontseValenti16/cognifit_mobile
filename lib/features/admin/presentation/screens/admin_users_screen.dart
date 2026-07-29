@@ -21,7 +21,11 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
   @override
   void initState() {
     super.initState();
-    _notifier.load();
+    // Ver nota en dashboard_screen: modificar un provider desde initState
+    // ocurre durante el build y Riverpod lo rechaza.
+    Future(() {
+      if (mounted) _notifier.load();
+    });
   }
 
   Future<void> _logout() async {
@@ -363,7 +367,11 @@ class _LinkStudentSheetState extends ConsumerState<_LinkStudentSheet> {
   @override
   void initState() {
     super.initState();
-    ref.read(adminViewModelProvider.notifier).loadStudentsForPicker();
+    // Ver nota en dashboard_screen: modificar un provider desde initState
+    // ocurre durante el build y Riverpod lo rechaza.
+    Future(() {
+      if (mounted) ref.read(adminViewModelProvider.notifier).loadStudentsForPicker();
+    });
     _searchCtrl.addListener(() => setState(() => _query = _searchCtrl.text.trim().toLowerCase()));
   }
 

@@ -32,7 +32,11 @@ class _InterventionScreenState extends ConsumerState<InterventionScreen> {
     super.initState();
     // `read`, no `watch`: es un disparo único al abrir la pantalla. La
     // reactividad de verdad viene del ref.watch en build().
-    ref.read(interventionViewModelProvider.notifier).load(widget.studentId);
+    // Ver nota en dashboard_screen: modificar un provider desde initState
+    // ocurre durante el build y Riverpod lo rechaza.
+    Future(() {
+      if (mounted) ref.read(interventionViewModelProvider.notifier).load(widget.studentId);
+    });
   }
 
   @override

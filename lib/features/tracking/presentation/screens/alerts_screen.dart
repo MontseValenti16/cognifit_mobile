@@ -19,7 +19,11 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
   @override
   void initState() {
     super.initState();
-    _notifier.loadAlerts();
+    // Ver nota en dashboard_screen: modificar un provider desde initState
+    // ocurre durante el build y Riverpod lo rechaza.
+    Future(() {
+      if (mounted) _notifier.loadAlerts();
+    });
   }
 
   Future<void> _onTapAlert(AlertEntity alert) async {

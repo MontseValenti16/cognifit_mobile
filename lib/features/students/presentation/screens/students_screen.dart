@@ -26,10 +26,15 @@ class _StudentsScreenState extends ConsumerState<StudentsScreen> {
   @override
   void initState() {
     super.initState();
-    _notifier.loadStudents().then((_) {
-      if (widget.initialGroupId != null) {
-        _notifier.filterByGroup(widget.initialGroupId);
-      }
+    // Ver nota en dashboard_screen: modificar un provider desde initState
+    // ocurre durante el build y Riverpod lo rechaza.
+    Future(() {
+      if (!mounted) return;
+      _notifier.loadStudents().then((_) {
+        if (mounted && widget.initialGroupId != null) {
+          _notifier.filterByGroup(widget.initialGroupId);
+        }
+      });
     });
   }
 

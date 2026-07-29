@@ -35,8 +35,13 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
   @override
   void initState() {
     super.initState();
-    _notifier.loadSession(widget.sessionId);
-    SyncService.instance.syncPending(ref.read(apiClientProvider));
+    // Ver nota en dashboard_screen: modificar un provider desde initState
+    // ocurre durante el build y Riverpod lo rechaza.
+    Future(() {
+      if (!mounted) return;
+      _notifier.loadSession(widget.sessionId);
+      SyncService.instance.syncPending(ref.read(apiClientProvider));
+    });
   }
 
   @override

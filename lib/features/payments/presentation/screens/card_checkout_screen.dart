@@ -29,7 +29,11 @@ class _CardCheckoutScreenState extends ConsumerState<CardCheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    _notifier.resetCheckout();
+    // Ver nota en dashboard_screen: modificar un provider desde initState
+    // ocurre durante el build y Riverpod lo rechaza.
+    Future(() {
+      if (mounted) _notifier.resetCheckout();
+    });
   }
 
   @override

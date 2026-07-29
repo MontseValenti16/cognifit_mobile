@@ -24,7 +24,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _notifier.loadDashboard();
+    // Riverpod prohíbe modificar un provider mientras se construye el árbol, e
+    // initState ocurre dentro de esa fase: loadDashboard() asigna
+    // `AsyncValue.loading()` de forma síncrona y lanzaba
+    // "Tried to modify a provider while the widget tree was building".
+    // Future(...) difiere la carga al siguiente turno del event loop, cuando el
+    // build ya terminó.
+    Future(() {
+      if (mounted) _notifier.loadDashboard();
+    });
   }
 
   void _onTabTap(int index) {

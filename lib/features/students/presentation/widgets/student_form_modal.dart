@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/validation/input_rules.dart';
 import '../../../groups/domain/entities/group_entity.dart';
 import '../../domain/entities/student_entity.dart';
 
 /// Bottom sheet form used for both "Nuevo alumno" and "Editar alumno".
-/// Validation per API_UI_GUIA: full_name 1–180 chars, birth_year 2008–2022.
+///
+/// Las reglas de longitud y rango salen de [InputRules], igual que el resto de
+/// los formularios: antes vivían aquí como literales (180, la lista de años,
+/// el 16 de la etiqueta de grupo), fuera del alcance del guardián
+/// anti-divergencia del backend. Si el servidor cambiaba un `max_length`, esta
+/// pantalla seguía con el número viejo y nada lo detectaba.
 ///
 /// On create, the teacher picks a group from a dropdown (no UUID typing). If
 /// they have no groups yet, an inline "create group" form lets them make one
@@ -33,11 +39,11 @@ class StudentFormModal extends StatefulWidget {
 }
 
 class _StudentFormModalState extends State<StudentFormModal> {
+  final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameCtrl;
   String? _selectedGroupId;
   int? _birthYear;
   String? _gender;
-  String? _nameError;
   String? _groupError;
 
   // Inline "create group" state.
@@ -48,7 +54,12 @@ class _StudentFormModalState extends State<StudentFormModal> {
   final _yearCtrl = TextEditingController(text: '2025-2026');
   String? _labelError;
 
-  static const _years = [2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022];
+  /// Se genera del rango declarado en `birth_year = Field(ge=2008, le=2022)`,
+  /// en vez de repetir la lista a mano.
+  static final _years = List.generate(
+    InputRules.anioNacimientoMax - InputRules.anioNacimientoMin + 1,
+    (i) => InputRules.anioNacimientoMin + i,
+  );
 
   @override
   void initState() {
@@ -96,14 +107,9 @@ class _StudentFormModalState extends State<StudentFormModal> {
 
   void _submit() {
     final name = _nameCtrl.text.trim();
-    bool hasError = false;
-
-    if (name.isEmpty || name.length > 180) {
-      setState(() => _nameError = 'El nombre debe tener entre 1 y 180 caracteres.');
-      hasError = true;
-    } else {
-      setState(() => _nameError = null);
-    }
+    // El nombre lo valida el propio Form con Validators.nombreAlumno; aquí
+    // solo queda el grupo, que no es un campo de texto.
+    bool hasError = !(_formKey.currentState?.validate() ?? false);
 
     final isEdit = widget.existing != null;
     if (!isEdit && (_selectedGroupId == null || _selectedGroupId!.isEmpty)) {
@@ -130,7 +136,9 @@ class _StudentFormModalState extends State<StudentFormModal> {
         MediaQuery.of(context).viewInsets.bottom + 24,
       ),
       child: SingleChildScrollView(
-        child: Column(
+        child: Form(
+          key: _formKey,
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -188,11 +196,13 @@ class _StudentFormModalState extends State<StudentFormModal> {
             // ── Full name ────────────────────────────────────────────────────
             Text('Nombre completo', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            TextField(
+            TextFormField(
               controller: _nameCtrl,
+              maxLength: InputRules.nombreAlumnoMax,
+              validator: Validators.nombreAlumno,
               decoration: InputDecoration(
                 hintText: 'Ej. María Pérez López',
-                errorText: _nameError,
+                counterText: '',
                 prefixIcon: Icon(Icons.person_outline_rounded, size: 20, color: AppTheme.mutedText),
               ),
             ),
@@ -233,6 +243,7 @@ class _StudentFormModalState extends State<StudentFormModal> {
                 : Text(isEdit ? 'Guardar cambios' : 'Crear alumno'),
             ),
           ],
+          ),
         ),
       ),
     );

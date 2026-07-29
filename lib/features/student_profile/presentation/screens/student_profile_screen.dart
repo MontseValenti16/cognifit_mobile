@@ -26,7 +26,14 @@ class _StudentProfileScreenState extends ConsumerState<StudentProfileScreen> {
   StudentProfileNotifier get _notifier => ref.read(studentProfileViewModelProvider.notifier);
 
   @override
-  void initState() { super.initState(); _notifier.load(widget.studentId); }
+  void initState() {
+    super.initState();
+    // Ver nota en dashboard_screen: modificar un provider desde initState
+    // ocurre durante el build y Riverpod lo rechaza.
+    Future(() {
+      if (mounted) _notifier.load(widget.studentId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

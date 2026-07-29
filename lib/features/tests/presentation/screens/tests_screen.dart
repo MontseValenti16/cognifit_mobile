@@ -26,9 +26,14 @@ class _TestsScreenState extends ConsumerState<TestsScreen> {
   @override
   void initState() {
     super.initState();
-    _notifier.reset();
-    _notifier.loadTeacherItemsAndCatalog();
-    ref.read(studentsViewModelProvider.notifier).loadStudents();
+    // Ver nota en dashboard_screen: modificar un provider desde initState
+    // ocurre durante el build y Riverpod lo rechaza.
+    Future(() {
+      if (!mounted) return;
+      _notifier.reset();
+      _notifier.loadTeacherItemsAndCatalog();
+      ref.read(studentsViewModelProvider.notifier).loadStudents();
+    });
   }
 
   void _showSnack(String msg, Color color) {

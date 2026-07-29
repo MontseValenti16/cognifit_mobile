@@ -17,7 +17,11 @@ class _PlanSelectionScreenState extends ConsumerState<PlanSelectionScreen> {
   @override
   void initState() {
     super.initState();
-    ref.read(paymentViewModelProvider.notifier).loadPlans();
+    // Ver nota en dashboard_screen: modificar un provider desde initState
+    // ocurre durante el build y Riverpod lo rechaza.
+    Future(() {
+      if (mounted) ref.read(paymentViewModelProvider.notifier).loadPlans();
+    });
   }
 
   void _choosePaymentMethod(PlanEntity plan) {

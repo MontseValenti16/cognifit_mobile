@@ -18,7 +18,11 @@ class _SpecialistReviewScreenState extends ConsumerState<SpecialistReviewScreen>
   @override
   void initState() {
     super.initState();
-    _notifier.load();
+    // Ver nota en dashboard_screen: modificar un provider desde initState
+    // ocurre durante el build y Riverpod lo rechaza.
+    Future(() {
+      if (mounted) _notifier.load();
+    });
   }
 
   @override

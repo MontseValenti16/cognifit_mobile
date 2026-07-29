@@ -53,6 +53,10 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_launcher_icons: ^0.14.1
+  # analysis_options.yaml hace `include: package:flutter_lints/flutter.yaml`,
+  # pero el paquete no estaba declarado: el analizador no resolvia el include y
+  # corria sin ninguna de esas reglas.
+  flutter_lints: ^6.0.0
 
 flutter_launcher_icons:
   android: true

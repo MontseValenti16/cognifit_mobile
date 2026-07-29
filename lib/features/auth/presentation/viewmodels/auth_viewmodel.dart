@@ -108,16 +108,21 @@ class AuthNotifier extends Notifier<AuthState> {
       return;
     }
     state = state.copyWith(submission: const AsyncValue.loading());
-    state = state.copyWith(
-      submission: await AsyncValue.guard(() async {
-        await _login(state.email, state.password, deviceInfo: 'Flutter App');
-        final user = await _getMe();
-        state = state.copyWith(currentUser: user);
-        if (user.role == UserRole.student || user.role == UserRole.parent) {
-          await _fetchLinkedStudent();
-        }
-      }),
-    );
+
+    // El resultado se guarda en una variable ANTES de asignar el estado.
+    // Escribirlo como `state = state.copyWith(submission: await ...)` parece
+    // equivalente pero no lo es: Dart evalúa el receptor antes que los
+    // argumentos, así que `state` se leería antes del await y la copia
+    // resultante pisaría el `currentUser` que el propio bloque asigna adentro.
+    final resultado = await AsyncValue.guard(() async {
+      await _login(state.email, state.password, deviceInfo: 'Flutter App');
+      final user = await _getMe();
+      state = state.copyWith(currentUser: user);
+      if (user.role == UserRole.student || user.role == UserRole.parent) {
+        await _fetchLinkedStudent();
+      }
+    });
+    state = state.copyWith(submission: resultado);
   }
 
   Future<void> register() async {
@@ -126,13 +131,14 @@ class AuthNotifier extends Notifier<AuthState> {
       return;
     }
     state = state.copyWith(submission: const AsyncValue.loading());
-    state = state.copyWith(
-      submission: await AsyncValue.guard(() async {
-        await _register(state.name, state.email, state.password);
-        final user = await _getMe();
-        state = state.copyWith(currentUser: user);
-      }),
-    );
+
+    // Mismo motivo que en login(): el await va fuera de la asignación.
+    final resultado = await AsyncValue.guard(() async {
+      await _register(state.name, state.email, state.password);
+      final user = await _getMe();
+      state = state.copyWith(currentUser: user);
+    });
+    state = state.copyWith(submission: resultado);
   }
 
   Future<bool> tryRestoreSession() async {
