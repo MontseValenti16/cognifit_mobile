@@ -20,6 +20,7 @@ import '../../features/payments/domain/entities/plan_entity.dart';
 import '../../features/payments/presentation/screens/plan_selection_screen.dart';
 import '../../features/payments/presentation/screens/card_checkout_screen.dart';
 import '../../features/payments/presentation/screens/cash_checkout_screen.dart';
+import '../../features/payments/presentation/screens/transfer_checkout_screen.dart';
 
 class AppRouter {
   static const String splash             = '/';
@@ -38,6 +39,7 @@ class AppRouter {
   static const String plans          = '/billing/plans';
   static const String cardCheckout   = '/billing/checkout/card';
   static const String cashCheckout   = '/billing/checkout/cash';
+  static const String transferCheckout = '/billing/checkout/transfer';
 
   static const String childHome = '/child/:studentId';
   static String childHomeOf(String studentId) => '/child/$studentId';
@@ -64,6 +66,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (c, s) {
           final extra = s.extra as Map<String, dynamic>?;
           return CashCheckoutScreen(plan: extra?['plan'] as PlanEntity);
+        },
+      ),
+      GoRoute(
+        path: AppRouter.transferCheckout,
+        builder: (c, s) {
+          final extra = s.extra as Map<String, dynamic>?;
+          return TransferCheckoutScreen(plan: extra?['plan'] as PlanEntity);
         },
       ),
       GoRoute(path: AppRouter.dashboard, builder: (c, s) => const DashboardScreen()),

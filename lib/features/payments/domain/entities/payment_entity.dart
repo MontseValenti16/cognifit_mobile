@@ -1,9 +1,12 @@
-enum PaymentMethodType { card, cash }
+enum PaymentMethodType { card, cash, spei }
 
 enum PaymentStatus { pending, paid, expired, canceled, failed, refunded }
 
-PaymentMethodType paymentMethodFromString(String s) =>
-    s == 'cash' ? PaymentMethodType.cash : PaymentMethodType.card;
+PaymentMethodType paymentMethodFromString(String s) => switch (s) {
+  'cash' => PaymentMethodType.cash,
+  'spei' => PaymentMethodType.spei,
+  _ => PaymentMethodType.card,
+};
 
 PaymentStatus paymentStatusFromString(String s) => switch (s) {
   'paid' => PaymentStatus.paid,
@@ -24,6 +27,9 @@ class PaymentEntity {
   final String? cashReference;
   final String? cashBarcodeUrl;
   final DateTime? cashExpiresAt;
+  final String? speiClabe;
+  final String? speiBank;
+  final DateTime? speiExpiresAt;
   final DateTime? paidAt;
   final DateTime createdAt;
 
@@ -37,6 +43,9 @@ class PaymentEntity {
     this.cashReference,
     this.cashBarcodeUrl,
     this.cashExpiresAt,
+    this.speiClabe,
+    this.speiBank,
+    this.speiExpiresAt,
     this.paidAt,
     required this.createdAt,
   });

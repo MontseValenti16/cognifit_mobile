@@ -6,6 +6,7 @@ import '../../domain/entities/payment_entity.dart';
 import '../../domain/entities/plan_entity.dart';
 import '../../domain/usecases/checkout_with_card_usecase.dart';
 import '../../domain/usecases/checkout_with_cash_usecase.dart';
+import '../../domain/usecases/checkout_with_spei_usecase.dart';
 import '../../domain/usecases/get_payment_usecase.dart';
 import '../../domain/usecases/get_plans_usecase.dart';
 import '../../domain/usecases/tokenize_card_usecase.dart';
@@ -58,6 +59,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
   late TokenizeCardUseCase _tokenizeCard;
   late CheckoutWithCardUseCase _checkoutWithCard;
   late CheckoutWithCashUseCase _checkoutWithCash;
+  late CheckoutWithSpeiUseCase _checkoutWithSpei;
   late GetPaymentUseCase _getPayment;
 
   @override
@@ -67,6 +69,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
     _tokenizeCard = TokenizeCardUseCase(ref.watch(cardTokenizerRepositoryProvider));
     _checkoutWithCard = CheckoutWithCardUseCase(repo);
     _checkoutWithCash = CheckoutWithCashUseCase(repo);
+    _checkoutWithSpei = CheckoutWithSpeiUseCase(repo);
     _getPayment = GetPaymentUseCase(repo);
     return const PaymentState();
   }
@@ -115,6 +118,23 @@ class PaymentNotifier extends Notifier<PaymentState> {
     } catch (_) {
       state = state.copyWith(
         checkoutAsync: AsyncValue.error(const _CheckoutFailure('No se pudo generar la referencia de pago. Intenta de nuevo.'), StackTrace.current),
+      );
+      return false;
+    }
+  }
+
+  Future<bool> payWithSpei({required String planId}) async {
+    state = state.copyWith(checkoutAsync: const AsyncValue.loading());
+    try {
+      final payment = await _checkoutWithSpei(planId: planId);
+      state = state.copyWith(checkoutAsync: AsyncValue.data(payment));
+      return true;
+    } on ApiException catch (e, st) {
+      state = state.copyWith(checkoutAsync: AsyncValue.error(e, st));
+      return false;
+    } catch (_) {
+      state = state.copyWith(
+        checkoutAsync: AsyncValue.error(const _CheckoutFailure('No se pudo generar la referencia de transferencia. Intenta de nuevo.'), StackTrace.current),
       );
       return false;
     }

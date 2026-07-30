@@ -5,6 +5,7 @@ abstract class PaymentRepository {
   Future<List<PlanEntity>> getPlans();
   Future<PaymentEntity> checkoutWithCard({required String planId, required String tokenId});
   Future<PaymentEntity> checkoutWithCash({required String planId});
+  Future<PaymentEntity> checkoutWithSpei({required String planId});
   Future<PaymentEntity> getPayment(String paymentId);
   Future<List<PaymentEntity>> listPayments();
 }

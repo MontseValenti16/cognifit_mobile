@@ -11,6 +11,9 @@ class PaymentModel extends PaymentEntity {
     super.cashReference,
     super.cashBarcodeUrl,
     super.cashExpiresAt,
+    super.speiClabe,
+    super.speiBank,
+    super.speiExpiresAt,
     super.paidAt,
     required super.createdAt,
   });
@@ -25,6 +28,9 @@ class PaymentModel extends PaymentEntity {
     cashReference: json['cash_reference'] as String?,
     cashBarcodeUrl: json['cash_barcode_url'] as String?,
     cashExpiresAt: json['cash_expires_at'] != null ? DateTime.tryParse(json['cash_expires_at'].toString()) : null,
+    speiClabe: json['spei_clabe'] as String?,
+    speiBank: json['spei_bank'] as String?,
+    speiExpiresAt: json['spei_expires_at'] != null ? DateTime.tryParse(json['spei_expires_at'].toString()) : null,
     paidAt: json['paid_at'] != null ? DateTime.tryParse(json['paid_at'].toString()) : null,
     createdAt: DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now(),
   );

@@ -19,6 +19,9 @@ class PaymentRepositoryImpl implements PaymentRepository {
   Future<PaymentEntity> checkoutWithCash({required String planId}) => remote.checkoutWithCash(planId: planId);
 
   @override
+  Future<PaymentEntity> checkoutWithSpei({required String planId}) => remote.checkoutWithSpei(planId: planId);
+
+  @override
   Future<PaymentEntity> getPayment(String paymentId) => remote.getPayment(paymentId);
 
   @override

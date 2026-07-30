@@ -6,6 +6,7 @@ abstract class PaymentRemoteDataSource {
   Future<List<PlanModel>> getPlans();
   Future<PaymentModel> checkoutWithCard({required String planId, required String tokenId});
   Future<PaymentModel> checkoutWithCash({required String planId});
+  Future<PaymentModel> checkoutWithSpei({required String planId});
   Future<PaymentModel> getPayment(String paymentId);
   Future<List<PaymentModel>> listPayments();
 }
@@ -32,6 +33,12 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
   @override
   Future<PaymentModel> checkoutWithCash({required String planId}) async {
     final json = await client.post('/payments/checkout/cash', data: {'plan_id': planId});
+    return PaymentModel.fromJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<PaymentModel> checkoutWithSpei({required String planId}) async {
+    final json = await client.post('/payments/checkout/spei', data: {'plan_id': planId});
     return PaymentModel.fromJson(json as Map<String, dynamic>);
   }
 

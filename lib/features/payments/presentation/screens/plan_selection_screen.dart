@@ -54,6 +54,15 @@ class _PlanSelectionScreenState extends ConsumerState<PlanSelectionScreen> {
                 context.push(AppRouter.cashCheckout, extra: {'plan': plan});
               },
             ),
+            ListTile(
+              leading: Icon(Icons.account_balance_rounded, color: AppTheme.tertiary),
+              title: const Text('Transferencia SPEI'),
+              subtitle: const Text('Genera una CLABE para transferir desde tu banco'),
+              onTap: () {
+                Navigator.pop(context);
+                context.push(AppRouter.transferCheckout, extra: {'plan': plan});
+              },
+            ),
           ]),
         ),
       ),
